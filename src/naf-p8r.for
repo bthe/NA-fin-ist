@@ -174,7 +174,7 @@ C     OPTSEL   =1 to estimate selectivity (baseline); =0 otherwise (Read in)
 C
 C
       REAL(8) CATT(I1YR:IENDYR,MXSTK),CATKA(I1YR:IENDYR,MXAR),
-     +       SELM(0:MXAGE2,2),SELF(0:MXAGE2,2),TOTCAT
+     +       SELM(0:MXAGE2,2),SELF(0:MXAGE2,2),TOTCAT,SIGSQ
       REAL(8), DIMENSION(I1YR:IENDYR,MXSUBA):: CATCHM,CATCHF,OCAM,OCAF
       REAL(8), DIMENSION(I1YR:IENDYR,1:MXAGE2,MXSUBA):: OCBYAM,OCBYAF,
      +                                                  PCBYAM,PCBYAF
@@ -420,18 +420,18 @@ C
       DATA IPNT/8/,IN/5/,IN2/10/,IN4/12/
 C
 C     Open input files
-      OPEN (IN, FILE='COPYNA.DAT')
-      OPEN (IN2,FILE='RANDOM.NUM')
-      OPEN (IN4,FILE='SURVEYN.DAT')                                     # Survey data & timetable
-      OPEN (16, FILE='MANAGE.DAT',STATUS='OLD')                         # Conditioning opt.
+      OPEN (IN, FILE='copyna.dat')
+      OPEN (IN2,FILE='random.num')
+      OPEN (IN4,FILE='surveyn.dat')                                     # Survey data & timetable
+      OPEN (16, FILE='manage.dat',STATUS='OLD')                         # Conditioning opt.
 C xxx UNIT  17, FILE=tag data     (Name set below)                      # Tags
 C xxx UNIT  18, FILE=catch data   (Name set below)                      # Catch data
-      OPEN (19, FILE='CATBYSEX.DAT',STATUS='OLD')                       # CATCHES KNOWN BY SEX
+      OPEN (19, FILE='catbysex.dat',STATUS='OLD')                       # CATCHES KNOWN BY SEX
 C xxx OPEN (20, FILE='CPUE.DAT')  (Opened below if OPTCPE>0)            # CPUE DATA
 C xxx OPEN (21, FILE=CLC parameters (Opened in INITNA)                  # CLC parameters
-      OPEN (22, FILE='NAFPAR.PAR')                                      # Management option
+      OPEN (22, FILE='nafpar.par')                                      # Management option
 C xxx UNIT  23, FILE='NAFCON.DAT'= Conditioning parameters opened below
-      OPEN (24, FILE='CATCHBYAGE.DAT')
+      OPEN (24, FILE='catchbyage.dat')
       
 C     Read name of catch file
 
@@ -610,7 +610,7 @@ C     Read the CLC version (Norwegian or Cooke) to set the catch limit    # INPU
       IF (DOCON/=0)  NYEAR = 0
 C     Open file of conditioning parameter estimates
       IF (DOCON/=1) THEN
-        OPEN (23,FILE='NAFCON.DAT')
+        OPEN (23,FILE='nafcon.dat')
         READ (23,'(19X,I5/)') N
         IF (NSTK/=N) STOP 'ERROR IN NAFCON.DAT (No.of stocks)'
       ELSEIF (DOCON == 4)  THEN
@@ -1190,7 +1190,7 @@ C       Reseed random # generators (use NS as some condit.fits may be discarded)
 C
 C       Set up mixing (MIXNO array) so rates are fixed for this N
 C           (& don't change during conditioning). Random seed 5
-        CALL SETMIX(NYEAR)
+c        CALL SETMIX(NYEAR)
 C
 C       Generate data to use in conditioning or to confirm correct file was read.
 C       Both abundance & tag data are generated for all 7 sub-areas and then
@@ -1252,15 +1252,17 @@ C          Generate Catch at age data targets using ISEED6
        ISEED6 = -NINT(RAN1(ISEED6,MA6,INEXT6,INXTP6)*100000.d0)-1
        ISEED  = ISEED6
        DO 109 IYR=ICBYA1,ICBYA2
-          DO 109 KM=1,MXSUBA
+          DO 109 KM=1,NSUBA
              MCHAMMER = SUM(OCBYAM(IYR,1:MAXAGE,KM))
 C     OCAF = SUM(OCBYAF(IYR,1:MAXAGE,K))
              TMPF = 0.D0
              TMPM = 0.D0
              IF(MCHAMMER>0.D0) THEN
                 DO 1091 L=1,MAXAGE
-                   SIF = sqrt(SISQ)/PCBYAF(IYR,L,KM)
-                   SIM = sqrt(SISQ)/PCBYAM(IYR,L,KM)
+                   SIF = sqrt(SIGSQ)/PCBYAF(IYR,L,KM)
+                   SIM = sqrt(SIGSQ)/PCBYAM(IYR,L,KM)
+C                   write(*,*) 'SIGSQ, SIF, SIM'
+C                   write(*,*) SIGSQ, SIF, SIM
                    TMPF(L) = EXP(LOG(PCBYAF(IYR,L,KM)) +  
      +                  XNORM(SIF,0.d0,ISEED,MA4,INEXT4,INXTP))
                    TMPM(L) = EXP(LOG(PCBYAM(IYR,L,KM)) +  
@@ -2480,7 +2482,7 @@ C
      +       Utarg,Upred
       REAL(8) V3(3,3),VI3(3,3),V4(4,4),VI4(4,4),V2(2,2),
      +     VI2(2,2), ETA(6,-47:-22),E3(3),E4(4),E2(2),C,
-     +     PRDM,PRDF,SIGSQ,PRDRM,PRDRF,OC(MXFIT)
+     +     PRDM,PRDF,PRDRM,PRDRF,OC(MXFIT)
 C     NF1 used to indicate what model fits are written to NAF.HIS
 C
 C     Zero fitting arrays
