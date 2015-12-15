@@ -1,0 +1,95 @@
+1                                                  NPROC
+V3  Small area (WI+EG+EI/F) catch, taken in WI     1x,ITYPE,TYPEDS
+Trial Value                                        Use historic surveys already read in
+
+  MAP(KA,K) KA=1,MAXAR, K=1,NSUBA         MAP is the same for all procedures
+   1    2    3    4    5    6    7     KA = Assessment Area
+  EC   WG   EG   WI EI/F    N   SP
+   1    0    0    0    0    0    0      1 = EC
+   0    1    0    0    0    0    0      2 = WG
+   0    0    1    0    0    0    0      3 = EG
+   0    0    0    1    0    0    0      4 = WI
+   0    0    0    0    1    0    0      5 = EI/F
+   0    0    0    0    0    1    0      6 = N
+   0    0    0    0    0    0    1      7 = Sp
+   0    0    1    1    0    0    0      8 = EG+WI      Small Area; catch taken from WI
+   0    0    1    1    1    0    0      9 = EG+WI+EI/F Small Area; catch taken from WI
+   0    0    1    1    0    0    0     10 = EG+WI      Combination Area
+   0    0    1    1    1    0    0     11 = EG+WI+EI/F Combination Area EG, WI, EI/F
+   0    0    1    1    1    0    0     12 = EG+WI+EI/F Combination Area EG+WI,  EI/F   
+
+Procedure 1:
+Area  ATYPE  NSCat CSUB         Area
+ 1    0        0     0          EC
+ 2    9        1     2          WG
+ 3    0        0     0          EG
+ 4    0        0     0          WI
+ 5    0        0     0          EI/F
+ 6    0        0     0          N
+ 7    0        0     0          Sp
+ 8    0        0     0          EG+WI
+ 9    1        1     4          EG+WI+EI/F
+10    0        0     0          EG+WI      Comb.Area
+11    0        0     0          EG+WI+EI/F Comb.Area
+12    0        0     0          EG+WI+EI/F Comb.Area
+
+MAPC (not used unless capping or cascading)
+1  2  3  4  5  6  7  8  9 10 11 12
+0  0  0  0  0  0  0  0  0  0  0  0
+0  0  0  0  0  0  0  0  0  0  0  0
+0  0  0  0  0  0  0  0  0  0  0  0
+0  0  0  0  0  0  0  0  0  0  0  0
+0  0  0  0  0  0  0  0  0  0  0  0
+0  0  0  0  0  0  0  0  0  0  0  0
+0  0  0  0  0  0  0  0  0  0  0  0
+0  0  0  0  0  0  0  0  0  0  0  0
+0  0  0  0  0  0  0  0  0  0  0  0
+0  0  1  1  0  0  0  0  0  0  0  0        Combination area 10
+0  0  1  1  1  0  0  0  0  0  0  0        Combination area 11
+0  0  0  0  1  0  0  1  0  0  0  0        Combination area 12
+
+EOF
+
+NPROCS   Number of management variants to be used. NPROCS = 1 for all initial trials.
+         If NPROCS=2: variant A for 1st 12 yrs
+                      then phase in to Variant B from year 18
+ITYPE Defines the management variant.  TYPEDS is its description
+    -1 : Set catch = constant.  Do not apply phaseout.
+     0 : Set Catch = 0 for all Small Areas
+     1 : Set catch limit for Small Area WI
+     2 : Set catch limit for Small Area EG+WI; take all catch from WI
+     3 : Set catch limit for Small Area WI+EG+EI/F; take all catch from WI
+     4 : Set catch limit for Small Area WI using N60N surveys
+     5 : Cascade comb. area (EG+WI) to Small Areas EG, WI; only take WI catch
+     6 : Cascade comb. area (EG+WI+EI/F) to Small Areas EG, WI, EI/F; only take WI catch
+     7 : Cascade comb. area (EG+WI+EI/F) to S.Areas EG+WI & EI/F; take WI & EI/F catch.
+ATYPE(KA) Defines the area type, & how the catches are set, of management area KA
+     0 : Set Catch = 0 for all Small Areas
+     1 : A Small Area. Set quota by Small Area - no cascading.
+         The catch for Small Area KA is taken from subareas given by CSUB
+     2 : A Combination Area: set quota and allocate Small Areas by Catch-cascading
+     3 : A Medium Area. Set quota and use to cap Small Areas making up the area.
+     4 : Small area for which catch limit set by cascading
+     5 : Small area for which catch limit set by cascading, but not taken
+     9 : Area not assessed.  Fixed (aboriginal) catch set
+NSUBA    Number of sub-areas        (K =1,NSUBA)
+MXSUBA   Maximum number of subareas      K
+MAXAR    Maximum number of group areas   KM = 1,MAXAR
+         i.e.assessment areas (= subareas or unions thereof)
+
+CATSM(KA)  Catch quota for Small Area(KA) for year IYR as set by MANAGE
+
+MAP(KA,K)  Definition of subareas making up Small, Medium & Combination areas
+           (referred to as assessment areas - which are also survey areas).
+           Read from NAFpar.PAR.  MAXAR assessment areas are allowed.
+           e.g. if a Small Area is composed of subareas 3+4 (=EG+WI) = assessment
+           area 8 then MAP(8,K) = 0,0,1,1,0,0,0
+NSCAT      For Small Area KA, N_EST=the number of subareas from which catches are taken
+           Thus it is only set if ATYPE(IProc,KA)=1 or 4.
+MAPC(KA,KS) Map of Small Areas making up combination & medium areas
+           e.g. if Assessment area 11 is a Combination Area made up of
+           Small Areas 3,4 & 5(=WI,EG & EI/F) then MAPC(11,KS) = 0,0,1,1,1,0,0,0,0,0,0
+CSUB(IP,KA,K) specifies the subareas from which to take the catch for Small Area KA
+           It is read for areas with ATYPE=1, 4 or 9 (i.e. Small Areas)
+           In NAFin catches are all taken in a single sub-area within the Small area
+

@@ -1,0 +1,19 @@
+PROBABILITY LEVEL (PPROB)     0.4102
+MAX MSY % (PYMAX)             0.05
+NO. OF MSY STEPS (PNYSTP)     5.0
+KSTEP (PKSTEP)                0.2
+DEPLETION STEP (PDSTEP)       0.025
+BIAS MIN (PBMIN)              0.0
+BIAS MAX (PBMAX)              1.6667
+NO. OF BIAS STEPS (PNBSTP)    10.0
+SCALE FACTOR (PSCALE)         4.0
+PHASEOUT PERIOD (PHASET)      10.0
+PHASEOUT PROPORTION (PHASEP)  0.2
+ASSESSMENT CYCLE (PCYCLE)     6.0
+INTERNAL PROTECTION LEVEL     0.54
+CATCH CONTROL SLOPE (PSLOPE)  3.0
+
+Note: this is the new test file: it is only for running trials 
+as the step sizes are too large for real applications.
+
+

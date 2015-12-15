@@ -2904,7 +2904,7 @@ C         a BETA generator. EGWIP = mean historical EG propn with variance EGWIV
       ENDIF
 
 C     Generate the survey results
-      PROP2 =-1.D0
+C      PROP2 =-1.D0
       DO 100 KM=1,MXSUBA
 
 C       First increment all the random number generators for every area

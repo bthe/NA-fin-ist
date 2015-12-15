@@ -1,0 +1,26 @@
+Historic surveys for use by CLA + Future survey proportions. Values override any read in earlier
+IYR    K    SIGHT    CV        AreaName
+2007   1    10105    0.4       EC
+1987   2     1096    0.35      WG
+2005   2     3234    0.44      WG
+2007   2     4359    0.45      WG
+1988   3     5269    0.221     EG
+1988   4     2648    0.229     WI
+1995   3     8412    0.288     EG
+1995   4     5915    0.218     WI
+2001   3    11706    0.194     EG
+2001   4     6285    0.194     WI
+2007   3    12215    0.20      EG
+2007   4     5337    0.26      WI 
+1987   5     4675    0.277     EI/F
+1995   5     5509    0.288     EI/F
+2001   5     7490    0.255     EI/F
+2007   5     1613    0.26      EI/F
+1995   6     3964    0.21      N
+1999   6     3749    0.24      N
+1989   7    17355    0.265     N/SP
+
+EC   WG   EG   WI    EI/F  N    SP
+1.00 1.00 1.00 0.78  0.93  1.00 1.00      = SRATIO = Future survey proportions
+0.00 0.00 0.00 0.081 0.043 0.00 0.00      = VRATIO = SE of future survey proportions
+
