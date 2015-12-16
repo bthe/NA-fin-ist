@@ -1156,7 +1156,7 @@ C                         PMATF & Catch
       IF (DOCON<1) THEN
         PRINT'(/2(A,I3),9F12.4)',' Trial:',0,'/',NTRIAL,OLDFIT,FIT
 cc     +                 ,LikeAb,LikeCat,LikeTag,LikeAge
-c        IF (ABS(OLDFIT-FIT)>0.01d0) STOP ' ERROR IN FIT'
+        IF (ABS(OLDFIT-FIT)>0.01d0) STOP ' ERROR IN FIT'
       ENDIF
 
 C     Combine historical surveys as necessary
@@ -1323,7 +1323,7 @@ C         Call HITFUN to setup population at year 0 & calculate fit to data
           CALL HITFUN (F1ST,FIT)
           PRINT'(2(1X,A),I3,A,9F12.4)',REF,'Trial:',N,' FIT:',OLDFIT,FIT
 cc     +                 ,LikeAb,LikeCat,LikeTag,LikeAge
-c          IF (ABS(OLDFIT-FIT) > 0.05d0) STOP ' ERROR IN FIT'
+          IF (ABS(OLDFIT-FIT) > 0.05d0) STOP ' ERROR IN FIT'
           IF (DOCON==-1) THEN
 
             CALL PCOND(N,FIT)
