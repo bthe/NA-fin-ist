@@ -435,23 +435,23 @@ C xxx UNIT  23, FILE='NAFCON.DAT'= Conditioning parameters opened below
       
 C     Read name of catch file
 
-      OPEN(IPNT,FILE='RESTEST')
-      OPEN (95,FILE='NAF.ALL')                                           # Conditioning parameters output
+      OPEN(IPNT,FILE='restest')
+      OPEN (95,FILE='naf.all')                                           # Conditioning parameters output
 C     NAF.ALL is written when conditioning; it is read in as NAFCON.DAT for projections
-      OPEN (94,FILE='NAF.AGE')                                           # age data
+      OPEN (94,FILE='naf.age')                                           # age data
 C ### OPEN (96,FILE='NAF.CPE')                                           # CPUE (if OPTCPE>0)
-      OPEN (97,FILE='NAF.MIX')                                           # mix matrix
-      OPEN (99,FILE='NAF.POP')                                           # matF by stock, 1+ by subarea
-      OPEN (98,FILE='NAF.CAT')                                           # catch by stck, 1+ by subarea
-      OPEN (34,FILE='NAF.HIS')                                           # Values achieved in conditioning
-      OPEN (35,FILE='NAF.RSD')                                           # Residuals =likelihood contributions
-      OPEN (36,FILE='NAF.RSS')                                           # Residuals
-      OPEN (37,FILE='NAF.TAR')                                           # Target values
-      OPEN (38,FILE='NAF.SUM')                                           # deterministic summary
-      OPEN (39,FILE='NAF.TAG')                                           # deterministic tag summary
-      OPEN (41,FILE='NAF.SUR')                                           # SURVEY VALUES
-      OPEN (42,FILE='NAF.CHK')                                           # Minimisation Check file.
-      OPEN (89,FILE='NAF.CLA')                                           # QUOTA OUTPUT FOR CHECKING
+      OPEN (97,FILE='naf.mix')                                           # mix matrix
+      OPEN (99,FILE='naf.pop')                                           # matF by stock, 1+ by subarea
+      OPEN (98,FILE='naf.cat')                                           # catch by stck, 1+ by subarea
+      OPEN (34,FILE='naf.his')                                           # Values achieved in conditioning
+      OPEN (35,FILE='naf.rsd')                                           # Residuals =likelihood contributions
+      OPEN (36,FILE='naf.rss')                                           # Residuals
+      OPEN (37,FILE='naf.tar')                                           # Target values
+      OPEN (38,FILE='naf.sum')                                           # deterministic summary
+      OPEN (39,FILE='naf.tag')                                           # deterministic tag summary
+      OPEN (41,FILE='naf.sur')                                           # SURVEY VALUES
+      OPEN (42,FILE='naf.chk')                                           # Minimisation Check file.
+      OPEN (89,FILE='naf.cla')                                           # QUOTA OUTPUT FOR CHECKING
 C ### OPEN (40,FILE='NAF.APP') Used in real application (SAG 2010) if DOCON=4
 
 C     Set PRDIAG =1 here to print input catch & abundance data summaries.
@@ -616,7 +616,7 @@ C     Open file of conditioning parameter estimates
       ELSEIF (DOCON == 4)  THEN
 C       Real application: was used in 2010 for SAG report
         NTRIAL = 2
-        OPEN (40,FILE='NAF.APP')
+        OPEN (40,FILE='naf.app')
       ENDIF
 
 C     Read the random number generator seeds                              # INPUT: RANDOM NO.
@@ -633,7 +633,7 @@ C           They were marked in area TAGA(NR), year TAGIYR(NR).
       IGenTag = 0
       KGenTag = 0
       TAGSS = 0
-      OPEN (17,FILE="TAGS.DAT")
+      OPEN (17,FILE="tags.dat")
       READ (17,*) ITAG1
       READ (17,*) NROP
       READ (17,*)
@@ -830,7 +830,7 @@ C
       CATCHM = 0.d0
       CATCHF = 0.d0
 C     Note: Catches are read by Management area.  They are combined
-      OPEN (18,FILE="CAT-"//CTYPE//".DAT")
+      OPEN (18,FILE="cat-"//CTYPE//".dat")
       READ (18,'(/)')
       READ (19,*)
       TOTCAT = 0.d0
@@ -876,11 +876,11 @@ C       For hyp. 7 & 8 (NSUBA/=MXSUBA) reorder the catches & sum EG & WI areas
      +                             NINT(CATCHF(IYR,1:NSUBA))
         ENDDO
       END IF
-      PRINT *,"CAT-"//CTYPE//".DAT",'  Total catch:',TOTCAT
+      PRINT *,"cat-"//CTYPE//".dat",'  Total catch:',TOTCAT
 C     
 C     Read Best catch series for use by CLC (may be the same as read above)
       CATKA  = 0.d0
-      OPEN (18,FILE="CAT-B.DAT")
+      OPEN (18,FILE="cat-b.dat")
       READ (18,'(/)')
       DO 57 IYR=INITYR,-1
          READ (18,*) I, (CREG(N),N=1,NCOL)
@@ -999,7 +999,7 @@ C     Read data from CPUE.DAT:
         READ (20,'(/)')
         READ (20,*) (CPUEsig(I),I=5,6)
         CLOSE(20)
-        OPEN (96, FILE='NAF.CPE')
+        OPEN (96, FILE='naf.cpe')
       ENDIF
 
 C
@@ -1156,7 +1156,7 @@ C                         PMATF & Catch
       IF (DOCON<1) THEN
         PRINT'(/2(A,I3),9F12.4)',' Trial:',0,'/',NTRIAL,OLDFIT,FIT
 cc     +                 ,LikeAb,LikeCat,LikeTag,LikeAge
-        IF (ABS(OLDFIT-FIT)>0.01d0) STOP ' ERROR IN FIT'
+c        IF (ABS(OLDFIT-FIT)>0.01d0) STOP ' ERROR IN FIT'
       ENDIF
 
 C     Combine historical surveys as necessary
@@ -1313,6 +1313,8 @@ C         Parameters were read above. Check the expected fit is achieved  # CHEC
 C         Call HITFUN to run the model forward from INITYR to start of
 C           management (year 0), using parameters from conditioning run.
 C         (Note: SETMIX was called above to set MIXNO)
+C      write(*,*) 'I am here'
+
           F1ST = LOG(F)
           PRDIAG = 0
           PHASE = 25
@@ -1321,10 +1323,13 @@ C         Call HITFUN to setup population at year 0 & calculate fit to data
           CALL HITFUN (F1ST,FIT)
           PRINT'(2(1X,A),I3,A,9F12.4)',REF,'Trial:',N,' FIT:',OLDFIT,FIT
 cc     +                 ,LikeAb,LikeCat,LikeTag,LikeAge
-          IF (ABS(OLDFIT-FIT) > 0.05d0) STOP ' ERROR IN FIT'
+c          IF (ABS(OLDFIT-FIT) > 0.05d0) STOP ' ERROR IN FIT'
           IF (DOCON==-1) THEN
+
             CALL PCOND(N,FIT)
+C            write(*,*) 'PCOND done'
             CALL REPORT (IPNT,-1)
+C            write(*,*) 'REPORT done'
             GO TO 500
           ENDIF
         ENDIF
@@ -1348,18 +1353,21 @@ C       Apply the procedure for NYEARs.
         DO 300 IYR = 0,NYEAR-1
 C
 C         Call the CLA to set catch limit CATSM for each Small Area & procedure
+          
           DO 200 IP = 1,NPROC
             CALL RUNCLC (CATKA,SIGHT,CV,IYR,INITYR,CATSM,MAPC,
      +                   OPTCLC,IP,NPROC)
+c            write(*,*) 'I am here 1'
 C           Set fixed aboriginal catch in WG (subarea 2)
             CATSM(IP,2) = 19.0d0
 
  200      CONTINUE
-C
+c          write(*,*) 'I am here 2'
 C         DIVCL allocates the Small Area catch CATSM to subareas (CATCH)
 C               If NPROC=2 the value from each procedure is combined
           CALL DIVCL(CATSM,CATCH,NSCAT,CSUB,SIGHT,CV,IYR,NPROC)
-C
+c          write(*,*) 'DIVCL'
+C     
 C         Allocate catch to sex (50:50) and combine EG+WI in Hyp 7&8
           DO 250 KM=1,MXSUBA
             K = KM
@@ -1372,9 +1380,10 @@ C         Call SURVEY to set survey estimates SIGHT(IYR-1,K)
 C         This allows a 2-year delay between a survey being performed
 C         and the results being used to set a catch limit
           CALL SURVEY (SIGHT,CV,IYR-1)
-
+c           write(*,*) 'survey done'
 C         Construct estimates for areas larger than subareas
           CALL CONSUR (SIGHT,CV,IYR-1)
+c          write(*,*) 'consur done'
 C
 C         Project population forward to IYR+1. Set new V matrix using SETV
           CALL STKUPA (IYR)
@@ -1387,6 +1396,7 @@ C
   500 CONTINUE
 C
 C     Use PSTATS to print out final statistics
+c      write(*,*) 'I am here'
       IF (DOCON.NE.1) CALL PSTATS (IPNT,SIGHT)
       CLOSE (38)
 C
@@ -2908,13 +2918,18 @@ C         a BETA generator. EGWIP = mean historical EG propn with variance EGWIV
 C     Generate the survey results
 C      PROP2 =-1.D0
       DO 100 KM=1,MXSUBA
-
+c         write(*,*) 'insider'
 C       First increment all the random number generators for every area
+c         write(*,*) iseed1, iseed2,iseed3
         Y = XNORM (1.d0,0.d0,ISEED1,MA1,INEXT1,INXTP1)
+c        write(*,*) 'XNORM'
         RANNO = RAN1(ISEED1,MA1,INEXT1,INXTP1)
+c        write(*,*) 'RANNO'
         I2SEED = INT(-RAN1(ISEED2,MA2,INEXT2,INXTP2)*100000.d0)
+c        write(*,*) 'I2SEED'
         I3SEED = INT(-RAN1(ISEED3,MA3,INEXT3,INXTP3)*100000.d0)
-
+c        write(*,*) 'I3SEED'
+c         write(*,*) 'Inside survey 1'
 C       Leave loop if no survey this year/area (SIGHT & CV initialised to -1 in RESET)
         IF (RUNSUR(IY,KM)==0) GOTO 100
 
@@ -2938,6 +2953,7 @@ C       Specify parameters used to generate estimates. TAU2 = TAU**2  {Eqns F.5 
         ALPHA2 = 0.120d0*TAU2(KM)
         SIGMA  = SQRT(LOG(ALPHA2 + CVADD(KM)**2 +1.d0))
         BETA2K = 0.025d0*TAU2(KM)*KSGT(KM)*G0*BIAS
+c        write(*,*) 'Inside survey 2'
 C
 C       Generate Poisson component
         W = ABUND/BETA2K
@@ -2958,6 +2974,7 @@ C       CV Generation {Eqn F.5} (unless estimate is non-zero)
 C         Zero estimate. Store Z(i), the Poisson multiplier, in SCV
           SCV =  BETA2K * EXP(Y)
         ENDIF
+c         write(*,*) 'Inside survey 3'
 C
 C       Now generate proportion N of 60N for NF-Q trials & Variant 4 (in EI/F & WI)
 C           from a beta distribution (with Mean Mu & Var based on obs.data).
@@ -2971,13 +2988,14 @@ C       For all other trials/areas/variants  Prop = Mu = SRATIO = 1.
          BETABETA = ALPHABETA*(1.D0-MU)/MU
          PROP = GENBET(ALPHABETA,BETABETA,I2SEED)
         ENDIF
+c         write(*,*) 'Inside survey 4'
 C
 C       Store results.
         SIGHT(IY,KM) = SGT*PROP
         CV(IY,KM) = SCV
 C       PRINT '(A,3I5,7F12.4)',' SURVEY',IY,KM,K,PSGT,SGT,SGT*PROP,SCV
 C
-  100 CONTINUE
+100   CONTINUE
 
       RETURN
       END
@@ -3161,10 +3179,10 @@ C     Set pristine & yr 0 1+ population size by stock
 
       WRITE (IP,2) 'Yr',('Fem:',J,J=1,NSTK),('PK:',K,K=1,NSUBA),
      +                  ('CJ:', J,J=1,NSTK),('CK:',K,K=1,NSUBA)
-      OPEN (99, FILE='NAF.POP',ACCESS='APPEND')                          # matF by stock, 1+ by subarea
-      OPEN (98, FILE='NAF.CAT',ACCESS='APPEND')                          # catch by stck, 1+ by subarea
+      OPEN (99, FILE='naf.pop',ACCESS='APPEND')                          # matF by stock, 1+ by subarea
+      OPEN (98, FILE='naf.cat',ACCESS='APPEND')                          # catch by stck, 1+ by subarea
 
-      OPEN (94, FILE='NAF.AGE',ACCESS='APPEND')
+      OPEN (94, FILE='naf.age',ACCESS='APPEND')
       WRITE(94,'(8A8)') 'YEAR ','AREA ','AGE ','OBS-FEM','PRD-FEM',
      +     'OBS-M ','PRD-M '
       DO 8 K=1,NSUBA
@@ -3260,15 +3278,15 @@ C     Initialisation NT = -1: PRINT OUTPUT HEADINGS
         RETURN
       END IF
 
-      OPEN (95, FILE='NAF.ALL',ACCESS='APPEND')
+      OPEN (95, FILE='naf.all',ACCESS='APPEND')
       WRITE(95,'(I3,F13.6,1x,99G14.8e1)') NT,FIT,EXP(GBEST(1:NOP))
       CLOSE(95)
 
 C     Print results of conditioning trial NT (inc. NT=0=deterministic run)
-      OPEN (34,FILE='NAF.HIS',ACCESS='APPEND')
-      OPEN (35,FILE='NAF.RSD',ACCESS='APPEND')
-      OPEN (36,FILE='NAF.RSS',ACCESS='APPEND')
-      OPEN (37,FILE='NAF.TAR',ACCESS='APPEND')
+      OPEN (34,FILE='naf.his',ACCESS='APPEND')
+      OPEN (35,FILE='naf.rsd',ACCESS='APPEND')
+      OPEN (36,FILE='naf.rss',ACCESS='APPEND')
+      OPEN (37,FILE='naf.tar',ACCESS='APPEND')
       FMT2 = '(I3,F14.4,' // COLS(NAB) // 'I6,99F6.3)'
 C     Needs to be changed to print more of age fit & cpue
       WRITE(34,FMT2) NT,FIT,NINT(FITDAT(1:NAB)),FITDAT(NAB+1:NFIT),
@@ -3288,7 +3306,7 @@ C     Needs to be changed to print more of age fit & cpue
       END DO
 
 C     Write 97: NAF.MIX = Mixing matrices (N=1 for all these trials)
-      OPEN (97, FILE='NAF.MIX',ACCESS='APPEND')
+      OPEN (97, FILE='naf.mix',ACCESS='APPEND')
       WRITE (97,'(I3,'' Fit:'',F12.5,2F8.4)')NT,FIT
       DO J = 1,NSTK
         WRITE(97,'(2I5,10F7.4)')J,INITYR-ISCALE,JV(1:NSUBA,J,1)
@@ -3391,10 +3409,10 @@ C         (ignore same season recoveries so I1= year of 1st release + 1)
   390 CONTINUE
       CLOSE (38)
       CLOSE (39)
-      OPEN (38,FILE='NAF.SUM',ACCESS='APPEND')
+      OPEN (38,FILE='naf.sum',ACCESS='APPEND')
 
       IF (OPTCPE>0) THEN
-        OPEN (96,FILE='NAF.CPE',ACCESS='APPEND')
+        OPEN (96,FILE='naf.cpe',ACCESS='APPEND')
         DO 391 I=1,NCPUE
          K=CPUEK(I)
          WRITE(96,'(/A4,(A7,I1),4X,A4)') 'Year', ' CPUE:',I,ANAM2(K)

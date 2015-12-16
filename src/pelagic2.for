@@ -27,7 +27,7 @@ C
 C     Subroutine RESEED reseeds the random number generators.
 C
 C      USE ARYPAR
-C      USE DECLARECOM
+      USE DECLARECOM
 C
       INTEGER ISEEDS(400,6),N
 C

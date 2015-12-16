@@ -38,13 +38,13 @@ C     Open the input file (only read once).
 
       IF (OPTCLC=='N') THEN
 C       Read parameters for the Norwegian version of the CLC
-        OPEN (UNIT=21,FILE='CLC-N.PAR')
+        OPEN (UNIT=21,FILE='clc-n.par')
         READ (21,'(T30,F10.0)') PPROB,PYMIN,PYMAX,DTMIN,DTMAX,
      +                          PBMIN,PBMAX,PSCALE,PHASET,
      +                          PHASEP,PCYCLE,PLEVEL,PSLOPE,ACCTOL
       ELSEIF (OPTCLC=='C') THEN
 C       Read parameters for the Cooke version of the CLC
-        OPEN (UNIT=21,FILE='CLC-C.PAR')
+        OPEN (UNIT=21,FILE='clc-c.par')
         READ (21,'(T30,F10.0)') PPROB,  PYMAX,  PNYSTP,PKSTEP,PDSTEP,
      +                          PBMIN,  PBMAX,  PNBSTP,PSCALE,PHASET,
      +                          PHASEP, PCYCLE, PLEVEL,PSLOPE
