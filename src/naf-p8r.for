@@ -177,7 +177,10 @@ C
      +       SELM(0:MXAGE2,2),SELF(0:MXAGE2,2),TOTCAT,SIGSQ
       REAL(8), DIMENSION(I1YR:IENDYR,MXSUBA):: CATCHM,CATCHF,OCAM,OCAF
       REAL(8), DIMENSION(I1YR:IENDYR,1:MXAGE2,MXSUBA):: OCBYAM,OCBYAF,
-     +                                                  PCBYAM,PCBYAF
+     +                                                  PCBYAM,PCBYAF,
+C     True observed values
+     +                                                  TOCBYAM, TOCBYAF
+
       INTEGER ICBYA1,ICBYA2
       COMMON /CTCG/ CATCHM,CATCHF,CATT,CATKA,SELM,SELF,TOTCAT,
      +     OCBYAM,OCBYAF,PCBYAM,PCBYAF,OCAM,OCAF,ICBYA1,ICBYA2
@@ -414,7 +417,7 @@ C
      +     NCOL, NREG(20),NR,IT,N3,NREC,NOTREC,R2,II,
      +     IAGE,CMULT,OPTSGT,NR2
       REAL(8) TMPF(1:MXAGE2),TMPM(1:MXAGE2),CMRATIO,CFRATIO,MCHAMMER,
-     +     SIF,SIM
+     +     SIF,SIM, SIGSQEST
       LOGICAL USEGAM(MXGAM)
       CHARACTER DESC*50,TYPEDS*45,CTYPE*1,VARNAM*3,SCLA*6,OPTCLC*1
       
@@ -443,7 +446,7 @@ c      catchbyage = 'catchbyage.dat'
       ix = 1  
       do while(ix < num_args)
          call get_command_argument(ix,args(ix))
-         write(*,*) args(ix)
+C         write(*,*) args(ix)
          ix = ix + 1
          if(ix == num_args) continue
          select case(adjustl(args(ix-1)))
@@ -465,7 +468,7 @@ c      catchbyage = 'catchbyage.dat'
          end select
       end do
       end if
-      write(*,*) copyna, randomf, manage, nafcon
+C      write(*,*) copyna, randomf, manage, nafcon
 
 C
 C     Open input files
@@ -486,23 +489,23 @@ C     Read name of catch file
 C     read in the first line from copyna.dat to name all the "naf" files
       READ (IN,'(A9,1X,A /)') REF,DESC
 
-      OPEN(IPNT,FILE=ref//'restest')
-      OPEN (95,FILE=ref//'.all')                                           # Conditioning parameters output
+      OPEN(IPNT,FILE=ref(1:7)//'.restest')
+      OPEN (95,FILE=ref(1:7)//'.all')                                           # Conditioning parameters output
 C     NAF.ALL is written when conditioning; it is read in as NAFCON.DAT for projections
-      OPEN (94,FILE=ref//'.age')                                           # age data
-C ### OPEN (96,FILE='ref//.CPE')                                           # CPUE (if OPTCPE>0)
-      OPEN (97,FILE=ref//'naf.mix')                                           # mix matrix
-      OPEN (99,FILE=ref//'.pop')                                           # matF by stock, 1+ by subarea
-      OPEN (98,FILE=ref//'.cat')                                           # catch by stck, 1+ by subarea
-      OPEN (34,FILE=ref//'.his')                                           # Values achieved in conditioning
-      OPEN (35,FILE=ref//'.rsd')                                           # Residuals =likelihood contributions
-      OPEN (36,FILE=ref//'.rss')                                           # Residuals
-      OPEN (37,FILE=ref//'.tar')                                           # Target values
-      OPEN (38,FILE=ref//'.sum')                                           # deterministic summary
-      OPEN (39,FILE=ref//'.tag')                                           # deterministic tag summary
-      OPEN (41,FILE=ref//'.sur')                                           # SURVEY VALUES
-      OPEN (42,FILE=ref//'.chk')                                           # Minimisation Check file.
-      OPEN (89,FILE=ref//'.cla')                                           # QUOTA OUTPUT FOR CHECKING
+      OPEN (94,FILE=ref(1:7)//'.age')                                           # age data
+C ### OPEN (96,FILE='ref(1:7)//.CPE')                                           # CPUE (if OPTCPE>0)
+      OPEN (97,FILE=ref(1:7)//'.mix')                                           # mix matrix
+      OPEN (99,FILE=ref(1:7)//'.pop')                                           # matF by stock, 1+ by subarea
+      OPEN (98,FILE=ref(1:7)//'.cat')                                           # catch by stck, 1+ by subarea
+      OPEN (34,FILE=ref(1:7)//'.his')                                           # Values achieved in conditioning
+      OPEN (35,FILE=ref(1:7)//'.rsd')                                           # Residuals =likelihood contributions
+      OPEN (36,FILE=ref(1:7)//'.rss')                                           # Residuals
+      OPEN (37,FILE=ref(1:7)//'.tar')                                           # Target values
+      OPEN (38,FILE=ref(1:7)//'.sum')                                           # deterministic summary
+      OPEN (39,FILE=ref(1:7)//'.tag')                                           # deterministic tag summary
+      OPEN (41,FILE=ref(1:7)//'.sur')                                           # SURVEY VALUES
+      OPEN (42,FILE=ref(1:7)//'.chk')                                           # Minimisation Check file.
+      OPEN (89,FILE=ref(1:7)//'.cla')                                           # QUOTA OUTPUT FOR CHECKING
 C ### OPEN (40,FILE='NAF.APP') Used in real application (SAG 2010) if DOCON=4
 
 C     Set PRDIAG =1 here to print input catch & abundance data summaries.
@@ -667,7 +670,7 @@ C     Open file of conditioning parameter estimates
       ELSEIF (DOCON == 4)  THEN
 C       Real application: was used in 2010 for SAG report
         NTRIAL = 2
-        OPEN (40,FILE=ref//'.app')
+        OPEN (40,FILE=ref(1:7)//'.app')
       ENDIF
 
 C     Read the random number generator seeds                              # INPUT: RANDOM NO.
@@ -855,6 +858,7 @@ C        Set subarea for the current hypothesis
       END DO
  669  CLOSE(24)
 
+
       IF (PRDIAG==1) THEN
         PRINT '(/A)', ' CATCH AT AGE'
         DO 71 I=ICBYA1,ICBYA2
@@ -865,16 +869,20 @@ C        Set subarea for the current hypothesis
    71   CONTINUE
       END IF
 
-C     Convert to proportions by age
+C     Convert to proportions by age and store for conditioning
       DO 72 I=ICBYA1,ICBYA2
         DO 72 K=1,NSUBA
 C         Sum over all ages
           OCAM(I,K) = SUM(OCBYAM(I,1:MAXAGE,K))
           OCAF(I,K) = SUM(OCBYAF(I,1:MAXAGE,K))
-          IF (OCAM(I,K)>0.d0)
-     +        OCBYAM(I,1:MAXAGE,K) = OCBYAM(I,1:MAXAGE,K)/OCAM(I,K)
-          IF (OCAF(I,K)>0.d0)
-     +        OCBYAF(I,1:MAXAGE,K) = OCBYAF(I,1:MAXAGE,K)/OCAF(I,K)
+          IF (OCAM(I,K)>0.d0) THEN 
+             OCBYAM(I,1:MAXAGE,K) = OCBYAM(I,1:MAXAGE,K)/OCAM(I,K)
+             TOCBYAM(I,1:MAXAGE,K) = OCBYAM(I,1:MAXAGE,K)
+          END IF
+          IF (OCAF(I,K)>0.d0) THEN
+             OCBYAF(I,1:MAXAGE,K) = OCBYAF(I,1:MAXAGE,K)/OCAF(I,K)
+             TOCBYAF(I,1:MAXAGE,K) = OCBYAF(I,1:MAXAGE,K)
+          END IF 
    72 CONTINUE
 C
       CATCH  = 0.d0
@@ -1050,7 +1058,7 @@ C     Read data from CPUE.DAT:
         READ (20,'(/)')
         READ (20,*) (CPUEsig(I),I=5,6)
         CLOSE(20)
-        OPEN (96, FILE=ref//'.cpe')
+        OPEN (96, FILE=ref(1:7)//'.cpe')
       ENDIF
 
 C
@@ -1220,6 +1228,8 @@ C     Combine historical surveys as necessary
 
       COND1=0
 
+C Remember the estimated sigma parameter form the C@age likelihood
+      SIGSQEST = SIGSQ
 C
 C TRIALS BEGIN ---------------------------------------------------------
 C
@@ -1304,20 +1314,24 @@ C          Generate Catch at age data targets using ISEED6
        ISEED  = ISEED6
        DO 109 IYR=ICBYA1,ICBYA2
           DO 109 KM=1,NSUBA
-             MCHAMMER = SUM(OCBYAM(IYR,1:MAXAGE,KM))
+             MCHAMMER = SUM(TOCBYAM(IYR,1:MAXAGE,KM)) + 
+     +            SUM(TOCBYAF(IYR,1:MAXAGE,KM))
 C     OCAF = SUM(OCBYAF(IYR,1:MAXAGE,K))
              TMPF = 0.D0
              TMPM = 0.D0
              IF(MCHAMMER>0.D0) THEN
                 DO 1091 L=1,MAXAGE
-                   SIF = sqrt(SIGSQ)/PCBYAF(IYR,L,KM)
-                   SIM = sqrt(SIGSQ)/PCBYAM(IYR,L,KM)
-C                   write(*,*) 'SIGSQ, SIF, SIM'
-C                   write(*,*) SIGSQ, SIF, SIM
-                   TMPF(L) = EXP(LOG(PCBYAF(IYR,L,KM)) +  
+                   IF(TOCBYAF(IYR,L,KM) > 0.d0) THEN 
+                   SIF = sqrt(SIGSQEST/TOCBYAF(IYR,L,KM))
+                   TMPF(L) = EXP(LOG(TOCBYAF(IYR,L,KM)) +  
      +                  XNORM(SIF,0.d0,ISEED,MA4,INEXT4,INXTP))
-                   TMPM(L) = EXP(LOG(PCBYAM(IYR,L,KM)) +  
+                   END IF
+                   
+                   IF(TOCBYAM(IYR,L,KM) > 0.d0) THEN 
+                   SIM = sqrt(SIGSQEST/TOCBYAM(IYR,L,KM))
+                   TMPM(L) = EXP(LOG(TOCBYAM(IYR,L,KM)) +  
      +                  XNORM(SIM,0.d0,ISEED,MA4,INEXT4,INXTP))
+                   END IF
  1091           CONTINUE
                 CMRATIO = 1.D0/SUM(TMPM(1:MAXAGE))
                 CFRATIO = 1.D0/SUM(TMPF(1:MAXAGE))
@@ -3230,10 +3244,10 @@ C     Set pristine & yr 0 1+ population size by stock
 
       WRITE (IP,2) 'Yr',('Fem:',J,J=1,NSTK),('PK:',K,K=1,NSUBA),
      +                  ('CJ:', J,J=1,NSTK),('CK:',K,K=1,NSUBA)
-      OPEN (99, FILE=ref//'.pop',ACCESS='APPEND')                          # matF by stock, 1+ by subarea
-      OPEN (98, FILE=ref//'.cat',ACCESS='APPEND')                          # catch by stck, 1+ by subarea
+      OPEN (99, FILE=ref(1:7)//'.pop',ACCESS='APPEND')                          # matF by stock, 1+ by subarea
+      OPEN (98, FILE=ref(1:7)//'.cat',ACCESS='APPEND')                          # catch by stck, 1+ by subarea
 
-      OPEN (94, FILE=ref//'.age',ACCESS='APPEND')
+      OPEN (94, FILE=ref(1:7)//'.age',ACCESS='APPEND')
       WRITE(94,'(8A8)') 'YEAR ','AREA ','AGE ','OBS-FEM','PRD-FEM',
      +     'OBS-M ','PRD-M '
       DO 8 K=1,NSUBA
@@ -3329,15 +3343,15 @@ C     Initialisation NT = -1: PRINT OUTPUT HEADINGS
         RETURN
       END IF
 
-      OPEN (95, FILE=ref//'.all',ACCESS='APPEND')
+      OPEN (95, FILE=ref(1:7)//'.all',ACCESS='APPEND')
       WRITE(95,'(I3,F13.6,1x,99G14.8e1)') NT,FIT,EXP(GBEST(1:NOP))
       CLOSE(95)
 
 C     Print results of conditioning trial NT (inc. NT=0=deterministic run)
-      OPEN (34,FILE=ref//'.his',ACCESS='APPEND')
-      OPEN (35,FILE=ref//'.rsd',ACCESS='APPEND')
-      OPEN (36,FILE=ref//'.rss',ACCESS='APPEND')
-      OPEN (37,FILE=ref//'.tar',ACCESS='APPEND')
+      OPEN (34,FILE=ref(1:7)//'.his',ACCESS='APPEND')
+      OPEN (35,FILE=ref(1:7)//'.rsd',ACCESS='APPEND')
+      OPEN (36,FILE=ref(1:7)//'.rss',ACCESS='APPEND')
+      OPEN (37,FILE=ref(1:7)//'.tar',ACCESS='APPEND')
       FMT2 = '(I3,F14.4,' // COLS(NAB) // 'I6,99F6.3)'
 C     Needs to be changed to print more of age fit & cpue
       WRITE(34,FMT2) NT,FIT,NINT(FITDAT(1:NAB)),FITDAT(NAB+1:NFIT),
@@ -3357,7 +3371,7 @@ C     Needs to be changed to print more of age fit & cpue
       END DO
 
 C     Write 97: NAF.MIX = Mixing matrices (N=1 for all these trials)
-      OPEN (97, FILE=ref//'.mix',ACCESS='APPEND')
+      OPEN (97, FILE=ref(1:7)//'.mix',ACCESS='APPEND')
       WRITE (97,'(I3,'' Fit:'',F12.5,2F8.4)')NT,FIT
       DO J = 1,NSTK
         WRITE(97,'(2I5,10F7.4)')J,INITYR-ISCALE,JV(1:NSUBA,J,1)
@@ -3460,10 +3474,10 @@ C         (ignore same season recoveries so I1= year of 1st release + 1)
   390 CONTINUE
       CLOSE (38)
       CLOSE (39)
-      OPEN (38,FILE=ref//'.sum',ACCESS='APPEND')
+      OPEN (38,FILE=ref(1:7)//'.sum',ACCESS='APPEND')
 
       IF (OPTCPE>0) THEN
-        OPEN (96,FILE=ref//'.cpe',ACCESS='APPEND')
+        OPEN (96,FILE=ref(1:7)//'.cpe',ACCESS='APPEND')
         DO 391 I=1,NCPUE
          K=CPUEK(I)
          WRITE(96,'(/A4,(A7,I1),4X,A4)') 'Year', ' CPUE:',I,ANAM2(K)
