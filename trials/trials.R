@@ -1,30 +1,45 @@
 library(dplyr)
 library(infuser)
 
-variables_requested('trials/trial_template.txt')
-
-
-
-trial <- function(hypo=1,msyr=0.01,trialtype='B'){
+#' Title
+#'
+#' @param hypo 
+#' @param msyr 
+#' @param trialtype 
+#' @param template_file 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+trial <- function(hypo=1,msyr=0.01,trialtype='B',
+                  template_file='trials/trial_template.txt'){
   
-  ## defaults 
+  ## default values for variables
   nstk <- 6
   nsuba <- 7
   ngamma <- 6
   ndelta <- 2
+  initdelta <- '0.15   0.02'
+  initgamma <- 1.0
   
   ## deviations  
+  ## Fewer stocks in hypotheses 6 to 8
   if(hypo %in% c(6,7,8)){
     nstk <- 5
   }
-  
+  ## WI and EG are merged
   if(hypo %in% c(7,8)){
     nsuba <- 6
   }
   
+  ## mixing used instead of dispersion in hypotheses 4 and 8
   if(hypo %in% c(4,8)){
     ndelta <- 0
+    initdelta <- ''
+    initgamma <- 0.2
   }
+  
   
   ## mixing matricies
   if(hypo==1){ 
@@ -109,9 +124,25 @@ trial <- function(hypo=1,msyr=0.01,trialtype='B'){
   }
   
   ## produce the trial setup
-  infuse('trials/trial_template.txt',
-         list(ref=ref,
-              msyrtxt=msyr.txt,
-              optf=optf,nstk=nstk,
-              mixmat))
+  infuse(template_file,
+         ref=ref,
+         msyrtxt=msyr.txt,
+         optf=optf,nstk=nstk,
+         mixmat=mixmat,
+         ndelta=ndelta,
+         initdelta = initdelta,
+         initgamma = initgamma,
+         disp=ifelse(ndelta==0,0,1))
 }
+
+
+callNaf <- function(...){
+  print(names(...))
+  run.string <- './naf-ist -main {{copyna|copyna.dat}}' %>%
+    infuse(list(...))
+#  system(run.string)
+  return(run.string)
+  }
+
+
+

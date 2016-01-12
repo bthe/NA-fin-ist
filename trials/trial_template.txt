@@ -46,8 +46,8 @@ LAST YEAR MIXING MATRIX CHANGES (IMIX3)     2025
 1    2   3   4   5   5   5   6   6   6   7   2    3    4    5    6    4    6       (NREG: #=Manag.area)
 Can  WG  EG  WI  EI  Far UK Spz  NoN NoW Sp  PWG  PEG  PWI  PEI  PN   PWI? PN?
 
-1                                         = CMULT. =1 baseline. Use to increase proportion of lost < 1915
-0                                         = OPTSGT =0 (baseline) or 1 (NF-A3): prorate abundance (defines survey.dat col to use)
+{{cmult|1}}                                         = CMULT. =1 baseline. Use to increase proportion of lost < 1915
+{{optsgt|0}}                                         = OPTSGT =0 (baseline) or 1 (NF-A3): prorate abundance (defines survey.dat col to use)
 0.59  0.00177                             = EGWIP & EGWIP = mean and SD of historical proportion of EG in combined EG-WI area
 {{icbya1|1967}}  {{icbya2|2010}}                                = ICBYA1 & ICBYA2 = 1st & last years of age data to be used in fitting
 0                                         = TAGEXC1
@@ -58,12 +58,12 @@ EC   WG   EG   WI   EI/F N    SP            Always use 7 areas here
 0.00 0.00 0.00 0.00 0.00 0.00 0.00        = VRATIO = SE of future survey proportions
  
 {{optpsi|1}}                                         = OPTPSI.  0: PSI fixed; 1: PSI-C estimated (baseline); 2: both PSI estimated
-{{ngamma|06}}  0.75    1.    1.    1.   1.   1.      = NGAMMA & the GAMMA initial values
-{{ndelta|02}}  0.15   0.02                           = NDELTA = # of dispersal parameters & their initial values 
+{{ngamma|06}}  0.75    1.    {{initgamma|1.}}    1.   1.   1.      = NGAMMA & the GAMMA initial values
+{{ndelta|02}}  {{initdelta|0.15   0.02}}                           = NDELTA = # of dispersal parameters & their initial values 
 2.0    0.4    1.0                         = initial values for 3 tag parameters (lambda, psiC & psiWI+) 
 07000. 05000. 04000. 12000. 12000. 12000. = Initial stock sizes
 0.9   0.2    0.9    0.9    0.9    0.9    = Initial depletions (not used if INITYR=FIRSTYR)
-0      1      1      0      0      0     = 1 to ESTIMATE dispersal between stocks J & J+1
+0      {{disp|1}}      {{disp|1}}      0      0      0     = 1 to ESTIMATE dispersal between stocks J & J+1
 0.0   0.0    0.0    0.0    0.0    0.0    = AVDISP(J) of stock J to stock J+1: NOT USED IF NDELTA>0
 1       1      1      1      1      1     = Number of Catch Mixing matrices (NMIX(J))
 
