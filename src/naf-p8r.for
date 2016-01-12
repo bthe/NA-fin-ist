@@ -939,7 +939,7 @@ C       For hyp. 7 & 8 (NSUBA/=MXSUBA) reorder the catches & sum EG & WI areas
 C     
 C     Read Best catch series for use by CLC (may be the same as read above)
       CATKA  = 0.d0
-      OPEN (18,FILE="cat-b.dat")
+      OPEN (18,FILE="cat-B.dat")
       READ (18,'(/)')
       DO 57 IYR=INITYR,-1
          READ (18,*) I, (CREG(N),N=1,NCOL)
