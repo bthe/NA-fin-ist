@@ -1,6 +1,7 @@
 library(dplyr)
 library(infuser)
 library(purrr)
+library(parallel)
 
 #' Title
 #'
@@ -13,7 +14,7 @@ library(purrr)
 #' @export
 #'
 #' @examples
-trial <- function(hypo=1,msyr=0.01,trialtype='B',
+NafTrial <- function(hypo=1,msyr=0.01,trialtype='B',
                   template_file='setup/trial_template.txt'){
   
   ## default values for variables
@@ -29,11 +30,20 @@ trial <- function(hypo=1,msyr=0.01,trialtype='B',
   if(hypo %in% c(6,7,8)){
     nstk <- 5
   }
+  
+  ## mixing parameter estimated between EI/F and SP in hypo 6
+  if(hypo == 6){
+    initgamma <- 0.4
+  }
+  
   ## WI and EG are merged
   if(hypo %in% c(7,8)){
     nsuba <- 6
   }
   
+  if(hypo == 7){
+    ndelta <- 1
+  }
   ## mixing used instead of dispersion in hypotheses 4 and 8
   if(hypo %in% c(4,8)){
     ndelta <- 0
@@ -131,6 +141,7 @@ trial <- function(hypo=1,msyr=0.01,trialtype='B',
          optf=optf,nstk=nstk,
          mixmat=mixmat,
          ndelta=ndelta,
+         nsuba = nsuba,
          initdelta = initdelta,
          initgamma = initgamma,
          disp=ifelse(ndelta==0,0,1))
@@ -149,7 +160,7 @@ trial <- function(hypo=1,msyr=0.01,trialtype='B',
 #' @export
 #'
 #' @examples
-Nafwrite <- function(obj,dir='.'){
+NafWrite <- function(obj,dir='.'){
   write(as.character(obj),file = sprintf('%s/%s.dat',dir,attr(obj,'ref')))
 }
 
@@ -164,7 +175,7 @@ Nafwrite <- function(obj,dir='.'){
 #'
 #' @examples
 #' callNaf()
-callNaf <- function(...){
+NafCall <- function(...){
   tmp <- list(...)
   if('run_dir' %in% names(tmp)){
     old.dir <- getwd()
@@ -183,40 +194,22 @@ callNaf <- function(...){
 NafSetup <- function(dir = 'trials'){
   dir.create(dir,showWarnings = FALSE)
   tmp <- 
-    list.files('data') %>% map(~file.copy(from=sprintf('data/%s',.),
-                                        to=sprintf('%s/%s',dir,.),
-                                        overwrite = TRUE))
-  ## NF-B1-1%
-  Nafwrite(trial(hypo = 1,msyr = 0.01),dir)
-  ## NF-B1-4%
-  Nafwrite(trial(hypo = 1,msyr = 0.04),dir)
-  ## NF-B2-1%
-  Nafwrite(trial(hypo = 2,msyr = 0.01),dir)
-  ## NF-B2-4%
-  Nafwrite(trial(hypo = 2,msyr = 0.04),dir)
-  ## NF-B3-1%
-  Nafwrite(trial(hypo = 3,msyr = 0.01),dir)
-  ## NF-B3-4%
-  Nafwrite(trial(hypo = 3,msyr = 0.04),dir)
-  ## NF-B4-1%
-  Nafwrite(trial(hypo = 4,msyr = 0.01),dir)
-  ## NF-B4-4%
-  Nafwrite(trial(hypo = 4,msyr = 0.04),dir)
-  ## NF-B5-1%
-  Nafwrite(trial(hypo = 5,msyr = 0.01),dir)
-  ## NF-B5-4%
-  Nafwrite(trial(hypo = 5,msyr = 0.04),dir)
-  ## NF-B6-1%
-  Nafwrite(trial(hypo = 6,msyr = 0.01),dir)
-  ## NF-B6-4%
-  Nafwrite(trial(hypo = 6,msyr = 0.04),dir)
-  ## NF-B7-1%
-  Nafwrite(trial(hypo = 7,msyr = 0.01),dir)
-  ## NF-B7-4%
-  Nafwrite(trial(hypo = 7,msyr = 0.04),dir)
-  ## NF-B8-1%
-  Nafwrite(trial(hypo = 8,msyr = 0.01),dir)
-  ## NF-B8-4%
-  Nafwrite(trial(hypo = 8,msyr = 0.04),dir)
+    list.files('data') %>% 
+    map(~file.copy(from=sprintf('data/%s',.),
+                   to=sprintf('%s/%s',dir,.),
+                   overwrite = TRUE))
+  tmp <- file.copy('settings/manage.dat',sprintf('%s/manage.dat',dir))
+  ## NF-B trials (baseline)
+  for(hypo in 1:8){
+    for(msyr in c(0.01,0.04)){
+      NafWrite(NafTrial(hypo = hypo,msyr = msyr),dir)
+    }
+  }
 }
+
+NafCond <- function(dir='trials',nafpar='../variants/Naf-v0.par'){
+  mclapply(list.files('baseline/','NF-[A-Z][0-9]-[0-9].dat'),
+           function(x) NafCall(run_dir=dir,copyna=x,nafpar=nafpar),
+           mc.cores = detectCores(logical = TRUE))
+} 
 

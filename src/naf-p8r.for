@@ -572,8 +572,9 @@ C                 & check values
       READ (IN,*) EGWIP,EGWIV
       IF (NSUBA/=MXSUBA) THEN
         IF (NSTK/=5) STOP 'ERROR Hyp 7/8 but not 5 stks'
-        IF (EGWIP<0.d0 .OR. EGWIP>=1.d0 .OR. EGWIV>=0.d0)
-     +               STOP 'ERROR in EGWIP or EGWIV'
+        IF (EGWIP<0.d0 .OR. EGWIP>=1.d0 .OR. EGWIV<0.d0) then
+           STOP 'ERROR in EGWIP or EGWIV'
+        end if
       ELSE
 C       Set ANAM2 = names of the MODELLED areas. (ANAM=Management areas.)
         ANAM2 = ANAM
