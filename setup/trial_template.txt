@@ -37,9 +37,9 @@ TAG LOSS IN YEAR 1 (TLOSS1)                  {{tloss1|0.0}}
 TAG LOSS IN YEAR 2+(TLOSS2)                  {{tloss2|0.0}}
 TAG WEIGHT         (TAGWT)                   {{tagwt|1.0}}
 C at Age WEIGHT    (WTAGEI)                  {{wtagei|0.1}}
-1ST YEAR MIXING MATRIX CHANGES  (IMIX1)     1985   NOT USED UNLESS OPTMIX=2
-YEAR MIXING MATRIX = MATRIX2    (IMIX2)     2005
-LAST YEAR MIXING MATRIX CHANGES (IMIX3)     2025
+1ST YEAR MIXING MATRIX CHANGES  (IMIX1)     {{imix1|1985}}   NOT USED UNLESS OPTMIX=2
+YEAR MIXING MATRIX = MATRIX2    (IMIX2)     {{imix2|2005}}
+LAST YEAR MIXING MATRIX CHANGES (IMIX3)     {{imix3|2025}}
 
 {{ctype|B}}              CATCH DATA SERIES (CTYPE)
 18             No. of cols in catch file (NCOL)
@@ -65,9 +65,10 @@ EC   WG   EG   WI   EI/F N    SP            Always use 7 areas here
 0.9   0.2    0.9    0.9    0.9    0.9    = Initial depletions (not used if INITYR=FIRSTYR)
 0      {{disp|1}}      {{disp|1}}      0      0      0     = 1 to ESTIMATE dispersal between stocks J & J+1
 0.0   0.0    0.0    0.0    0.0    0.0    = AVDISP(J) of stock J to stock J+1: NOT USED IF NDELTA>0
-1       1      1      1      1      1     = Number of Catch Mixing matrices (NMIX(J))
+1       1      {{nummix|1}}      1      1      1     = Number of Catch Mixing matrices (NMIX(J))
 
 CATCH MIXING MATRICES  
           Subarea {{areas|1   2   3   4    5   6   7}}    {{areas|1  2  3  4  5  6  7}}
 Stock  Matrix    Constants                      Gammas
-{{mixmat|Empty}}
+{{mixmat| }}
+{{mixmat2| }}
