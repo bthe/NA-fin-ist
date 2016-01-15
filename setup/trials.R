@@ -3,6 +3,9 @@ library(infuser)
 library(purrr)
 library(parallel)
 library(RSQLite)
+library(readr)
+library(tidyr)
+library(stringi)
 
 #' Title
 #'
@@ -291,7 +294,7 @@ NafSetup <- function(dir = 'trials'){
 NafCond <- function(dir='trials',
                     nafpar='../variants/Naf-v0.par',
                     search.string = 'NF-[A-Z][0-9]-[0-9].dat'){
-  mclapply(list.files('baseline/', search.string),
+  mclapply(list.files('basedb_create_index(trials_db$con, 'naf_pop',c('trial','variant','year'))line/', search.string),
            function(x) NafCall(run_dir=dir,copyna=x,nafpar=nafpar),
            mc.cores = detectCores(logical = TRUE))
 } 
@@ -301,6 +304,7 @@ NafResults <- function(dir='trials', db_name = 'trials.db'){
   ## define an sqllite database to digest the wealth of output
   trials_db <- src_sqlite(db_name, create = T)
   ## read in the fit to age 
+  db_drop_table(trials_db$con,'naf_age')
   db_create_table(trials_db$con,'naf_age',
                   types = c(year = 'INTEGER',area = 'INTEGER',age = 'INTEGER',
                             obs.fem = 'REAL',prd.fem = 'REAL',obs.m = 'REAL',
@@ -311,6 +315,7 @@ NafResults <- function(dir='trials', db_name = 'trials.db'){
     map(~NafResults.readAge(sprintf('%s/%s',dir,.),
                             trials_db))
   ## read in the condition variables
+  db_drop_table(trials_db$con,'naf_all')
   db_create_table(trials_db$con,'naf_all',
                   types=c(trial = 'INTEGER',ref='TEXT',
                           fit = 'REAL',gamma1 = 'REAL',gamma2 = 'REAL',
@@ -326,7 +331,48 @@ NafResults <- function(dir='trials', db_name = 'trials.db'){
   list.files(path = dir,pattern = 'NF-[A-Z][0-9]-[0-9].all') %>%
     map(~NafResults.readAll(sprintf('%s/%s',dir,.),
                             trials_db))
-    
+  
+  ## read in the catch ouput
+  db_drop_table(trials_db$con,'naf_cat')
+  db_create_table(trials_db$con,'naf_cat',
+                  types = c(year = 'INTEGER',catt1 = 'INTEGER',catt2 = 'INTEGER',
+                            catt3 = 'INTEGER',catt4 = 'INTEGER',catt5 = 'INTEGER',
+                            catt6 = 'INTEGER',ck1 = 'INTEGER',ck2 = 'INTEGER',
+                            ck3 = 'INTEGER',ck4 = 'INTEGER',ck5 = 'INTEGER',ck6 = 'INTEGER',
+                            ck7 = 'INTEGER',cpk1 = 'INTEGER',cpk2 = 'INTEGER',
+                            cpk3 = 'INTEGER',cpk4 = 'INTEGER',cpk5 = 'INTEGER',
+                            cpk6 = 'INTEGER',cpk7 = 'INTEGER',ref = 'TEXT',
+                            variant = 'TEXT',trial = 'INTEGER'))
+  db_create_index(trials_db$con, 'naf_cat',c('trial','variant','year'))
+  list.files(path = dir,pattern = 'NF-[A-Z][0-9]-[0-9].cat') %>%
+    map(~NafResults.readCat(sprintf('%s/%s',dir,.),
+                            trials_db))
+  
+  ## read in the population numbers
+  db_drop_table(trials_db$con,'naf_pop')
+  db_create_table(trials_db$con,'naf_pop',
+                  types = c(year = 'INTEGER',ref = 'TEXT',variant = 'TEXT',
+                            trial = 'INTEGER',pop_type = 'TEXT',
+                            pop_id = 'TEXT',number = 'INTEGER'))
+ 
+  list.files(path = dir,pattern = 'NF-[A-Z][0-9]-[0-9].pop') %>%
+    map(~NafResults.readPop(sprintf('%s/%s',dir,.),
+                            trials_db))
+  db_create_index(trials_db$con, 'naf_pop',c('ref','trial','variant','year'))
+  
+  ## read tagging results
+  db_drop_table(trials_db$con,'naf_tag')
+  db_create_table(trials_db$con,'naf_tag',
+                  types = c(rela = 'TEXT',year = 'INTEGER',ref = 'TEXT',
+                            area = 'TEXT',obs = 'REAL',prd = 'REAL'))
+  list.files(path = dir,pattern = 'NF-[A-Z][0-9]-[0-9].tag') %>%
+    map(~NafResults.readTag(sprintf('%s/%s',dir,.),
+                            trials_db))
+  db_create_index(trials_db$con, 'naf_tag',c('ref','year'))
+  
+  ## read survey data 
+  NafResults.readSurvey(file = sprintf('%s/surveyn.dat',dir))
+  
 }
 
 
@@ -365,6 +411,100 @@ NafResults.readAll <- function(file='NAF.all', trials_db){
     mutate(ref=ref) %>%
     rename(trial=n) %>%
     db_insert_into(trials_db$con,table='naf_all',values = .)
+  
+}
+
+
+NafResults.readCat <- function(file='NAF.all', trials_db){
+  catch <- read_table(file = file, col_names = FALSE, skip = 2)
+  header <- read_lines(file,n_max=2)
+  ref <- gsub('(NF-[A-Z][0-9]-[0-9]).+','\\1',header[1],perl=TRUE)
+  variant <- gsub('.+(V[0-9]).+','\\1',header[1])
+  hypo <- as.numeric(gsub('NF-[A-Z]([0-9])-[0-9]','\\1',ref))
+  nsuba <- 7
+  nstk <- 6
+  if(hypo>6){
+    nsuba <- 6  
+  } 
+  if(hypo>5){
+    nstk <- 5
+  }
+  
+  names(catch) <- c('year',paste0('catt',1:nstk),
+                    paste0('ck',1:nsuba),
+                    paste0('cpk',1:nsuba))
+  if(hypo>5){
+    catch <- mutate(catch,catt6 = NA)
+  }
+
+  if(hypo>6){
+    catch <- mutate(catch,ck7 = NA,cpk7=NA)
+  }
+  
+  class(catch) <- 'data.frame'
+  
+  catch %>%
+    mutate(ref = ref,
+           variant = variant,
+           trial = rep(0:100,each = diff(range(year))+1)) %>% 
+    
+    db_insert_into(trials_db$con,table='naf_cat',values = .)
+}
+
+NafResults.readPop <- function(file='NAF.pop', trials_db){
+  pop <- read_table(file = file, col_names = FALSE, skip = 2)
+  header <- read_lines(file,n_max=2)
+  ref <- gsub('(NF-[A-Z][0-9]-[0-9]).+','\\1',header[1],perl=TRUE)
+  variant <- gsub('.+(V[0-9]).+','\\1',header[1])
+  names(pop) <- tolower(scan(text=gsub(': ','.',header[2]),
+                             what='character'))
+  
+  class(pop) <- 'data.frame'
+  
+  pop %>%
+    rename(year=yr) %>%
+    mutate(ref = ref,
+           variant = variant,
+           trial = rep(0:100,each = diff(range(year))+1)) %>%
+    gather(population,number,-c(year,ref,variant,trial)) %>%
+    separate(population,c('pop_type','pop_id')) %>%
+    mutate(pop_type = ifelse(pop_type=='pf','Mature females','1+')) %>%
+    db_insert_into(trials_db$con,table='naf_pop',values = .)
+  
+}
+
+NafResults.readTag <- function(file='NAF.pop', trials_db){
+  tag <- read_table(file = file, col_names = FALSE, skip = 3)
+  header <- read_lines(file,n_max=3)
+  ref <- gsub('(NF-[A-Z][0-9]-[0-9]).+','\\1',header[1],perl=TRUE)
+  tmp <- tolower(scan(text=gsub('Obs:|Pred:|\\+|\\*','',header[2]),
+                      what='character'))
+  areas <- unique(tmp[-c(1:2)])
+  names(tag) <- c(tmp[1:2],paste(c(areas,areas),
+                                 rep(c('obs','prd'),
+                                     each=length(areas)),
+                                 sep = '.'))
+  class(tag) <- 'data.frame'
+  tag %>%
+    rename(year = yr) %>%
+    mutate(ref = ref, 
+           rela = areas[rela]) %>% 
+    gather(type,value,-c(year,rela,ref)) %>% 
+    separate(type,c('area','type')) %>% 
+    spread(type,value) %>%
+    db_insert_into(trials_db$con,table='naf_tag',values = .)
+}
+
+NafResults.readSurvey <- function(file='surveyn.dat', trials_db){
+  sight <- read_lines(file = file, n_max = 22) %>%
+    map(~stri_sub(.,to=70)) %>%
+    unlist() %>%  stri_paste(collapse='\n') %>% 
+    tolower() %>%
+    read.table(text=.,skip=2,header=TRUE,stringsAsFactors = FALSE) %>% 
+    mutate(area = gsub('/f|n/','',area)) %>%
+    select(year=iyr,area, obs = sight,cv=cvcsla,
+           pro.obs = prorated) %>%
+    copy_to(trials_db,name='naf_sight',df = .,temporary = FALSE)
   
 }
 
