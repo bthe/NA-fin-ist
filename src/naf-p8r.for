@@ -446,7 +446,6 @@ c      catchbyage = 'catchbyage.dat'
       ix = 1  
       do while(ix < num_args)
          call get_command_argument(ix,args(ix))
-C         write(*,*) args(ix)
          ix = ix + 1
          if(ix == num_args) continue
          select case(adjustl(args(ix-1)))
@@ -468,7 +467,6 @@ C         write(*,*) args(ix)
          end select
       end do
       end if
-C      write(*,*) copyna, randomf, manage, nafcon
 
 C
 C     Open input files
@@ -1379,7 +1377,6 @@ C         Parameters were read above. Check the expected fit is achieved  # CHEC
 C         Call HITFUN to run the model forward from INITYR to start of
 C           management (year 0), using parameters from conditioning run.
 C         (Note: SETMIX was called above to set MIXNO)
-C      write(*,*) 'I am here'
 
           F1ST = LOG(F)
           PRDIAG = 0
@@ -1391,11 +1388,8 @@ C         Call HITFUN to setup population at year 0 & calculate fit to data
 cc     +                 ,LikeAb,LikeCat,LikeTag,LikeAge
           IF (ABS(OLDFIT-FIT) > 0.05d0) STOP ' ERROR IN FIT'
           IF (DOCON==-1) THEN
-
             CALL PCOND(N,FIT)
-C            write(*,*) 'PCOND done'
             CALL REPORT (IPNT,-1)
-C            write(*,*) 'REPORT done'
             GO TO 500
           ENDIF
         ENDIF
@@ -1423,16 +1417,16 @@ C         Call the CLA to set catch limit CATSM for each Small Area & procedure
           DO 200 IP = 1,NPROC
             CALL RUNCLC (CATKA,SIGHT,CV,IYR,INITYR,CATSM,MAPC,
      +                   OPTCLC,IP,NPROC)
-c            write(*,*) 'I am here 1'
+
 C           Set fixed aboriginal catch in WG (subarea 2)
             CATSM(IP,2) = 19.0d0
 
  200      CONTINUE
-c          write(*,*) 'I am here 2'
+
 C         DIVCL allocates the Small Area catch CATSM to subareas (CATCH)
 C               If NPROC=2 the value from each procedure is combined
           CALL DIVCL(CATSM,CATCH,NSCAT,CSUB,SIGHT,CV,IYR,NPROC)
-c          write(*,*) 'DIVCL'
+
 C     
 C         Allocate catch to sex (50:50) and combine EG+WI in Hyp 7&8
           DO 250 KM=1,MXSUBA
@@ -1446,10 +1440,8 @@ C         Call SURVEY to set survey estimates SIGHT(IYR-1,K)
 C         This allows a 2-year delay between a survey being performed
 C         and the results being used to set a catch limit
           CALL SURVEY (SIGHT,CV,IYR-1)
-c           write(*,*) 'survey done'
 C         Construct estimates for areas larger than subareas
           CALL CONSUR (SIGHT,CV,IYR-1)
-c          write(*,*) 'consur done'
 C
 C         Project population forward to IYR+1. Set new V matrix using SETV
           CALL STKUPA (IYR)
@@ -1462,7 +1454,6 @@ C
   500 CONTINUE
 C
 C     Use PSTATS to print out final statistics
-c      write(*,*) 'I am here'
       IF (DOCON.NE.1) CALL PSTATS (IPNT,SIGHT)
       CLOSE (38)
 C
@@ -1609,9 +1600,6 @@ C       set the mixing matrix V to its expected (normalised) value
         DO 10 L  = 1,MAXAGE
           V(K,J,L) = VE(K,J)
   10    CONTINUE
-C        DO 51 K=1,NSUBA
-C         IF (IYR.EQ.INITYR) WRITE(*,'(6(F6.3,1x))') (V(K,J,5),J=1,NSTK)
-C51      CONTINUE   
 
       ELSE
         DO 50 J = 1,NSTK
@@ -2438,7 +2426,6 @@ C         1 mixing matrix (=norm for NAFin trials) or OPTMIX>=2 (when VE=initial
 C         If NMIX=2 take the average of 2 mixing matrices ###### not used here
 C          IF (NMIX(J).EQ.2.AND.OPTMIX<2) VE(K,J) =(VE(K,J)+JV(K,J,2))*.5d0
  250    CONTINUE
-C       write(*,*) ((VE(K,2)),K=1,NSUBA)
 C
 C       Set pristine mature stock sizes (stored in GG after gamma & other parameters)
         I = NGAMMA+NDELTA+3+J
@@ -2984,18 +2971,11 @@ C         a BETA generator. EGWIP = mean historical EG propn with variance EGWIV
 C     Generate the survey results
 C      PROP2 =-1.D0
       DO 100 KM=1,MXSUBA
-c         write(*,*) 'insider'
 C       First increment all the random number generators for every area
-c         write(*,*) iseed1, iseed2,iseed3
         Y = XNORM (1.d0,0.d0,ISEED1,MA1,INEXT1,INXTP1)
-c        write(*,*) 'XNORM'
         RANNO = RAN1(ISEED1,MA1,INEXT1,INXTP1)
-c        write(*,*) 'RANNO'
         I2SEED = INT(-RAN1(ISEED2,MA2,INEXT2,INXTP2)*100000.d0)
-c        write(*,*) 'I2SEED'
         I3SEED = INT(-RAN1(ISEED3,MA3,INEXT3,INXTP3)*100000.d0)
-c        write(*,*) 'I3SEED'
-c         write(*,*) 'Inside survey 1'
 C       Leave loop if no survey this year/area (SIGHT & CV initialised to -1 in RESET)
         IF (RUNSUR(IY,KM)==0) GOTO 100
 
@@ -3019,7 +2999,6 @@ C       Specify parameters used to generate estimates. TAU2 = TAU**2  {Eqns F.5 
         ALPHA2 = 0.120d0*TAU2(KM)
         SIGMA  = SQRT(LOG(ALPHA2 + CVADD(KM)**2 +1.d0))
         BETA2K = 0.025d0*TAU2(KM)*KSGT(KM)*G0*BIAS
-c        write(*,*) 'Inside survey 2'
 C
 C       Generate Poisson component
         W = ABUND/BETA2K
@@ -3040,7 +3019,6 @@ C       CV Generation {Eqn F.5} (unless estimate is non-zero)
 C         Zero estimate. Store Z(i), the Poisson multiplier, in SCV
           SCV =  BETA2K * EXP(Y)
         ENDIF
-c         write(*,*) 'Inside survey 3'
 C
 C       Now generate proportion N of 60N for NF-Q trials & Variant 4 (in EI/F & WI)
 C           from a beta distribution (with Mean Mu & Var based on obs.data).
@@ -3054,7 +3032,6 @@ C       For all other trials/areas/variants  Prop = Mu = SRATIO = 1.
          BETABETA = ALPHABETA*(1.D0-MU)/MU
          PROP = GENBET(ALPHABETA,BETABETA,I2SEED)
         ENDIF
-c         write(*,*) 'Inside survey 4'
 C
 C       Store results.
         SIGHT(IY,KM) = SGT*PROP
