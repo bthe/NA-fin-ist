@@ -49,7 +49,7 @@ Can  WG  EG  WI  EI  Far UK Spz  NoN NoW Sp  PWG  PEG  PWI  PEI  PN   PWI? PN?
 {{cmult|1}}                                         = CMULT. =1 baseline. Use to increase proportion of lost < 1915
 {{optsgt|0}}                                         = OPTSGT =0 (baseline) or 1 (NF-A3): prorate abundance (defines survey.dat col to use)
 0.59  0.00177                             = EGWIP & EGWIP = mean and SD of historical proportion of EG in combined EG-WI area
-{{icbya1|1967}}  {{icbya2|2010}}                                = ICBYA1 & ICBYA2 = 1st & last years of age data to be used in fitting
+{{icbya1|1972}}  {{icbya2|2010}}                                = ICBYA1 & ICBYA2 = 1st & last years of age data to be used in fitting
 0                                         = TAGEXC1
 1                                         = spare 2
 

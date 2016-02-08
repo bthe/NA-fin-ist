@@ -285,7 +285,7 @@ NafSetup <- function(dir = 'trials'){
   
     
   ## TODO: 
-  ## - NF-X, NF-C (should we skip them)
+  ## - NF-X, NF-C (should we skip them?)
   ## - Missing data: NF-H, NF-X NF-P
   ## - Future trials: NF-Q, A, Y, F 
   
@@ -294,7 +294,7 @@ NafSetup <- function(dir = 'trials'){
 NafCond <- function(dir='trials',
                     nafpar='../variants/Naf-v0.par',
                     search.string = 'NF-[A-Z][0-9]-[0-9].dat'){
-  mclapply(list.files('basedb_create_index(trials_db$con, 'naf_pop',c('trial','variant','year'))line/', search.string),
+  mclapply(list.files('baseline/', search.string),
            function(x) NafCall(run_dir=dir,copyna=x,nafpar=nafpar),
            mc.cores = detectCores(logical = TRUE))
 } 
@@ -383,7 +383,7 @@ NafResults.readAge <- function(file='NAF.age', trials_db){
   ref <- gsub('(NF-[A-Z][0-9]-[0-9]).+','\\1',age[1],perl=TRUE)
   ## add conditioning trial number
   age <- paste(paste(age[-c(1,loc[-1])],collapse = '\n'),
-               c('trial',rep(0:100,each = (diff(loc)[1]-1))))
+               c('trial',rep(0:(length(loc)-1),each = (diff(loc)[1]-1))))
   ## throw away the zero entries
   age <- age[!grepl('0.0     0.0     0.0     0.0',age)]
   age[1] <- tolower(age[1])
@@ -446,7 +446,8 @@ NafResults.readCat <- function(file='NAF.all', trials_db){
   catch %>%
     mutate(ref = ref,
            variant = variant,
-           trial = rep(0:100,each = diff(range(year))+1)) %>% 
+           trial = rep(0:(sum(year==min(year))-1),
+                       each = diff(range(year))+1)) %>% 
     
     db_insert_into(trials_db$con,table='naf_cat',values = .)
 }
@@ -465,7 +466,7 @@ NafResults.readPop <- function(file='NAF.pop', trials_db){
     rename(year=yr) %>%
     mutate(ref = ref,
            variant = variant,
-           trial = rep(0:100,each = diff(range(year))+1)) %>%
+           trial = rep(0:(sum(year==min(year))-1),each = diff(range(year))+1)) %>%
     gather(population,number,-c(year,ref,variant,trial)) %>%
     separate(population,c('pop_type','pop_id')) %>%
     mutate(pop_type = ifelse(pop_type=='pf','Mature females','1+')) %>%
