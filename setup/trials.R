@@ -19,7 +19,8 @@ library(stringi)
 #'
 #' @examples
 NafTrial <- function(hypo=1,msyr=0.01,trialtype='B',
-                  template_file='setup/trial_template.txt',...){
+                     template_file='setup/trial_template.txt',nf='NF',
+                     ...){
   
   ## default values for variables
   nstk <- 6
@@ -135,8 +136,8 @@ NafTrial <- function(hypo=1,msyr=0.01,trialtype='B',
   }
   
   ## trial code generated
-  ref <- 'NF-{{trialtype}}{{hypo}}-{{msyr}} H{{hypo}}-{{msyr}}' %>%
-    infuse(hypo=hypo,msyr=100*msyr,trialtype=trialtype)
+  ref <- '{{nf}}-{{trialtype}}{{hypo}}-{{msyr}} H{{hypo}}-{{msyr}}' %>%
+    infuse(hypo=hypo,msyr=100*msyr,trialtype=trialtype,nf=nf)
   
   ## assign msyr rates to nstk stocks
   msyr.txt <- 
@@ -166,8 +167,8 @@ NafTrial <- function(hypo=1,msyr=0.01,trialtype='B',
                        nummix = nummix,
                        mixmat2 = mixmat2),
                   list(...)))
-  attr(txt,'ref') <- 'NF-{{trialtype}}{{hypo}}-{{msyr}}' %>%
-    infuse(hypo=hypo,msyr=100*msyr,trialtype=trialtype)
+  attr(txt,'ref') <- '{{nf}}-{{trialtype}}{{hypo}}-{{msyr}}' %>%
+    infuse(hypo=hypo,msyr=100*msyr,trialtype=trialtype,nf=nf)
   class(txt) <- c('NafTrial',class(txt))
   return(txt)
 }
@@ -211,7 +212,28 @@ NafCall <- function(...){
   }
 }
 
-
+NafWeights <- function(dir = 'weights_trials'){
+  dir.create(dir,showWarnings = FALSE)
+  tmp <- 
+    list.files('data') %>% 
+    map(~file.copy(from=sprintf('data/%s',.),
+                   to=sprintf('%s/%s',dir,.),
+                   overwrite = TRUE))
+  tmp <- file.copy('settings/manage-single.dat',sprintf('%s/manage.dat',dir))
+  for(hypo in 1:8){
+    for(msyr in c(0.01,0.04)){
+      for(tagwt in 0.1*(0:10)){
+        for(wtagei in 0.01*(0:10)){
+            NafWrite(NafTrial(hypo = hypo,msyr = msyr,
+                              tagwt=tagwt,wtagei = wtagei,
+                              nf= sprintf('T%s',10*tagwt),
+                              trialtype = 100*wtagei),dir)
+        }
+      }
+    }
+  }
+}
+  
 NafSetup <- function(dir = 'trials'){
   dir.create(dir,showWarnings = FALSE)
   tmp <- 
