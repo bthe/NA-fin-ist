@@ -20,7 +20,7 @@ C
 
       INTEGER,PARAMETER ::MXSTK=6,  MXAGE2=100,MXSUBA=7,   MXAR=12,
      +                    I1YR=-151,IENDYR=100,I1SYR =-30, MXMIX=2,
-     +                    MXAB=20,  MXOP=29,   MXGAM =10,  MXFIT=18000
+     +                    MXAB=20,  MXOP=40,   MXGAM =10,  MXFIT=18000
 
 C     REF      Reference number of run: = Trial, variant & program version
 C     MXSTK    Maximum number of stocks/substocks      = 6   J
@@ -44,9 +44,9 @@ C     SUB-AREA NUMBERS:
 C     1   2   3   4   5   6   7
 C     EC, WG, EG, WI, EI, No, Sp  Hyp 1-5, read in data & CLA arrays
 C     EC, WG, G+I,EI, No, Sp      Hyp 6-7
-      CHARACTER*3 ANAM(0:MXSUBA),ANAM2(0:MXSUBA),STKNAM(MXSTK)*2,REF*15
+      CHARACTER*5 ANAM(0:MXSUBA),ANAM2(0:MXSUBA),STKNAM(MXSTK)*2,REF*15
       DATA ANAM /' ','EC','WG','EG', 'WI','EI','No','Sp'/
-      DATA ANAM2/' ','EC','WG','G+I','EI','No','Sp','*'/
+      DATA ANAM2/' ','EC','WG','EG+WI','EI','No','Sp','*'/
 
       END MODULE ARYPAR
 
@@ -203,7 +203,7 @@ C
       REAL(8) CONEST(MXAB),TAREST(MXAB),TARVAR(MXAB),CONVAR(MXAB),
      +        TAGM(40,0:MXAGE2,MXSTK),TAGF(40,0:MXAGE2,MXSTK)
       REAL(8) RECTAR(40,I1YR:0,MXSUBA),TAGU(40,I1YR:0,MXSUBA),NREL(40),
-     +        NREL2(40),PSI(MXSUBA),TLOSS1,TLOSS2,TAGWT
+     +        NREL2(40),PSI(MXSUBA),TLOSS1,TLOSS2,TAGWT,CPEWT
       REAL(8) CPUE(6,30),CPUEV(4,4),CPUEsig(5:6),qCPUE(6)
       INTEGER TARYR(MXAB),TARA(MXAB),RECOBS(40,I1YR:0,MXSUBA)
       INTEGER IGenTag(40,90),KGenTag(40,90),TAGOP(I1YR:0,0:MXSUBA),
@@ -214,7 +214,7 @@ C
      +     CPUE,CPUEV,CPUEsig,qCPUE,NREL2,TARYR,TARA,RECOBS,TAGSS,
      +     TAGOP,NREL,PSI,TLOSS1,TLOSS2,TAGWT,TAGA,TAGIYR,TTYPE,NOP,NAB,
      +     IGenTag,KGenTag,TAGREV,
-     +     NROP,ITAG1,OPTPSI,NCPUE,Np,CPUEYR,CPUEK,NGAMMA,NDELTA
+     +     NROP,ITAG1,OPTPSI,NCPUE,Np,CPUEYR,CPUEK,NGAMMA,NDELTA,TAGEXC1
 C
 C *** CONDITIONING variables: Abundances: (all read in EXCEPT TAREST)
 C     NOP        Number of conditioning parameters (max=MXOP):
@@ -279,8 +279,8 @@ C     CPUE(NCPUE,30)   CPUE data for each series
 C     CPUEK(NCPUE)     which area for CPUE series
 C     CPUEV(4,4)       variance-covariance matrix for CPUE series 1 to 4
 C     CPUEsig(5:6)     variance for CPUE series 5 and 6
-C
-C
+C     TAGEXC1    1=exlude all tags after the first year, otherwise include all tags except same season recoveries
+C     CPEWT      Weighting of cpue data in likelihood. =1e-3 
       REAL(8) BIAS,KSGT(MXSUBA),CV2TAU(I1SYR:-1,MXSUBA),TAU2(MXSUBA),
      +        SRATIO(MXSUBA),VRATIO(MXSUBA),DF,EGWIP,EGWIV
       INTEGER RUNSUR(I1SYR:IENDYR,MXAR),MAP(MXAR,MXSUBA),
@@ -519,6 +519,7 @@ C     Read in true population parameters and option settings
 
       READ (IN,'((44X,I4))') NSTK,NTRIAL,NYEAR,NSUBA,ISTART,IPEND,
      +         FIRSTYR,OPTMIX,OPTCPE,OPTF,OPMSYL,OPTDD,MINMAT,MAXAGE
+
       IF (MAXAGE>MXAGE2) STOP 'ERROR: MXAGE2 needs increasing'
 C
 C     Premanagement catches were taken between actual years ISTART to IPEND.
@@ -583,8 +584,12 @@ C     Read 1st & last years of catch at age data to use in conditioning
       ICBYA1 = ICBYA1+ISCALE
       ICBYA2 = ICBYA2+ISCALE
 
-C     Skip 2 spare parameters
-      READ (IN,'(///)')
+C     Should the second year (+) be excluded
+      READ(IN,*) TAGEXC1 
+
+C     Skip 1 spare parameters
+
+      READ (IN,'(//)')
 
 C     Read SRATIO(K): used to set N60N proportion of future abundance
 C     =1 except in NF-Q (& Variant V4, for which this value is over-written below)
@@ -597,7 +602,7 @@ C             Ndelta dispersal parms,
 C             3 tagging parms: lambda, psiCan & psiWI+
 C             NSTK*2 pristine stock sizes & initial depletions
 C             4 selectivity parameters: RMSIG, RM50, RFSIG,RF50)
-C           + 4 extra selectivity parameters if SELYR>0
+C           + 4 extra selectivity parameters if SELYR<0 (i.e. SELYR+ISCALE<0)
 C     Set NOP= no. of parameters used in conditioning
       F1ST=0.1d0
       READ (IN,*) OPTPSI
@@ -608,7 +613,7 @@ C     Read initial tagging parameters: LAMBDA, psiC, psiWI
       READ (IN,*) F1ST(N2-2:N2)
 C
       NOP = NGAMMA + NDELTA + 3 + 2*NSTK + 4
-      IF (SELYR>0) NOP = NOP + 4
+      IF (SELYR<0) NOP = NOP + 4
       IF (NOP > MXOP) STOP ' *** ERROR: MXOP IS TOO SMALL'
 C
 C     Read Carrying capacities
@@ -619,7 +624,7 @@ C     Read Initial depletions (not used if OPTEARLY = 0)
       F1ST(NOP-2) = RM50
       F1ST(NOP-1) = RFSIG
       F1ST(NOP)   = RF50
-      IF (SELYR>0) THEN
+      IF (SELYR<0) THEN
         F1ST(NOP-7) = RMSIG
         F1ST(NOP-6) = RM50
         F1ST(NOP-5) = RFSIG
@@ -1040,8 +1045,9 @@ C     & replacement values for SRATIO & VRATIO.
 C
 C     Recheck CPUE.DAT file ##############################                    INPUT: CPUE
 C     Read data from CPUE.DAT:
+      CPEWT = 0.001
       IF (OPTCPE>0) THEN
-        OPEN (20,  FILE='CPUE.DAT')
+        OPEN (20,  FILE='CPUE.dat')
         READ (20,*) NCPUE
         DO 58 I=1,NCPUE
           READ (20,*) I2, Np(I),CPUEK(I)
@@ -1617,6 +1623,7 @@ C             Select JV(K,J,N) where N = 1 or 2
           ELSE
 C         Else OPTMIX=2 or 3 & NMIX=2. Value depends on year. NF-F & NF-G trials
             DO 22 K = 1,NSUBA
+
               VVAL(K) = JV(K,J,1)
               IF (IYR>IMIX1 .AND. IYR<IMIX2) THEN
 C               Linear change from JV(K,J,1) in IMIX1 to JV(K,J,2) in IMIX2
@@ -1784,7 +1791,7 @@ C     Call STKUPA to advance population vectors to start of year 0
 C          (and set up the new V matrix, by calling SETV)
 C     TAGUPD updates the number of tags during the tagging data period
 C     Set NSEL. Reset NSEL if IYR>SELYR to change the selectivity (NF-S trial)
-      NSEL = 1
+      NSEL = 1 
       DO 200 IYR=FIRSTYR,-1
         IF (IYR.GE.SELYR) NSEL=2
         IF (IYR.GE.ITAG1) CALL TAGUPD(IYR)
@@ -2391,7 +2398,7 @@ C       Hypotheses 4 & 8: NODISP = 0 (no dispersal). Ensure GG(5) is +ve
         IF (GG(3) > 0.4999D0) FUNCT = FUNCT + 100000.d0 + GG(3)
         GG(5) = 1.D0 - 2*GG(3)
         GG(6) = GG(4) * GG(3)
-      ELSE IF (NSTK==5) THEN
+      ELSE IF (NSTK==5) THEN 
 C       Hypotheses 6 & 7
         GG(2) = 1.D0 - GG(3)
         GG(5) = GG(1) * GG(2)
@@ -2481,7 +2488,7 @@ C     Constrain RM50=GG(NOP-2) to be between 1 & MAXAGE
       CALL SETO (SELF(:,1),GG(NOP-1),RF50,MAXAGE)
 C
 C     NF-S trials: set the Selectivity for use from SELYR on (NSEL=2)
-      IF (SELYR>0) THEN
+      IF (SELYR<0) THEN
         RM50 = GG(NOP-6)
         IF (RM50>XAGE) FUNCT = FUNCT + 100000.d0 * (1.D0+RM50-XAGE)
         IF (RM50<1.d0) FUNCT = FUNCT + 100000.d0 * (2.d0-RM50)
@@ -2540,7 +2547,7 @@ C     when fitting the operating model to the abundance & other data
 C
       USE DECLARECOM
 C
-      INTEGER IYR,J,K,N,I,NR2,Ns(6),II,I2,II2,NF1,L,NF
+      INTEGER IYR,J,K,N,I,NR2,Ns(6),II,I2,II2,NF1,L,NF,LASTTIYR
       REAL(8) X,Y,S,TOT1,ALPHA,TERM1,TERM2,TERM3,GAMMLN,LAMBDA,
      +       Utarg,Upred
       REAL(8) V3(3,3),VI3(3,3),V4(4,4),VI4(4,4),V2(2,2),
@@ -2621,6 +2628,12 @@ C      Skip out of loop if 0 releases in this op (ie in Hyp 7&8 when EG&WI are c
        IF (NREL2(NR2)==0) GO TO 350
 
 C      Start Year AFTER tags were released (as NO same season recov in likelihood)
+       IF(TAGEXC1 .EQ. 1) THEN
+          LASTTIYR = TAGIYR(NR2)+2
+       ELSE
+          LASTTIYR = -1
+       ENDIF
+       
        DO 340 IYR = TAGIYR(NR2)+1,-1
         DO 340 K = 1,NSUBA
 
@@ -2636,7 +2649,7 @@ C        Skip out of loop if no predicted or observed tags
          TERM2 = ALPHA * LOG(LAMBDA/(LAMBDA+1.D0))
          TERM3 = Utarg * LOG(1.D0/(LAMBDA+1.D0))
          FITRSD(NF) = FITRSD(NF) + TERM1 + TERM2 + TERM3
-
+         
  340   CONTINUE
        FITRSD(NF) = -2.D0 * FITRSD(NF) * TAGWT
        LikeTag = LikeTag + FITRSD(NF)
@@ -2723,7 +2736,7 @@ C      Likelihood for the later series (1-4)
 C      ****Note: hardwired years throughout this CPUE section**** ######
 C      ****      Including the array size (years) of ETA
 C
-       DO 420 IYR=-47,-22
+       DO 420 IYR=1962+ISCALE,1987+ISCALE
         DO 420 I = 1,4
          DO 420 II = 1,Np(I)
            IF (CPUEYR(I,II).EQ.IYR) THEN
@@ -2740,7 +2753,7 @@ C      Period 1: 1962 to 1965: only series 1 to 3
           V3(I,II) = CPUEV(I,II)
   425  CONTINUE
        CALL INVM(V3,VI3,3,3)
-       DO 430 IYR=-47,-44
+       DO 430 IYR=1962+ISCALE,1965+ISCALE
          DO I=1,3
            K = CPUEK(I)
            Ns(I) =Ns(I)+1
@@ -2750,7 +2763,7 @@ C      Period 1: 1962 to 1965: only series 1 to 3
            FITRSS(NF) = ETA(I,IYR)
          ENDDO
          CALL MultEVE(E3,VI3,C,3)
-         FITRSD(NF) = C
+         FITRSD(NF) = CPEWT*C
   430  CONTINUE
 C      Period 2: 1966 to 1982: series 1 to 4
        DO 525 I=1,4
@@ -2758,7 +2771,7 @@ C      Period 2: 1966 to 1982: series 1 to 4
           V4(I,II) = CPUEV(I,II)
   525  CONTINUE
        CALL INVM(V4,VI4,4,4)
-       DO 530 IYR=-43,-27
+       DO 530 IYR=1965+ISCALE,1982+ISCALE
          DO I=1,4
            K = CPUEK(I)
            Ns(I) =Ns(I)+1
@@ -2768,7 +2781,7 @@ C      Period 2: 1966 to 1982: series 1 to 4
            FITRSS(NF) = ETA(I,IYR)
          ENDDO
          CALL MultEVE(E4,VI4,C,4)
-         FITRSD(NF) = C
+         FITRSD(NF) = CPEWT*C
   530  CONTINUE
 C      Period 3: 1983 to 1985: series 1, 3 and 4
        I = 0
@@ -2785,7 +2798,7 @@ C      Period 3: 1983 to 1985: series 1, 3 and 4
          ENDIF
   620  CONTINUE
        CALL INVM(V3,VI3,3,3)
-       DO 630 IYR=-26,-24
+       DO 630 IYR=1983+ISCALE,1985+ISCALE
          I = 0
          DO I2=1,4
            IF (I2/=2) THEN
@@ -2799,7 +2812,7 @@ C      Period 3: 1983 to 1985: series 1, 3 and 4
            ENDIF
           ENDDO
           CALL MultEVE(E3,VI3,C,3)
-          FITRSD(NF) = C
+          FITRSD(NF) = CPEWT*C
   630  CONTINUE
 C      Period 4: 1986 to 1987: series 3 to 4
        I = 0
@@ -2811,7 +2824,7 @@ C      Period 4: 1986 to 1987: series 3 to 4
            V2(I,II) = CPUEV(I2,II2)
   725    CONTINUE
          CALL INVM(V2,VI2,2,2)
-         DO 730 IYR=-23,-22
+         DO 730 IYR=1986+ISCALE,1987+ISCALE
          I=0
          DO I2=3,4
            K = CPUEK(I2)
@@ -2823,7 +2836,7 @@ C      Period 4: 1986 to 1987: series 3 to 4
            FITRSS(NF) = ETA(I2,IYR)
          ENDDO
          CALL MultEVE(E2,VI2,C,2)
-         FITRSD(NF) = C
+         FITRSD(NF) = CPEWT*C
   730  CONTINUE
 C
 C      Now the older CPUE series {Eqn G.14}
@@ -2837,7 +2850,7 @@ C      Now the older CPUE series {Eqn G.14}
          S=TOT1*TOT1/(2.0d0*CPUEsig(I)*CPUEsig(I))
          FITDAT(NF) = Y
          FITRSS(NF) = TOT1
-         FITRSD(NF) = 2.D0 * S
+         FITRSD(NF) = CPEWT*2.D0 * S
   810   CONTINUE
   800  CONTINUE
       ENDIF
@@ -3226,13 +3239,13 @@ C     Set pristine & yr 0 1+ population size by stock
       OPEN (98, FILE=ref(1:7)//'.cat',ACCESS='APPEND')                          # catch by stck, 1+ by subarea
 
       OPEN (94, FILE=ref(1:7)//'.age',ACCESS='APPEND')
-      WRITE(94,'(8A8)') 'YEAR ','AREA ','AGE ','OBS-FEM','PRD-FEM',
+      WRITE(94,*) 'YEAR ','AREA ','AGE ','OBS-FEM','PRD-FEM',
      +     'OBS-M ','PRD-M '
       DO 8 K=1,NSUBA
         IF (SUM(OCAM(ICBYA1:ICBYA2,K))>0) THEN
           DO 7 I = ICBYA1,0
            DO 7 L=1,MAXAGE
-            WRITE(94,'(3I8,6F8.1)') I-ISCALE,K,L, OCBYAM(I,L,K),
+            WRITE(94,*) I-ISCALE,K,L, OCBYAM(I,L,K),
      +               PCBYAM(I,L,K), OCBYAF(I,L,K),PCBYAF(I,L,K)
     7     CONTINUE
         END IF
