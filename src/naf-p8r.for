@@ -2634,7 +2634,7 @@ C      Start Year AFTER tags were released (as NO same season recov in likelihoo
           LASTTIYR = -1
        ENDIF
        
-       DO 340 IYR = TAGIYR(NR2)+1,-1
+       DO 340 IYR = TAGIYR(NR2)+1,LASTTIYR
         DO 340 K = 1,NSUBA
 
          Utarg = RECTAR(NR2,IYR,K)
@@ -3239,8 +3239,8 @@ C     Set pristine & yr 0 1+ population size by stock
       OPEN (98, FILE=ref(1:7)//'.cat',ACCESS='APPEND')                          # catch by stck, 1+ by subarea
 
       OPEN (94, FILE=ref(1:7)//'.age',ACCESS='APPEND')
-      WRITE(94,*) 'YEAR ','AREA ','AGE ','OBS-FEM','PRD-FEM',
-     +     'OBS-M ','PRD-M '
+      WRITE(94,*) 'YEAR ','AREA ','AGE ','OBS-FEM ','PRD-FEM ',
+     +     'OBS-M  ','PRD-M '
       DO 8 K=1,NSUBA
         IF (SUM(OCAM(ICBYA1:ICBYA2,K))>0) THEN
           DO 7 I = ICBYA1,0

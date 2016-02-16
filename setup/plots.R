@@ -38,15 +38,17 @@ pop %>%
 #            number = sum(ifelse(trial==0,number,0))) %>%
 #  ungroup() %>%
   mutate(#tagwt = gsub('T.-([0-9]).-[0-9]','\\1',ref),
-         #agewt = gsub('T([0-9])-..-[0-9]','\\1',ref),
-#         msyr = as.numeric(gsub('..-..-([0-9])','\\1',ref)),
-#         hypo = gsub('..-.([0-9]).+','\\1',ref),
-         msyr = as.character(msyr/100),
-         trialtype = gsub('..-([A-Z]).+','\\1',ref)) %>%
+    #agewt = gsub('T([0-9])-..-[0-9]','\\1',ref),
+    #         msyr = as.numeric(gsub('..-..-([0-9])','\\1',ref)),
+    #         hypo = gsub('..-.([0-9]).+','\\1',ref),
+    
+    msyr = as.character(msyr/100),
+    trialtype = gsub('..-([A-Z]).+','\\1',ref)) %>%
   rename(area=pop_id) %>%
-  left_join(sight) -> tmp
+  left_join(sight) %>%
+  mutate(area = ordered(area,levels=c('EC','WG','EG','WI','EG+WI','EI/F','N','SP'))) -> tmp
 tmp %>% ## hypos 1,(-)2,3(-),(-)4,5(-),(-)6,7,(-)8
-  filter(hypo == 4,trialtype=='B') %>% #,tagwt==9,agewt %in% c(9)) %>%
+  filter(hypo == 1,trialtype=='B') %>% #,tagwt==9,agewt %in% c(9)) %>%
   ggplot(aes(year,number,lty=msyr,fill=msyr)) + 
   #geom_ribbon(aes(year,ymax=cond.975,ymin=cond.0.25),alpha=0.3) + 
   geom_line() + 

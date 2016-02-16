@@ -323,7 +323,7 @@ NafSetup <- function(dir = 'trials'){
                         trialtype='F', optmix = 3),dir)
     }
   }
-  ## NF-C trials changes in mixing matricies
+  ## NF-C trials adds a cpue likelihood 
   for(msyr in c(0.01,0.04)){
     NafWrite(NafTrial(hypo = 3, msyr = msyr,
                       trialtype='C', optcpe = 1),dir)
