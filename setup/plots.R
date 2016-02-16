@@ -80,7 +80,9 @@ age.dat <- read.table('data/catchbyage.dat',na.strings = '0') %>%
   gather(var,val,-c(V1:V2)) %>%
   na.omit() %>% 
   select(year=V1,age=V2,sex=var,obs=val) %>%
-  mutate(sex = ifelse(sex=='V9','Males','Females'))
+  mutate(sex = ifelse(sex=='V9','Males','Females')) %>% 
+  group_by(year,sex) %>%
+  mutate(obs=obs/sum(obs,na.rm=TRUE))
 
 age <- 
   tbl(db,'naf_age') %>%
@@ -98,29 +100,34 @@ age <-
   left_join(age.dat) %>%
   rename(prd= num) %>%
   group_by(ref,year,sex) %>%
-  mutate(obs = obs/sum(obs,na.rm=TRUE),
-         prd = prd/sum(prd,na.rm=TRUE),
+  mutate(prd = prd/sum(prd,na.rm=TRUE),
          diff = obs-prd,
          dir = as.character(sign(diff+1e-10)))
 
 age %>% 
-  filter(year<1990,trialtype=='B',hypo == 8) %>%
+  filter(year<1990,trialtype=='B',hypo == 7) %>%
   ggplot(aes(year,age,size=abs(diff),col=dir)) + geom_point()+
   facet_grid(msyr~sex) + theme_bw() + scale_color_manual(values = c('lightblue','black')) + 
   theme(legend.position='none') 
 
 
 tbl(db,'naf_tag') %>%
-  filter(ref=='NF-B3-4',area=='wi') %>%
+  filter(area=='wi') %>%
   collect() %>% 
-  group_by(rela) %>%
+  mutate(msyr = as.numeric(gsub('..-..-([0-9])','\\1',ref)),
+         hypo = gsub('..-.([0-9]).+','\\1',ref),
+         msyr = as.character(msyr/100),
+         trialtype = gsub('..-([A-Z]).+','\\1',ref)) %>%
+  group_by(ref,rela,area) %>%
   arrange(year) %>%
   mutate(prd1 = cumsum(prd),
-         obs1 = ifelse(obs>0,cumsum(obs),0)) %>%
-  ggplot(aes(year,obs1)) + geom_point() + 
-  geom_line(aes(year,prd1)) + 
+         obs1 = cumsum(obs)) %>%
+  filter(trialtype=='B',hypo == 3) %>%
+    ggplot(aes(year,ifelse(obs>0,obs1,NA))) + geom_point() + 
+  geom_line(aes(year,prd1,lty=msyr)) + 
   facet_wrap(~rela,scale='free_y',ncol=1)+
-  theme_bw() + xlim(c(1965,2010))
+  theme_bw() + xlim(c(1965,2010)) + ylab('Num. tags recaptured in WI') +
+  xlab('Year')
   
   
 

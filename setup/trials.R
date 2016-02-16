@@ -555,7 +555,7 @@ NafResults.readPop <- function(file='NAF.pop', trials_db){
   
 }
 
-NafResults.readTag <- function(file='NAF.pop', trials_db){
+NafResults.readTag <- function(file='NAF.tag', trials_db){
   tag <- tryCatch(read.table(file = file, skip = 3),
                   error=function(e) NULL)
   header <- readLines(file,n=3)
