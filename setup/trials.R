@@ -6,6 +6,7 @@ library(RSQLite)
 library(readr)
 library(tidyr)
 library(stringi)
+library(ggplot2)
 
 #' Title
 #'
@@ -565,20 +566,22 @@ NafResults.readTag <- function(file='NAF.tag', trials_db){
   }
   
   ref <- gsub('(NF-[A-Z][0-9]-[0-9]).+','\\1',header[1],perl=TRUE)
-  tmp <- tolower(scan(text=gsub('Obs:|Pred:|\\+|\\*','',header[2]),
-                      what='character', quiet=TRUE))
+  tmp <- scan(text=gsub('Obs:|Pred:|\\*','',
+                                gsub('EG\\+WIEI','EG\\+WI EI',header[2])),
+                      what='character', quiet=TRUE)
   areas <- unique(tmp[-c(1:2)])
-  names(tag) <- c(tmp[1:2],paste(c(areas,areas),
-                                 rep(c('obs','prd'),
-                                     each=length(areas)),
-                                 sep = '.'))
+  names(tag) <- c(tolower(tmp[1:2]),
+                  paste(c(areas,areas),
+                        rep(c('obs','prd'),
+                            each=length(areas)),
+                        sep = '.'))
   class(tag) <- 'data.frame'
   tag %>%
     rename(year = yr) %>%
     mutate(ref = ref, 
            rela = areas[rela]) %>% 
     gather(type,value,-c(year,rela,ref)) %>% 
-    separate(type,c('area','type')) %>% 
+    separate(type,c('area','type'),sep = '\\.') %>% 
     spread(type,value) %>%
     db_insert_into(trials_db$con,table='naf_tag',values = .)
 }

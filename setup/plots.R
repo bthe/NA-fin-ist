@@ -9,7 +9,7 @@ tmp_func <- function(x){
   }
 }
 
-db <- src_sqlite('test3.db')
+db <- src_sqlite('weights3.db')
 sight <- tbl(db,'naf_sight') %>%
   mutate(upper = exp(log(obs)+1.96*cv),
          lower = exp(log(obs)-1.96*cv)) %>%
@@ -37,19 +37,19 @@ pop %>%
 #            cond.0.25 = quantile(number,0.025),
 #            number = sum(ifelse(trial==0,number,0))) %>%
 #  ungroup() %>%
-  mutate(#tagwt = gsub('T.-([0-9]).-[0-9]','\\1',ref),
-    #agewt = gsub('T([0-9])-..-[0-9]','\\1',ref),
-    #         msyr = as.numeric(gsub('..-..-([0-9])','\\1',ref)),
-    #         hypo = gsub('..-.([0-9]).+','\\1',ref),
-    
+  mutate(agewt = gsub('T.-([0-9]).-[0-9]','\\1',ref),
+    tagwt = gsub('T([0-9])-..-[0-9]','\\1',ref),
+             msyr = as.numeric(gsub('..-..-([0-9])','\\1',ref)),
+             hypo = gsub('..-.([0-9]).+','\\1',ref),
     msyr = as.character(msyr/100),
     trialtype = gsub('..-([A-Z]).+','\\1',ref)) %>%
   rename(area=pop_id) %>%
   left_join(sight) %>%
   mutate(area = ordered(area,levels=c('EC','WG','EG','WI','EG+WI','EI/F','N','SP'))) -> tmp
+
 tmp %>% ## hypos 1,(-)2,3(-),(-)4,5(-),(-)6,7,(-)8
-  filter(hypo == 1,trialtype=='B') %>% #,tagwt==9,agewt %in% c(9)) %>%
-  ggplot(aes(year,number,lty=msyr,fill=msyr)) + 
+  filter(hypo == 3,trialtype%in%c('B','F','G')) %>% #,agewt==5,tagwt==7) %>% #,trialtype %in% c('B','R')) %>% #,tagwt==9,agewt %in% c(9)) %>%
+  ggplot(aes(year,number,lty=msyr,fill=msyr,col=trialtype)) + 
   #geom_ribbon(aes(year,ymax=cond.975,ymin=cond.0.25),alpha=0.3) + 
   geom_line() + 
 #  geom_line(aes(year,med),col='red') + 
@@ -57,10 +57,79 @@ tmp %>% ## hypos 1,(-)2,3(-),(-)4,5(-),(-)6,7,(-)8
   geom_point(aes(year,obs),col='black') + geom_errorbar(aes(year,ymax=upper,ymin=lower),col='black') + 
   theme_bw() + ylab('1+ population') + xlab('Year')
 
+full.ec <- 
+tmp %>% ## hypos 1,(-)2,3(-),(-)4,5(-),(-)6,7,(-)8
+  filter(area == 'EC') %>% #,trialtype %in% c('B','R')) %>% #,tagwt==9,agewt %in% c(9)) %>%
+  ggplot(aes(year,number,lty=tagwt,col=agewt)) + 
+  #geom_ribbon(aes(year,ymax=cond.975,ymin=cond.0.25),alpha=0.3) + 
+  geom_line() + 
+  #  geom_line(aes(year,med),col='red') + 
+  facet_wrap(~hypo+msyr) +
+  geom_point(aes(year,obs),col='black') + geom_errorbar(aes(year,ymax=upper,ymin=lower),col='black') + 
+  theme_bw() + ylab('1+ population') + xlab('Year')
+
+red.ec <-
+tmp %>% ## hypos 1,(-)2,3(-),(-)4,5(-),(-)6,7,(-)8
+  filter(area == 'EC',agewt%in%5:7,tagwt%in%7:8) %>% #,trialtype %in% c('B','R')) %>% #,tagwt==9,agewt %in% c(9)) %>%
+  ggplot(aes(year,number,lty=tagwt,col=agewt)) + 
+  #geom_ribbon(aes(year,ymax=cond.975,ymin=cond.0.25),alpha=0.3) + 
+  geom_line() + 
+  #  geom_line(aes(year,med),col='red') + 
+  facet_wrap(~hypo+msyr) +
+  geom_point(aes(year,obs),col='black') + geom_errorbar(aes(year,ymax=upper,ymin=lower),col='black') + 
+  theme_bw() + ylab('1+ population') + xlab('Year')
+
+full.eif <- 
+tmp %>% ## hypos 1,(-)2,3(-),(-)4,5(-),(-)6,7,(-)8
+  filter(area == 'EI/F') %>% #,trialtype %in% c('B','R')) %>% #,tagwt==9,agewt %in% c(9)) %>%
+  ggplot(aes(year,number,lty=tagwt,col=agewt)) + 
+  #geom_ribbon(aes(year,ymax=cond.975,ymin=cond.0.25),alpha=0.3) + 
+  geom_line() + 
+  #  geom_line(aes(year,med),col='red') + 
+  facet_wrap(~hypo+msyr) +
+  geom_point(aes(year,obs),col='black') + geom_errorbar(aes(year,ymax=upper,ymin=lower),col='black') + 
+  theme_bw() + ylab('1+ population') + xlab('Year')
+
+red.eif <- 
+tmp %>% ## hypos 1,(-)2,3(-),(-)4,5(-),(-)6,7,(-)8
+  filter(area == 'EI/F',tagwt%in%5:7,agewt %in% 5:6) %>% #,trialtype %in% c('B','R')) %>% #,tagwt==9,agewt %in% c(9)) %>%
+  ggplot(aes(year,number,lty=tagwt,col=agewt)) + 
+  #geom_ribbon(aes(year,ymax=cond.975,ymin=cond.0.25),alpha=0.3) + 
+  geom_line() + 
+  #  geom_line(aes(year,med),col='red') + 
+  facet_wrap(~hypo+msyr) +
+  geom_point(aes(year,obs),col='black') + geom_errorbar(aes(year,ymax=upper,ymin=lower),col='black') + 
+  theme_bw() + ylab('1+ population') + xlab('Year')
+
+
+full.eg <- 
+  tmp %>% ## hypos 1,(-)2,3(-),(-)4,5(-),(-)6,7,(-)8
+  filter(area %in% c('EG','EG+WI')) %>% #,trialtype %in% c('B','R')) %>% #,tagwt==9,agewt %in% c(9)) %>%
+  ggplot(aes(year,number,lty=tagwt,col=agewt)) + 
+  #geom_ribbon(aes(year,ymax=cond.975,ymin=cond.0.25),alpha=0.3) + 
+  geom_line() + 
+  #  geom_line(aes(year,med),col='red') + 
+  facet_wrap(~hypo+msyr) +
+  geom_point(aes(year,obs),col='black') + geom_errorbar(aes(year,ymax=upper,ymin=lower),col='black') + 
+  theme_bw() + ylab('1+ population') + xlab('Year')
+
+red.eg <- 
+  tmp %>% ## hypos 1,(-)2,3(-),(-)4,5(-),(-)6,7,(-)8
+  filter(area %in% c('EG','EG+WI'),tagwt%in%5:7,agewt %in% 5:6) %>% #,trialtype %in% c('B','R')) %>% #,tagwt==9,agewt %in% c(9)) %>%
+  ggplot(aes(year,number,lty=tagwt,col=agewt)) + 
+  #geom_ribbon(aes(year,ymax=cond.975,ymin=cond.0.25),alpha=0.3) + 
+  geom_line() + 
+  #  geom_line(aes(year,med),col='red') + 
+  facet_wrap(~hypo+msyr) +
+  geom_point(aes(year,obs),col='black') + geom_errorbar(aes(year,ymax=upper,ymin=lower),col='black') + 
+  theme_bw() + ylab('1+ population') + xlab('Year')
+
+
+
 
 pop %>% 
   filter(trial == 0,pop_type != '1+') %>%
-  collect() %>%B5
+  collect() %>%
   mutate(tagwt = gsub('T.-([0-9]).-[0-9]','\\1',ref),
          agewt = gsub('T([0-9])-..-[0-9]','\\1',ref)) %>%
   rename(stock=pop_id) %>%
@@ -112,7 +181,7 @@ age %>%
 
 
 tbl(db,'naf_tag') %>%
-  filter(area=='wi') %>%
+  filter(area=='EG+WI') %>%
   collect() %>% 
   mutate(msyr = as.numeric(gsub('..-..-([0-9])','\\1',ref)),
          hypo = gsub('..-.([0-9]).+','\\1',ref),
@@ -122,7 +191,7 @@ tbl(db,'naf_tag') %>%
   arrange(year) %>%
   mutate(prd1 = cumsum(prd),
          obs1 = cumsum(obs)) %>%
-  filter(trialtype=='B',hypo == 3) %>%
+  filter(trialtype=='B',hypo == 8) %>%
     ggplot(aes(year,ifelse(obs>0,obs1,NA))) + geom_point() + 
   geom_line(aes(year,prd1,lty=msyr)) + 
   facet_wrap(~rela,scale='free_y',ncol=1)+
