@@ -486,8 +486,8 @@ C xxx UNIT  23, FILE='NAFCON.DAT'= Conditioning parameters opened below
 C     Read name of catch file
 C     read in the first line from copyna.dat to name all the "naf" files
       READ (IN,'(A9,1X,A /)') REF,DESC
-
-      OPEN(IPNT,FILE=ref(1:7)//'.restest')
+c restest files opened when varnam is read in
+C      OPEN(IPNT,FILE=ref(1:7)//'.restest')
       OPEN (95,FILE=ref(1:7)//'.all')                                           # Conditioning parameters output
 C     NAF.ALL is written when conditioning; it is read in as NAFCON.DAT for projections
       OPEN (94,FILE=ref(1:7)//'.age')                                           # age data
@@ -788,6 +788,7 @@ C         RECTAR is compared with model data so uses model subarea K & new relea
 C
 C     Read the Variant & the area definitions for use in the RMP      # INPUT: RMP VARIANT
       READ (22,'(I1/1X,I2,T1,2A)') NPROC,ITYPE,VARNAM,TYPEDS
+      OPEN(IPNT,FILE=ref(1:7)//'-'//VARNAM//'.restest')
       IF (NPROC<1 .OR. NPROC >2) STOP 'ERROR: NPROC not 1 or 2'
 C     SCLA determines if the CLA is given different survey data (Variant 4)
       READ (22,*) SCLA
