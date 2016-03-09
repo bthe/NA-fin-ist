@@ -2,12 +2,13 @@ ManSetup <- function(db_name='druna.db',dir='outn',
                      template_file = 'setup/single_template.txt'){
   db <- src_sqlite(db_name)
   dir.create(dir)
-  
+  file.copy('data/random.num',sprintf('%s/random.num',dir))
   ## create the depletion files for each trial
   pop <- 
     tbl(db,'naf_pop') %>% 
     filter(pop_type =='Mature females', year %in% c(1864,2014)) %>% 
     collect() %>% 
+    filter(grepl('NF-..-1',ref)) %>% 
     mutate(year = sprintf('x%s',year)) %>% 
     spread(year,number) %>% 
     mutate(dpl=1-x2014/x1864)%>% 

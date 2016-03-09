@@ -16,8 +16,8 @@ C     Routine also used to open output files.
       DOUBLE PRECISION ERATE
       CHARACTER PROG*8
 
-      OPEN (IOUT,FILE='RES0')
-      OPEN (1,FILE='MANLOG')
+      
+     
       PROG = 'MAN-V12Z'
       ITUNE = 0
 

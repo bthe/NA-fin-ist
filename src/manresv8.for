@@ -106,10 +106,46 @@ C DEFINITIONS ------------------------------------------------------------------
       CHARACTER CRR1*16
       LOGICAL ICC,IRR,IRPL
       DATA IPNT/6/, IN/10/, IN2/11/ IN3/12/, IOUT2/13/
-      OPEN (IN, FILE='RESTEST')
-      OPEN (IN2, FILE='RES0')
-      OPEN (IN3, FILE='ISCALE.DAT')
-      OPEN (IOUT2, FILE='SS-TRAJ.OUT')
+
+      character(len=30) restest, res0, sstraj
+      integer :: num_args, ix
+      character(len=30), dimension(:), allocatable :: args
+      
+      num_args = command_argument_count()
+      allocate(args(num_args))  ! I've omitted checking the return status of the allocation 
+      
+c     Assign default values to 
+      restest = 'restest'
+      res0 = 'res0'
+      sstraj = 'ss-traj.out'
+      ISCALE = 0
+      if (num_args>0) then
+      ix = 1  
+      do while(ix < num_args)
+         call get_command_argument(ix,args(ix))
+         ix = ix + 1
+         if(ix == num_args) continue
+         select case(adjustl(args(ix-1)))
+         case("-res")
+            call get_command_argument(ix,args(ix))
+            restest = args(ix)
+         case("-res0")
+            call get_command_argument(ix,args(ix))
+            res0 = args(ix)
+         case("-traj")
+            call get_command_argument(ix,args(ix))
+            sstraj = args(ix)
+         case("-iscale")
+            call get_command_argument(ix,args(ix))
+            read(args(ix),*) iscale
+         end select
+      end do
+      end if
+
+      OPEN (IN, FILE=restest)
+      OPEN (IN2, FILE=res0)
+C      OPEN (IN3, FILE='ISCALE.DAT')
+      OPEN (IOUT2, FILE=sstraj)
 
 C INITIALISATION --------------------------------------------------------------
 
@@ -151,8 +187,8 @@ C     Now read in required parameters
 
 C     Read the scaling option ISCALE which defines how the statistics 
 C          will be scaled
-      READ (IN3,'(I1)') ISCALE
-      CLOSE (IN3)
+c      READ (IN3,'(I1)') ISCALE
+c      CLOSE (IN3)
 
 C     Calculate required percentiles to be printed out
       I5  = NTRIAL / 20

@@ -206,8 +206,8 @@ C DEFINITIONS ----------------------------------------------------------
       CHARACTER REF*10,DESC*50,PROG*8,DEPLFILE*12, DEPLREF*9
       DATA IOUT/8/, IN/7/, IN2/10/, NZERO/0/, IN3/11/
       
-      COMMON /FILES/ copydat, randomf, clcfile
-      character(len=30)  copydat, randomf, clcfile
+      COMMON /FILES/ copydat, randomf, clcfile, restest, manlog
+      character(len=30)  copydat, randomf, clcfile, restest, manlog
 
 
 
@@ -222,6 +222,8 @@ c     Assign default values to
       copydat = 'copy.dat'
       randomf = 'random.num'
       clcfile = 'CLC-N.PAR' 
+      restest = 'restest'
+      manlog = 'manlog'
       if (num_args>0) then
       ix = 1  
       do while(ix < num_args)
@@ -237,12 +239,19 @@ c     Assign default values to
             randomf = args(ix)
          case("-clc")
             call get_command_argument(ix,args(ix))
-            manage = args(ix)
+            clcfile = args(ix)
+         case("-res")
+            call get_command_argument(ix,args(ix))
+            restest = args(ix)
+         case("-log")
+            call get_command_argument(ix,args(ix))
+            manlog = args(ix)
          end select
       end do
       end if
 
-
+      OPEN (1,FILE=manlog)
+      OPEN (IOUT,FILE=restest)
       OPEN (IN,FILE=copydat)
       OPEN (IN2,FILE=randomf)
 

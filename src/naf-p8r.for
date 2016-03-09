@@ -2390,6 +2390,7 @@ C     First anti-log the parameters.
 C     Gammas 1 & 3 are proportions so constrain to be < 1
       IF (GG(1) > 1.D0) FUNCT = FUNCT + 100000.d0 + GG(1)
       IF (GG(3) > 1.D0) FUNCT = FUNCT + 100000.d0 + GG(3)
+C      IF (GG(8) > 1.D0) FUNCT = FUNCT + 100000.d0 + GG(8)
 C     Cases when gammas are fixed (i.e. are functions of the other gammas)
       GG(4) = 1.D0 - GG(1)
       IF (NODISP==0) THEN
@@ -2398,11 +2399,13 @@ C       Hypotheses 4 & 8: NODISP = 0 (no dispersal). Ensure GG(5) is +ve
         IF (GG(3) > 0.4999D0) FUNCT = FUNCT + 100000.d0 + GG(3)
         GG(5) = 1.D0 - 2*GG(3)
         GG(6) = GG(4) * GG(3)
-      ELSE IF (NSTK==5) THEN 
+      ELSE 
+CIF (NSTK==5) THEN 
 C       Hypotheses 6 & 7
         GG(2) = 1.D0 - GG(3)
         GG(5) = GG(1) * GG(2)
         GG(6) = GG(4) * GG(2)
+C        GG(7) = 1.D0 - GG(8)
       ENDIF
       IF (FUNCT>=100000.D0 ) RETURN
 C
