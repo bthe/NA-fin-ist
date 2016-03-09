@@ -193,7 +193,7 @@ C        except for Small Areas that are part of a Combination Area (ATYPE=4)
         IF (ATYPE(IPROC,KA)==0 .OR. ATYPE(IPROC,KA)>=4) GOTO 150
 C
 C       Call SETCAT to set the catch limit CL and the last survey year IL
-        IF (OPTCLC=='N') THEN
+        IF (OPTCLC=='n') THEN
          CALL SETCN  (CL,CATKA(I1YR,KA),SGHT(I1SYR,KA),CVEST(I1SYR,KA),
      +               INITYR, IYR,IL)
         ELSEIF (OPTCLC=='C') THEN

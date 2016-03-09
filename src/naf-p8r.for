@@ -788,7 +788,7 @@ C         RECTAR is compared with model data so uses model subarea K & new relea
 C
 C     Read the Variant & the area definitions for use in the RMP      # INPUT: RMP VARIANT
       READ (22,'(I1/1X,I2,T1,2A)') NPROC,ITYPE,VARNAM,TYPEDS
-      OPEN(IPNT,FILE=ref(1:7)//'-'//VARNAM//'.restest')
+      OPEN(IPNT,FILE=ref(1:7)//'-'//VARNAM(1:2)//'.restest')
       IF (NPROC<1 .OR. NPROC >2) STOP 'ERROR: NPROC not 1 or 2'
 C     SCLA determines if the CLA is given different survey data (Variant 4)
       READ (22,*) SCLA
