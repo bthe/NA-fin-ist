@@ -237,7 +237,7 @@ c     Assign default values to
             randomf = args(ix)
          case("-clc")
             call get_command_argument(ix,args(ix))
-            manage = args(ix)
+            clcfile = args(ix)
          end select
       end do
       end if
