@@ -1,0 +1,50 @@
+MANAGEMENT PARAMETERS         CASE  T1-D1
+D1  Base case                                                   
+
+RANDOM PARAMETERS OPTION             OPTRAN    0
+VARIABLE BIAS OPTION                 OPTB      0
+REPORTED CATCH OPTION                OPTC      0
+PRODUCTION MODEL OPTION              OPTMOD    5
+STOCHASTICITY OPTION                 OPTDET    0
+SURVEY COSTS OPTION                  OPTSUR    0
+No. OF TRIALS                        NTRIAL  100
+No. OF YEARS IN SIMULATION           NYEAR   100
+No. OF YEARS OF PREMANAGEMENT CATCH  NPCAT    30
+YEARS OF PREMANAGEMENT PROTECTION    NPPROT    0
+TRUE MSYL(1)                         MSYL     0.60
+TRUE MSY RATE(1)                     MSYR1    {{msyr1|0.01}}
+PREMANAGEMENT DEPLETION (1)          DEPL     0.300
+CHANGING K OPTION                    K99        0.000
+CHANGING MSYR OPTION                 MSYR99     0.000
+CHANGING MSYR STEP                   ISTEP     0
+MATURITY PARAMETER                   MAT1     6.00
+MATURITY SIGMA                       MSIG     0.00
+RECRUITMENT PARAMETER                REC1     3.82
+RECRUITMENT SIGMA                    RSIG     0.79
+MORTALITY PARAMETER 1                MORT1    0.080
+MORTALITY PARAMETER 2                MORT2    0.080
+
+MORTALITY FUNCTION                   MORTIP   -1
+MAXIMUM AGE                          MAXAGE   25
+MINIMUM AGE-AT-MATURITY              MINMAT    3
+EPIDEMIC RATE                        ERATE    0.00
+COMPONENTS (0=EXPLOITABLE; 1=TOTAL1+; 2=MATURE)
+MSYR COMPONENT                       OPTF      2
+MSYL COMPONENT                       OPTMSYL   2
+DENSITY-DEPENDENT COMPONENT          OPTDD     2
+FREQUENCY OF ABUNDANCE ESTIMATES     IFREQ     5
+YEAR OF LAST SURVEY                  ENDSUR  100
+YEAR CV CHANGES                      IYRCV   100
+BIAS IN ABUNDANCE ESTIMATES          BIAS0    1.00
+CV OF CV ESTIMATES (1st)             CV1EST   0.20
+PROCESS ERROR PARAMETER              ETA      1.00
+MINIMUM No. OF DEGREES OF FREEDOM    DOFMIN   5.00
+DEPLETION (0:SINGLE VALUE;1:READ IN) OPTDPL    1
+DEPLETION FILE (IF OPTDPL=1)                 {{dplfile|NF01-1.DPL}}
+COLUMN IN DEPLETION FILE                       {{dplcol|1}}
+
+YEAR IN WHICH K FIRST CHANGES        KYEAR     0
+YEAR IN WHICH MSYR FIRST CHANGES     MSYRYR    0
+
+
+
