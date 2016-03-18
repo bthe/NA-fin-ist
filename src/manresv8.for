@@ -107,7 +107,7 @@ C DEFINITIONS ------------------------------------------------------------------
       LOGICAL ICC,IRR,IRPL
       DATA IPNT/6/, IN/10/, IN2/11/ IN3/12/, IOUT2/13/
 
-      character(len=30) restest, res0, sstraj
+      character(len=30) restest, res0, sstraj, thresh
       integer :: num_args, ix
       character(len=30), dimension(:), allocatable :: args
       
@@ -118,6 +118,7 @@ c     Assign default values to
       restest = 'restest'
       res0 = 'res0'
       sstraj = 'ss-traj.out'
+      thresh = 'thresh.dat'
       ISCALE = 0
       if (num_args>0) then
       ix = 1  
@@ -135,6 +136,9 @@ c     Assign default values to
          case("-traj")
             call get_command_argument(ix,args(ix))
             sstraj = args(ix)
+         case("-thresh")
+            call get_command_argument(ix,args(ix))
+            thresh = args(ix)
          case("-iscale")
             call get_command_argument(ix,args(ix))
             read(args(ix),*) iscale
@@ -477,7 +481,7 @@ C      DO 11000 N = 1,Ntrial
 C       WRITE(999,'(4F6.3)') N/REAL(Ntrial),PFIN(N),PTMIN(N),PQMIN(N)
 C11000 CONTINUE
 C      CLOSE(999)
-      OPEN(UNIT=998,FILE="Thresh.dat",ACCESS="APPEND")
+      OPEN(UNIT=998,FILE=thresh)
        WRITE(998,'(A16,2F7.3)') DESC,PFIN(I5),PQMIN(I5)
       CLOSE(998)
 

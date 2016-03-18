@@ -59,7 +59,7 @@ C     ngauss is the number of points used in the approximation of
 C     the b-integral.
 C
       integer nmax
-      parameter(nmax=1200)
+      parameter(nmax=5200)
       REAL(8) xg(nmax),wg(nmax)
       common /gauss1/ xg,wg
       integer ngauss

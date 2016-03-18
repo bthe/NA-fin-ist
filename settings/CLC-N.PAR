@@ -10,8 +10,8 @@ PHASEOUT PERIOD (PHASET)      10.0
 PHASEOUT PROPORTION (PHASEP)  0.2
 ASSESSMENT CYCLE (PCYCLE)     6.0
 INTERNAL PROTECTION LEVEL     0.54
-CATCH CONTROL SLOPE (PSLOPE)  3.0            last 3 parameters not used at present
-ACCURACY TOLERANCE (ACCTOL)   0.0001
+CATCH CONTROL SLOPE (PSLOPE)  3.0
+ACCURACY TOLERANCE (ACCTOL)   0.2
 NOFRULE                       8
 
 This is the parameter file to run the Norwegian catchlimit program,

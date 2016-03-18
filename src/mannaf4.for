@@ -36,7 +36,7 @@ C     Initialise Reporting statistics: NCAP stores no. of capped quotas
 
 C     Open the input file (only read once).
 
-      IF (OPTCLC=='N') THEN
+      IF (OPTCLC=='n') THEN
 C       Read parameters for the Norwegian version of the CLC
         OPEN (UNIT=21,FILE='clc-n.par')
         READ (21,'(T30,F10.0)') PPROB,PYMIN,PYMAX,DTMIN,DTMAX,
@@ -185,7 +185,6 @@ C      Test for phaseout
        GO TO 600
       ENDIF
 
-
 C     1st do an assessment for all Small, Medium and Combination Areas
 C        except for Small Areas that are part of a Combination Area (ATYPE=4)
 
@@ -204,11 +203,9 @@ C       Call SETCAT to set the catch limit CL and the last survey year IL
         ILAST(KA) = IL
   150 CONTINUE
 
-
       DO 400 KA = 1,MXAR
 
         IF (ATYPE(IPROC,KA)==2 .AND. CATSM(IPROC,KA)>0.d0) THEN
-
 C ******* Catch Cascading (ATYPE = 2) ******************************************
 C         For each (non overlapping) Combination Area KA set the Catch Limits
 C         for all the Small Areas within it.
@@ -278,7 +275,6 @@ C
 C     Store all the raw quotas:
       QUOTA(IPROC,1:MXAR) = CATSM(IPROC,1:MXAR)
 
-
 C *********************************************************************
 
 600   CONTINUE
@@ -287,16 +283,16 @@ C *** PHASE OUT
 
 C     Apply Phase out to Small Area catch limits if necessary: call PHOUT
 C     ILAST = Year of most recent survey data (on IYR time scale)
-      DO 650 KA=1,MXAR
-       IA = ATYPE(IPROC,KA)
+C      DO 650 KA=1,MXAR
+C       IA = ATYPE(IPROC,KA)
 C  NO PHASEOUT IN THIS VERSION
 C       IF ((IA==1 .OR. IA==4).AND. CATSM(IPROC,KA) > 0.d0) THEN
 C         CALL PHOUT(CATSM(IPROC,KA),QUOTA(IPROC,KA),ILAST(KA),IYR)
 C       ENDIF
-       IF (IA>0 .AND. IA<9) WRITE (89,'(6I6,5F10.2)')IYR,IASESS(IYR),
-     +      IPROC,IA,KA,ILAST(KA),CATSM(IPROC,KA),QUOTA(IPROC,KA),
-     +      SGHT(ILAST(KA),KA)
- 650  CONTINUE
+C       IF (IA>0 .AND. IA<9) WRITE (89,'(6I6,5F10.2)')IYR,IASESS(IYR),
+C     +      IPROC,IA,KA,ILAST(KA),CATSM(IPROC,KA),QUOTA(IPROC,KA),
+C     +      SGHT(ILAST(KA),KA)
+C 650  CONTINUE
 
       RETURN
       END

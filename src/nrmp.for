@@ -1177,7 +1177,7 @@ C
       COMMON/fract01/ intlow,intupp
 
       REAL(8) last_quota,acc,x1,x2,xx2
-      INTEGER rulePoint(8),nofRule
+      INTEGER rulePoint(10),nofRule
 
 C     LOCAL DEFINITIONS
 C
@@ -1188,7 +1188,7 @@ C
       external fract,halfInt,ybrent
 C-----------------------------------------------------------------------
 
-      data rulePoint/8,16,32,64,128,256,512,1024/,nofRule/8/
+      data rulePoint/8,16,32,64,128,256,512,1024,2048,4096/,nofRule/10/
 
 C     Stores 0.0 into POP
       DO 10 i=0,NUM
@@ -1267,7 +1267,7 @@ C
             xtry1=0.95d0*OUT_QUOTA
             xtry2=1.05d0*OUT_QUOTA
          endif
-         if(r. ge.pprob) then
+         if(r.ge.pprob) then
             OUT_QUOTA=0.0D0
          elseif(r.lt.0.0D0) then
             OUT_QUOTA=-2.0D30

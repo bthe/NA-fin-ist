@@ -347,7 +347,7 @@ C     WTAGE    Weight for catch at age data in likelihood
 C     LikeAb etc Likelihood components, for printing
 
 C     Filenames
-      character(len=30)  copyna, randomf, manage, nafcon, nafpar
+      CHARACTER(LEN=30)  COPYNA, RANDOMF, MANAGE, NAFCON, NAFPAR
       END MODULE DECLARECOM
 C
 C **********************************************************************
@@ -426,60 +426,60 @@ C
       DATA IPNT/8/,IN/5/,IN2/10/,IN4/12/
 
 C     read in file names from the command line
-      integer :: num_args, ix
-      character(len=30), dimension(:), allocatable :: args
+      INTEGER :: NUM_ARGS, IX
+      CHARACTER(LEN=30), DIMENSION(:), ALLOCATABLE :: ARGS
       
-      num_args = command_argument_count()
-      allocate(args(num_args))  ! I've omitted checking the return status of the allocation 
+      NUM_ARGS = COMMAND_ARGUMENT_COUNT()
+      ALLOCATE(ARGS(NUM_ARGS))  ! I'VE OMITTED CHECKING THE RETURN STATUS OF THE ALLOCATION 
       
-c     Assign default values to 
-      copyna = 'copyna.dat'
-      randomf = 'random.num'
-c      survey = 'surveyn.dat'
-      manage = 'manage.dat'
-c      catbysex = 'catbysex.dat'
-c      catchbyage = 'catchbyage.dat'
-      nafcon = 'nafcon.dat'
-      nafpar = 'nafpar.par'
+C     ASSIGN DEFAULT VALUES TO 
+      COPYNA = 'COPYNA.DAT'
+      RANDOMF = 'RANDOM.NUM'
+C      SURVEY = 'SURVEYN.DAT'
+      MANAGE = 'MANAGE.DAT'
+C      CATBYSEX = 'CATBYSEX.DAT'
+C      CATCHBYAGE = 'CATCHBYAGE.DAT'
+      NAFCON = 'NAFCON.DAT'
+      NAFPAR = 'NAFPAR.PAR'
 
-      if (num_args>0) then
-      ix = 1  
-      do while(ix < num_args)
-         call get_command_argument(ix,args(ix))
-         ix = ix + 1
-         if(ix == num_args) continue
-         select case(adjustl(args(ix-1)))
-         case("-main")
-            call get_command_argument(ix,args(ix))
-            copyna = args(ix)
-         case("-rnd")
-            call get_command_argument(ix,args(ix))
-            randomf = args(ix)
-         case("-man")
-            call get_command_argument(ix,args(ix))
-            manage = args(ix)
-         case("-con")
-            call get_command_argument(ix,args(ix))
-            nafcon = args(ix)
-         case("-par")
-            call get_command_argument(ix,args(ix))
-            nafpar = args(ix)
-         end select
-      end do
-      end if
+      IF (NUM_ARGS>0) THEN
+      IX = 1  
+      DO WHILE(IX < NUM_ARGS)
+         CALL GET_COMMAND_ARGUMENT(IX,ARGS(IX))
+         IX = IX + 1
+         IF(IX == NUM_ARGS) CONTINUE
+         SELECT CASE(ADJUSTL(ARGS(IX-1)))
+         CASE("-main")
+            CALL GET_COMMAND_ARGUMENT(IX,ARGS(IX))
+            COPYNA = ARGS(IX)
+         CASE("-rnd")
+            CALL GET_COMMAND_ARGUMENT(IX,ARGS(IX))
+            RANDOMF = ARGS(IX)
+         CASE("-man")
+            CALL GET_COMMAND_ARGUMENT(IX,ARGS(IX))
+            MANAGE = ARGS(IX)
+         CASE("-con")
+            CALL GET_COMMAND_ARGUMENT(IX,ARGS(IX))
+            NAFCON = ARGS(IX)
+         CASE("-par")
+            CALL GET_COMMAND_ARGUMENT(IX,ARGS(IX))
+            NAFPAR = ARGS(IX)
+         END SELECT
+      END DO
+      END IF
 
 C
-C     Open input files
-      OPEN (IN, FILE=copyna)
-      OPEN (IN2,FILE=randomf)
+C     OPEN INPUT FILES
+      OPEN (IN, FILE=COPYNA)
+      OPEN (IN2,FILE=RANDOMF)
       OPEN (IN4,FILE='surveyn.dat')                                     # Survey data & timetable
-      OPEN (16, FILE=manage,STATUS='OLD')                               # Conditioning opt.
+      OPEN (16, FILE=MANAGE,STATUS='OLD')                               # Conditioning opt.
 C xxx UNIT  17, FILE=tag data     (Name set below)                      # Tags
 C xxx UNIT  18, FILE=catch data   (Name set below)                      # Catch data
       OPEN (19, FILE='catbysex.dat',STATUS='OLD')                       # CATCHES KNOWN BY SEX
 C xxx OPEN (20, FILE='CPUE.DAT')  (Opened below if OPTCPE>0)            # CPUE DATA
 C xxx OPEN (21, FILE=CLC parameters (Opened in INITNA)                  # CLC parameters
-      OPEN (22, FILE=nafpar)                                            # Management option
+      OPEN (22, FILE=NAFPAR)                                            # Management option
 C xxx UNIT  23, FILE='NAFCON.DAT'= Conditioning parameters opened below
       OPEN (24, FILE='catchbyage.dat')
       
@@ -571,9 +571,9 @@ C                 & check values
       READ (IN,*) EGWIP,EGWIV
       IF (NSUBA/=MXSUBA) THEN
         IF (NSTK/=5) STOP 'ERROR Hyp 7/8 but not 5 stks'
-        IF (EGWIP<0.d0 .OR. EGWIP>=1.d0 .OR. EGWIV<0.d0) then
-           STOP 'ERROR in EGWIP or EGWIV'
-        end if
+        IF (EGWIP<0.d0 .OR. EGWIP>=1.d0 .OR. EGWIV<0.d0)
+     +     STOP 'ERROR in EGWIP or EGWIV'
+ 
       ELSE
 C       Set ANAM2 = names of the MODELLED areas. (ANAM=Management areas.)
         ANAM2 = ANAM
@@ -602,7 +602,7 @@ C             Ndelta dispersal parms,
 C             3 tagging parms: lambda, psiCan & psiWI+
 C             NSTK*2 pristine stock sizes & initial depletions
 C             4 selectivity parameters: RMSIG, RM50, RFSIG,RF50)
-C           + 4 extra selectivity parameters if SELYR<0 (i.e. SELYR+ISCALE<0)
+C           + 4 extra selectivity parameters if SELYR (as input)>0 (i.e. SELYR + ISCALE<0)
 C     Set NOP= no. of parameters used in conditioning
       F1ST=0.1d0
       READ (IN,*) OPTPSI
@@ -1018,7 +1018,7 @@ C     Read survey info: RUNSUR = list of areas to be surveyed each year
       IF (IASESS(0)/=1) STOP ' ERROR: NO ASSESSMENT IN YEAR 0'
       CLOSE(IN4)
 C     Reset RUNSUR if SSAMPL>1 so EG & EI/F are not surveyed in future
-      IF (SSAMPL>0.D0) THEN
+      IF (SSAMPL>1.D0) THEN
         RUNSUR(0:NYEAR,3)=0
         RUNSUR(0:NYEAR,5)=0
       END IF
@@ -1420,7 +1420,7 @@ C       Apply the procedure for NYEARs.
         DO 300 IYR = 0,NYEAR-1
 C
 C         Call the CLA to set catch limit CATSM for each Small Area & procedure
-          
+
           DO 200 IP = 1,NPROC
             CALL RUNCLC (CATKA,SIGHT,CV,IYR,INITYR,CATSM,MAPC,
      +                   OPTCLC,IP,NPROC)
@@ -1429,6 +1429,7 @@ C           Set fixed aboriginal catch in WG (subarea 2)
             CATSM(IP,2) = 19.0d0
 
  200      CONTINUE
+          
 
 C         DIVCL allocates the Small Area catch CATSM to subareas (CATCH)
 C               If NPROC=2 the value from each procedure is combined
@@ -1442,6 +1443,7 @@ C         Allocate catch to sex (50:50) and combine EG+WI in Hyp 7&8
             CATCHM(IYR,K) = CATCHM(IYR,K) + CATCH(K)*0.5D0
             CATCHF(IYR,K) = CATCHF(IYR,K) + CATCH(K)*0.5D0
   250     CONTINUE
+          
 
 C         Call SURVEY to set survey estimates SIGHT(IYR-1,K)
 C         This allows a 2-year delay between a survey being performed
@@ -1449,7 +1451,7 @@ C         and the results being used to set a catch limit
           CALL SURVEY (SIGHT,CV,IYR-1)
 C         Construct estimates for areas larger than subareas
           CALL CONSUR (SIGHT,CV,IYR-1)
-C
+C     
 C         Project population forward to IYR+1. Set new V matrix using SETV
           CALL STKUPA (IYR)
 
@@ -2551,7 +2553,7 @@ C     when fitting the operating model to the abundance & other data
 C
       USE DECLARECOM
 C
-      INTEGER IYR,J,K,N,I,NR2,Ns(6),II,I2,II2,NF1,L,NF,LASTTIYR
+      INTEGER IYR,J,K,N,I,NR2,Ns(6),II,I2,II2,NF1,L,NF,FIRSTTIYR
       REAL(8) X,Y,S,TOT1,ALPHA,TERM1,TERM2,TERM3,GAMMLN,LAMBDA,
      +       Utarg,Upred
       REAL(8) V3(3,3),VI3(3,3),V4(4,4),VI4(4,4),V2(2,2),
@@ -2632,14 +2634,16 @@ C      Skip out of loop if 0 releases in this op (ie in Hyp 7&8 when EG&WI are c
        IF (NREL2(NR2)==0) GO TO 350
 
 C      Start Year AFTER tags were released (as NO same season recov in likelihood)
-       IF(TAGEXC1 .EQ. 1) THEN
-          LASTTIYR = TAGIYR(NR2)+2
+       IF (TAGEXC1 .eq. 1) THEN
+          FIRSTTIYR = TAGIYR(NR2) + 2
        ELSE
-          LASTTIYR = -1
-       ENDIF
-       
-       DO 340 IYR = TAGIYR(NR2)+1,LASTTIYR
-        DO 340 K = 1,NSUBA
+          FIRSTTIYR = TAGIYR(NR2) + 1
+       END IF
+
+ 
+
+       DO 340 IYR = FIRSTTIYR, -1
+          DO 340 K = 1,NSUBA
 
          Utarg = RECTAR(NR2,IYR,K)
          Upred = TAGU(NR2,IYR,K)
@@ -2757,7 +2761,7 @@ C      Period 1: 1962 to 1965: only series 1 to 3
           V3(I,II) = CPUEV(I,II)
   425  CONTINUE
        CALL INVM(V3,VI3,3,3)
-       DO 430 IYR=1962+ISCALE,1965+ISCALE
+       DO 430 IYR=1962+ISCALE,1966+ISCALE
          DO I=1,3
            K = CPUEK(I)
            Ns(I) =Ns(I)+1
@@ -2775,7 +2779,7 @@ C      Period 2: 1966 to 1982: series 1 to 4
           V4(I,II) = CPUEV(I,II)
   525  CONTINUE
        CALL INVM(V4,VI4,4,4)
-       DO 530 IYR=1965+ISCALE,1982+ISCALE
+       DO 530 IYR=1966+ISCALE,1982+ISCALE
          DO I=1,4
            K = CPUEK(I)
            Ns(I) =Ns(I)+1
@@ -2978,6 +2982,7 @@ C
 C
 C     Hyp 7&8 (NSUBA/=MXSUBA): set propn of EG+WI whales that are in EG using
 C         a BETA generator. EGWIP = mean historical EG propn with variance EGWIV
+    
       IPSEED = INT(-RAN1(ISEED2,MA2,INEXT2,INXTP2)*100000.d0)
       IF (NSUBA/=MXSUBA) THEN
         ALPHABETA = EGWIP*EGWIP*(1.d0-EGWIP)/EGWIV - EGWIP
@@ -2985,8 +2990,10 @@ C         a BETA generator. EGWIP = mean historical EG propn with variance EGWIV
         PROP2 = GENBET(ALPHABETA,BETABETA,IPSEED)
       ENDIF
 
+      
+
 C     Generate the survey results
-C      PROP2 =-1.D0
+      PROP2 =0.5D0
       DO 100 KM=1,MXSUBA
 C       First increment all the random number generators for every area
         Y = XNORM (1.d0,0.d0,ISEED1,MA1,INEXT1,INXTP1)
@@ -3007,11 +3014,13 @@ C         Hyp 7&8: split combined EG+WI area (K=3) into EG & WI (KM=3 & 4)
           IF (KM==3) PROP = PROP2
           IF (KM==4) PROP = 1.D0 - PROP2
         ENDIF
-
+        
+       
+        
         PSGT = SUM(PP(IY,1:NSTK,K)) * PROP
 C       Adjust abundance for bias (whales missing from the survey area)
         ABUND = PSGT*G0*BIAS
-C
+C     
 C       Specify parameters used to generate estimates. TAU2 = TAU**2  {Eqns F.5 & F.6}
         ALPHA2 = 0.120d0*TAU2(KM)
         SIGMA  = SQRT(LOG(ALPHA2 + CVADD(KM)**2 +1.d0))
@@ -3020,6 +3029,7 @@ C
 C       Generate Poisson component
         W = ABUND/BETA2K
         IF (W < 70.d0) W = POISSN (W, RANNO)
+
 C
 C       Construct estimate {Eqn F.1} (unless OPTDET = 1)
         SGT = BETA2K * EXP(Y*SIGMA) * W
@@ -3053,7 +3063,8 @@ C
 C       Store results.
         SIGHT(IY,KM) = SGT*PROP
         CV(IY,KM) = SCV
-C       PRINT '(A,3I5,7F12.4)',' SURVEY',IY,KM,K,PSGT,SGT,SGT*PROP,SCV
+C       PRINT '(A,3I5,7F12.4)',' SURVEY',IY,KM,K,PSGT,SGT,SGT*PROP,SCV,
+C     +       prop,ALPHABETA,BETABETA,prop2
 C
 100   CONTINUE
 
@@ -3229,6 +3240,7 @@ C     Subroutine REPORT prints PMAT & Catches by year
     1 FORMAT (I4,100I7)
     2 FORMAT (A4,100(A5,I2))
 
+
 C     Set pristine & yr 0 1+ population size by stock
       DO 5 J=1,NSTK
         K1(J)= NINT(SUM(PP(INITYR,J,1:NSUBA)))
@@ -3247,7 +3259,7 @@ C     Set pristine & yr 0 1+ population size by stock
      +     'OBS-M  ','PRD-M '
       DO 8 K=1,NSUBA
         IF (SUM(OCAM(ICBYA1:ICBYA2,K))>0) THEN
-          DO 7 I = ICBYA1,0
+          DO 7 I = ICBYA1,ICBYA2
            DO 7 L=1,MAXAGE
             WRITE(94,*) I-ISCALE,K,L, OCBYAM(I,L,K),
      +               PCBYAM(I,L,K), OCBYAF(I,L,K),PCBYAF(I,L,K)
