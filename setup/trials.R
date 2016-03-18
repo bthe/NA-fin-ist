@@ -283,7 +283,7 @@ NafSetup <- function(dir = 'trials'){
   ## NF-W1 (tags upweighted x10)
   for(msyr in c(0.01,0.04)){
     NafWrite(NafTrial(hypo = 1, msyr = msyr,
-                      trialtype='W', tagwgt=10),dir)
+                      trialtype='W', tagwt=10),dir)
   }
   
   ## NF-S trials (selectivity before and after 2007 estimated)
@@ -339,8 +339,8 @@ NafSetup <- function(dir = 'trials'){
     
   ## TODO: 
   ## - NF-X, NF-C (should we skip them?)
-  ## - Missing data: NF-H, NF-X NF-P
-  ## - Future trials: NF-Q, A, Y, F 
+  ## - Missing data: NF-X NF-P
+  ## - Future trials: NF-Q, Y
   
 }
 

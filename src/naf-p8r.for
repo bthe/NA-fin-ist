@@ -2553,7 +2553,7 @@ C     when fitting the operating model to the abundance & other data
 C
       USE DECLARECOM
 C
-      INTEGER IYR,J,K,N,I,NR2,Ns(6),II,I2,II2,NF1,L,NF,FIRSTTIYR
+      INTEGER IYR,J,K,N,I,NR2,Ns(6),II,I2,II2,NF1,L,NF,LASTTIYR
       REAL(8) X,Y,S,TOT1,ALPHA,TERM1,TERM2,TERM3,GAMMLN,LAMBDA,
      +       Utarg,Upred
       REAL(8) V3(3,3),VI3(3,3),V4(4,4),VI4(4,4),V2(2,2),
@@ -2634,15 +2634,13 @@ C      Skip out of loop if 0 releases in this op (ie in Hyp 7&8 when EG&WI are c
        IF (NREL2(NR2)==0) GO TO 350
 
 C      Start Year AFTER tags were released (as NO same season recov in likelihood)
-       IF (TAGEXC1 .eq. 1) THEN
-          FIRSTTIYR = TAGIYR(NR2) + 2
+       IF(TAGEXC1 .EQ. 1) THEN
+          LASTTIYR = TAGIYR(NR2)+2
        ELSE
-          FIRSTTIYR = TAGIYR(NR2) + 1
-       END IF
-
- 
-
-       DO 340 IYR = FIRSTTIYR, -1
+          LASTTIYR = -1
+       ENDIF
+       
+       DO 340 IYR = TAGIYR(NR2)+1,LASTTIYR
           DO 340 K = 1,NSUBA
 
          Utarg = RECTAR(NR2,IYR,K)
