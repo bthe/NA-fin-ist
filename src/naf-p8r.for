@@ -433,14 +433,14 @@ C     read in file names from the command line
       ALLOCATE(ARGS(NUM_ARGS))  ! I'VE OMITTED CHECKING THE RETURN STATUS OF THE ALLOCATION 
       
 C     ASSIGN DEFAULT VALUES TO 
-      COPYNA = 'COPYNA.DAT'
-      RANDOMF = 'RANDOM.NUM'
+      COPYNA = 'copyna.dat'
+      RANDOMF = 'random.num'
 C      SURVEY = 'SURVEYN.DAT'
-      MANAGE = 'MANAGE.DAT'
+      MANAGE = 'manage.dat'
 C      CATBYSEX = 'CATBYSEX.DAT'
 C      CATCHBYAGE = 'CATCHBYAGE.DAT'
-      NAFCON = 'NAFCON.DAT'
-      NAFPAR = 'NAFPAR.PAR'
+      NAFCON = 'nafcon.dat'
+      NAFPAR = 'nafpar.par'
 
       IF (NUM_ARGS>0) THEN
       IX = 1  
