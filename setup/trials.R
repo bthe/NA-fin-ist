@@ -34,7 +34,7 @@ NafTrial <- function(hypo=1,msyr=0.01,trialtype='B',
   ctype <- 'B'
   nummix <- 1
   mixmat2 <- ' '
-  initamma2 <- ' '
+  initgamma2 <- ' '
   
   ## deviations  
   ## Fewer stocks in hypotheses 6 to 8
