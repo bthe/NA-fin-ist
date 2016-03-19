@@ -1,0 +1,19 @@
+PROBABILITY LEVEL (PPROB)     0.4020
+MIN MSY % (PYMIN)             0.0
+MAX MSY % (PYMAX)             0.05
+DEPLETION MIN (DTMIN)         0.0
+DEPLETION MAX (DTMAX)         1.0
+BIAS MIN (PBMIN)              0.0
+BIAS MAX (PBMAX)              1.6667
+SCALE FACTOR (PSCALE)         4.0
+PHASEOUT PERIOD (PHASET)      10.0
+PHASEOUT PROPORTION (PHASEP)  0.2
+ASSESSMENT CYCLE (PCYCLE)     6.0
+INTERNAL PROTECTION LEVEL     0.54
+CATCH CONTROL SLOPE (PSLOPE)  3.0
+ACCURACY TOLERANCE (ACCTOL)   4
+NOFRULE                       8
+
+This is the parameter file to run the Norwegian catchlimit program,
+as tuned June 2001 [to 72% - see JCRM 4(suppl.) 2002: 108-110]
+
