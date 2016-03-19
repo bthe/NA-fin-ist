@@ -2393,7 +2393,7 @@ C     First anti-log the parameters.
 C     Gammas 1 & 3 are proportions so constrain to be < 1
       IF (GG(1) > 1.D0) FUNCT = FUNCT + 100000.d0 + GG(1)
       IF (GG(3) > 1.D0) FUNCT = FUNCT + 100000.d0 + GG(3)
-C      IF (GG(8) > 1.D0) FUNCT = FUNCT + 100000.d0 + GG(8)
+      IF (GG(8) > 1.D0) FUNCT = FUNCT + 100000.d0 + GG(8)
 C     Cases when gammas are fixed (i.e. are functions of the other gammas)
       GG(4) = 1.D0 - GG(1)
       IF (NODISP==0) THEN
@@ -2408,7 +2408,7 @@ C       Hypotheses 6 & 7
         GG(2) = 1.D0 - GG(3)
         GG(5) = GG(1) * GG(2)
         GG(6) = GG(4) * GG(2)
-C        GG(7) = 1.D0 - GG(8)
+        GG(7) = 1.D0 - GG(8)
       ENDIF
       IF (FUNCT>=100000.D0 ) RETURN
 C
@@ -3359,7 +3359,7 @@ C     Print results of conditioning trial NT (inc. NT=0=deterministic run)
       OPEN (37,FILE=ref(1:7)//'.tar',ACCESS='APPEND')
       FMT2 = '(I3,F14.4,' // COLS(NAB) // 'I6,99F6.3)'
 C     Needs to be changed to print more of age fit & cpue
-      WRITE(34,FMT2) NT,FIT,NINT(FITDAT(1:NAB)),FITDAT(NAB+1:NFIT),
+      WRITE(34,*) NT,FIT,NINT(FITDAT(1:NAB)),FITDAT(NAB+1:NFIT),
      +               LikeAge
       WRITE(35,8) NT,FIT,(FITRSD(I),I=1,NFIT)
       WRITE(36,8) NT,FIT,(FITRSS(I),I=1,NFIT)
@@ -3370,7 +3370,7 @@ C     Needs to be changed to print more of age fit & cpue
         DO 20 K = 1,NSUBA
          TARG(NR) = TARG(NR) + RECTAR(NR,IYR,K)
   20   CONTINUE
-      WRITE(37,FMT2) NT,FIT,NINT(TAREST(1:NAB)),0.,TARG(1:NROP)
+      WRITE(37,*) NT,FIT,NINT(TAREST(1:NAB)),0.,TARG(1:NROP)
       DO I=34,37
         CLOSE(I)
       END DO

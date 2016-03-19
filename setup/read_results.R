@@ -59,7 +59,7 @@ NafResults <- function(dir='trials', db_name = 'trials.db',
   db_create_table(trials_db$con,'naf_tag',
                   types = c(rela = 'TEXT',year = 'INTEGER',ref = 'TEXT',
                             area = 'TEXT',obs = 'REAL',prd = 'REAL'))
-  list.files(path = dir,pattern = 'NF-[A-Z][0-9]-[0-9].tag') %>%
+  list.files(path = dir,pattern = sprintf('%s.tag',search.string)) %>%
     map(~NafResults.readTag(sprintf('%s/%s',dir,.),
                             trials_db))
   db_create_index(trials_db$con, 'naf_tag',c('ref','year'))
