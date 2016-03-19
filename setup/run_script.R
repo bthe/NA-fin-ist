@@ -1,18 +1,17 @@
 source('setup/trials.R')
 source('setup/single-stock.R')
 source('setup/read_variants.R')
+source('setup/read_results.R')
 
 
-
-
-ManSetup(dir='outn',db_name ='druna.db')
-ManRun(dir='outn')
-NafReadVariants(dir='druna_cond',search.string='NF-..-.-V[0-9].restest',db_name='druna_res.db')
-ManResults(dir='outn',db_name = 'druna_res.db')
-
-
-ManSetup(dir='outn-final',db_name ='druna_final.db')
-ManRun(dir='outn-final')
-NafReadVariants(dir='druna_final',search.string='NF-..-.-V[0-9].restest',db_name='druna_final_res.db')
-ManResults(dir='outn-final',db_name = 'druna_final_res.db')
+NafSetup('FullAbund')
+NafCond(dir='FullAbund')
+NafResults('FullAbund',db_name='FullAbund.db')
+NafVariants(dir='FullAbund',var.search = 'Naf-v[0-2].par')
+file.copy('settings/clc-n-rev.par',to = 'FullAbund/clc-n.par',overwrite = TRUE)
+NafVariants(dir='FullAbund',var.search = 'Naf-v[3-7].par')
+ManSetup(dir='outn-full',db_name ='FullAbund.db')
+ManRun(dir='outn-full')
+NafReadVariants(dir='FullAbund',search.string='NF-..-.-V[0-9].restest',db_name='FullAbund_res.db')
+ManResults(dir='outn-full',db_name = 'FullAbund_res.db')
 

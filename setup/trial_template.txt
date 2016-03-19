@@ -36,7 +36,7 @@ ADDITIONAL VARIANCE (CVadd)                  0.0   0.0   0.0   0.0   0.0   0.0  
 TAG LOSS IN YEAR 1 (TLOSS1)                  {{tloss1|0.0}}
 TAG LOSS IN YEAR 2+(TLOSS2)                  {{tloss2|0.0}}
 TAG WEIGHT         (TAGWT)                   {{tagwt|1}}
-C at Age WEIGHT    (WTAGEI)                  {{wtagei|1}}
+C at Age WEIGHT    (WTAGEI)                  {{wtagei|0.1}}
 1ST YEAR MIXING MATRIX CHANGES  (IMIX1)     {{imix1|1985}}   NOT USED UNLESS OPTMIX=2
 YEAR MIXING MATRIX = MATRIX2    (IMIX2)     {{imix2|2005}}
 LAST YEAR MIXING MATRIX CHANGES (IMIX3)     {{imix3|2025}}
