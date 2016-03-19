@@ -34,6 +34,7 @@ NafTrial <- function(hypo=1,msyr=0.01,trialtype='B',
   ctype <- 'B'
   nummix <- 1
   mixmat2 <- ' '
+  initamma2 <- ' '
   
   ## deviations  
   ## Fewer stocks in hypotheses 6 to 8
@@ -42,7 +43,7 @@ NafTrial <- function(hypo=1,msyr=0.01,trialtype='B',
   }
   
   ## mixing parameter estimated between EI/F and SP in hypo 6
-  if(hypo == 6){
+  if(hypo %in% c(5,6)){
     initgamma <- 0.4
   }
   
@@ -54,6 +55,8 @@ NafTrial <- function(hypo=1,msyr=0.01,trialtype='B',
   if(hypo == 7){
     ndelta <- 1
     initgamma <- 0.4
+    ngamma <- 8
+    initgamma2 <- '1.  .35'
   }
   ## mixing used instead of dispersion in hypotheses 4 and 8
   if(hypo %in% c(4,8)){
