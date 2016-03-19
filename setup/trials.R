@@ -174,10 +174,12 @@ NafTrial <- function(hypo=1,msyr=0.01,trialtype='B',
                        nsuba = nsuba,
                        initdelta = initdelta,
                        initgamma = initgamma,
+                       initgamma2 = initgamma2,
                        disp=ifelse(ndelta==0,0,disp1),
                        disp2=ifelse(ndelta==0,'0',ifelse(hypo==7,'','1')),
                        ctype = ctype,
-                       nummix = nummix),
+                       nummix = nummix,
+                       ngamma = ngamma),
                   list(...)))
   attr(txt,'ref') <- '{{nf}}-{{trialtype}}{{hypo}}-{{msyr}}' %>%
     infuse(hypo=hypo,msyr=100*msyr,trialtype=trialtype,nf=nf)
@@ -261,7 +263,9 @@ NafSetup <- function(dir = 'trials'){
                    to=sprintf('%s/%s',dir,.),
                    overwrite = TRUE))
   tmp <- file.copy('settings/manage.dat',sprintf('%s/manage.dat',dir))
-  ## NF-B trials (baseline)
+  tmp <- file.copy('settings/CLC-N.PAR',sprintf('%s/clc-n.par',dir))
+  
+    ## NF-B trials (baseline)
   for(hypo in 1:8){
     for(msyr in c(0.01,0.04)){
       NafWrite(NafTrial(hypo = hypo,msyr = msyr),dir)
