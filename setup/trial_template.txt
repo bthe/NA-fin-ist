@@ -18,7 +18,7 @@ TRUE MSYL (MSYL)                             {{msyl|0.6}}
 {{msyrtxt|'blu'}}
 MORTALITY PARAMETER 1 (MORT1)                0.0
 MORTALITY PARAMETER 2 (MORT2)                0.0
-MORTALITY PARAMETER 2 (MORT3)                0.08
+MORTALITY PARAMETER 2 (MORT3)                {{mort3|0.08}}
 MATURITY PARAMETER = AGE OF 1ST PAR. (MAT1)  6.0
 MATURITY SIGMA (MSIG)                        0.0
 MALE   AGE AT 50% RECRUITMENT (RM50)         3.6
@@ -64,7 +64,7 @@ EC   WG   EG   WI   EI/F N    SP            Always use 7 areas here
 07000. 05000. 04000. 12000. 12000. 12000. = Initial stock sizes
 0.9   0.2    0.9    0.9    0.9    0.9    = Initial depletions (not used if INITYR=FIRSTYR)
 0      {{disp|1}}      {{disp2|1}}      0      0      0     = 1 to ESTIMATE dispersal between stocks J & J+1
-0.0   0.0    0.0    0.0    0.0    0.0    = AVDISP(J) of stock J to stock J+1: NOT USED IF NDELTA>0
+0.0   {{egwi_disp|0.0}}    0.0    0.0    0.0    0.0    = AVDISP(J) of stock J to stock J+1: NOT USED IF NDELTA>0
 1       1      {{nummix|1}}      1      1      1     = Number of Catch Mixing matrices (NMIX(J))
 
 CATCH MIXING MATRICES  

@@ -21,6 +21,7 @@ library(ggplot2)
 #' @examples
 NafTrial <- function(hypo=1,msyr=0.01,trialtype='B',
                      template_file='setup/trial_template.txt',nf='NF',
+                     disp1 = 1,
                      ...){
   
   ## default values for variables
@@ -170,7 +171,7 @@ NafTrial <- function(hypo=1,msyr=0.01,trialtype='B',
                        nsuba = nsuba,
                        initdelta = initdelta,
                        initgamma = initgamma,
-                       disp=ifelse(ndelta==0,0,1),
+                       disp=ifelse(ndelta==0,0,disp1),
                        disp2=ifelse(ndelta==0,'0',ifelse(hypo==7,'','1')),
                        ctype = ctype,
                        nummix = nummix),
@@ -297,7 +298,8 @@ NafSetup <- function(dir = 'trials'){
   ## NF-U1 (selectivy decrease)
   for(msyr in c(0.01,0.04)){
     NafWrite(NafTrial(hypo = 1, msyr = msyr,
-                      trialtype='U', seldec = 0.04),dir)
+                      trialtype='U', seldec = 0.04,
+                      mort3=0.04),dir)
   }
   
   
@@ -376,4 +378,21 @@ NafVariants <- function(dir='trials',
 
 
 
+NafDisp <- function(dir='disp-test'){
+  dir.create(dir,showWarnings = FALSE)
+  tmp <- 
+    list.files('data') %>% 
+    map(~file.copy(from=sprintf('data/%s',.),
+                   to=sprintf('%s/%s',dir,.),
+                   overwrite = TRUE))
+  tmp <- file.copy('settings/manage-single.dat',sprintf('%s/manage.dat',dir))
+  for(i in seq(0.05,0.5,by=0.02)){
+    for(msyr in c(0.01,0.04)){
+      NafWrite(NafTrial(hypo = 3, msyr = msyr,
+                        trialtype=, disp1=0,
+                        nf = round(100*i),
+                        egwi_disp=i),dir)
+    }
+  }
+}
 

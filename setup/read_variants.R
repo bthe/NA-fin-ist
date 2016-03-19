@@ -81,9 +81,9 @@ NafPerformance <- function(db_name='trials.db',dir='trials'){
   thr <- tbl(db,'man_thresh')
     
   pop.res <- 
-  res %>% 
+    res %>% 
     filter(pop_type =='pop') %>% 
-    collect() %>% 
+    collect() %>%
     group_by(ref,variant,pop_id) %>%
     mutate(pmin = pmin/p0) %>% 
     summarise(dpl=quantile(final_dpl,0.05),
@@ -96,14 +96,37 @@ NafPerformance <- function(db_name='trials.db',dir='trials'){
                             ifelse(dpl > dpl_60,'B','U')),
            uab_min = ifelse(pmin > dpl_72,'A',
                             ifelse(pmin > dpl_60,'B','U')),
-           uab_comb = ifelse(uab_fin == 'A' | uab_min == 'A','A',
-                             ifelse(uab_fin == 'B' | uab_min == 'B','B','U')))
-    area.res <- 
-      res %>% 
-      filter(pop_type =='area') %>% 
-      collect() %>% 
-      group_by(ref,variant,pop_id) %>% 
-      
-  return(final.res)
+           uab_xcomb = ifelse(uab_fin == 'A' | uab_min == 'A','A',
+                             ifelse(uab_fin == 'B' | uab_min == 'B','B','U')),
+           pop_id = ordered(pop_id,levels= c('W','C1','C2','C3','E','S'))) %>% 
+    gather(uab_stat,uab,uab_fin:uab_xcomb) %>%
+    arrange(pop_id) %>% 
+    group_by(ref,variant,uab_stat) %>% 
+    summarise(uab = paste(uab,collapse=' ')) %>% 
+    spread(uab_stat,uab) %>% 
+    mutate(combined=ifelse(grepl('U',uab_xcomb),'U',
+                           ifelse(grepl('B',uab_xcomb),'B','A')))
+    
+  area.res <- 
+    res %>% 
+    filter(pop_type =='area') %>% 
+    collect() %>% 
+    group_by(ref,variant,trial) %>%
+    ## calculate catch statistics (- aboriginal catches)
+    summarise(cf10 = sum(cf10)-19,
+              cl10 = sum(cl10)-19,
+              total_catch = sum(total_catch)-1900,
+              avg_catch = sum(avg_catch)-19) %>% 
+    ungroup() %>% 
+    group_by(ref,variant) %>% 
+    summarise(cf10 = median(cf10),
+              cl10 = median(cl10),
+              total_catch = median(total_catch),
+              avg_catch = median(avg_catch)) 
+  
+  final_res <- 
+    full_join(area.res,pop.res) %>% 
+    arrange(ref,variant)
+  return(final_res)
     
 }
