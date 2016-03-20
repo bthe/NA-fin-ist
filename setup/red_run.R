@@ -4,7 +4,7 @@ source('setup/read_variants.R')
 source('setup/read_results.R')
 
 
-NafSetup('Abund')
+NafSetup('RedAbund')
 NafCond(dir='RedAbund',survey='../data/survey-red.dat',
         search.string = 'NF-.[0-6]-..dat')
 NafCond(dir='RedAbund',survey='../data/survey-red7.dat',
