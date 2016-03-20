@@ -29,9 +29,9 @@ MAXIMUM AGE                          MAXAGE   25
 MINIMUM AGE-AT-MATURITY              MINMAT    3
 EPIDEMIC RATE                        ERATE    0.00
 COMPONENTS (0=EXPLOITABLE; 1=TOTAL1+; 2=MATURE)
-MSYR COMPONENT                       OPTF      2
-MSYL COMPONENT                       OPTMSYL   2
-DENSITY-DEPENDENT COMPONENT          OPTDD     2
+MSYR COMPONENT                       OPTF      1
+MSYL COMPONENT                       OPTMSYL   1
+DENSITY-DEPENDENT COMPONENT          OPTDD     1
 FREQUENCY OF ABUNDANCE ESTIMATES     IFREQ     5
 YEAR OF LAST SURVEY                  ENDSUR  100
 YEAR CV CHANGES                      IYRCV   100

@@ -179,7 +179,8 @@ NafTrial <- function(hypo=1,msyr=0.01,trialtype='B',
                        disp2=ifelse(ndelta==0,'0',ifelse(hypo==7,'','1')),
                        ctype = ctype,
                        nummix = nummix,
-                       ngamma = ngamma),
+                       ngamma = ngamma,
+                       wtagei = ifelse(msyr==0.01,0.1,1)),
                   list(...)))
   attr(txt,'ref') <- '{{nf}}-{{trialtype}}{{hypo}}-{{msyr}}' %>%
     infuse(hypo=hypo,msyr=100*msyr,trialtype=trialtype,nf=nf)
