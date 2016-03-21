@@ -257,7 +257,7 @@ NafWeights <- function(dir = 'weights_trials'){
   }
 }
   
-NafSetup <- function(dir = 'trials'){
+NafSetup <- function(dir = 'trials',hypos=c(1,2,3,5,6)){
   dir.create(dir,showWarnings = FALSE)
   tmp <- 
     list.files('data') %>% 
@@ -267,14 +267,15 @@ NafSetup <- function(dir = 'trials'){
   tmp <- file.copy('settings/manage.dat',sprintf('%s/manage.dat',dir))
   tmp <- file.copy('settings/CLC-N.PAR',sprintf('%s/clc-n.par',dir))
   
-    ## NF-B trials (baseline)
-  for(hypo in 1:8){
+  ## NF-B trials (baseline)
+  for(hypo in hypos){
     for(msyr in c(0.01,0.04)){
       NafWrite(NafTrial(hypo = hypo,msyr = msyr),dir)
     }
   }
+  
   ## NF-H trials (high catch series)
-  for(hypo in c(1,3,4)){
+  for(hypo in c(2,3)){
     for(msyr in c(0.01,0.04)){
       NafWrite(NafTrial(hypo = hypo, msyr = msyr,
                         trialtype='H'),dir)
@@ -282,18 +283,12 @@ NafSetup <- function(dir = 'trials'){
   }
   
   ## NF-T trials (tag loss 20% in y1, 10 % there afther)
-  for(hypo in c(1,3,4)){
+  for(hypo in c(2,3)){
     for(msyr in c(0.01,0.04)){
       NafWrite(NafTrial(hypo = hypo, msyr = msyr,
                         trialtype='T', tloss1 = 0.2, 
                         tloss2 = 0.1),dir)
     }
-  }
-  
-  ## NF-W1 (tags upweighted x10)
-  for(msyr in c(0.01,0.04)){
-    NafWrite(NafTrial(hypo = 1, msyr = msyr,
-                      trialtype='W', tagwt=10),dir)
   }
   
   ## NF-S trials (selectivity before and after 2007 estimated)
@@ -304,25 +299,17 @@ NafSetup <- function(dir = 'trials'){
     }
   }
   
-  ## NF-U1 (selectivy decrease)
+  ## NF-U3 (selectivy decrease)
   for(msyr in c(0.01,0.04)){
-    NafWrite(NafTrial(hypo = 1, msyr = msyr,
+    NafWrite(NafTrial(hypo = 3, msyr = msyr,
                       trialtype='U', seldec = 0.04,
                       mort3=0.04),dir)
   }
   
   
-  ## NF-R trials (tags excluded after year 1)
-  for(hypo in c(3,4)){
-    for(msyr in c(0.01,0.04)){
-      NafWrite(NafTrial(hypo = hypo, msyr = msyr,
-                        trialtype='R', 
-                        tagexc1 = 1),dir)
-    }
-  }
 
   ## NF-A trials (pro-rate abundance)
-  for(hypo in c(3)){
+  for(hypo in c(2,3)){
     for(msyr in c(0.01,0.04)){
       NafWrite(NafTrial(hypo = hypo, msyr = msyr,
                         trialtype='A', 
@@ -331,7 +318,7 @@ NafSetup <- function(dir = 'trials'){
   }
   
   ## NF-G trials changes in mixing matricies
-  for(hypo in c(1,3)){
+  for(hypo in c(2,3)){
     for(msyr in c(0.01,0.04)){
       NafWrite(NafTrial(hypo = hypo, msyr = msyr,
                         trialtype='G', optmix = 2),dir)
@@ -345,6 +332,13 @@ NafSetup <- function(dir = 'trials'){
                       trialtype='C', optcpe = 1),dir)
   }
 
+  ## NF-J trials changes in mixing matricies
+  for(hypo in c(2,3)){
+    for(msyr in c(0.01,0.04)){
+      NafWrite(NafTrial(hypo = hypo, msyr = msyr,
+                        trialtype='J', gzero = 0.8),dir)
+      }
+  }
   
   
     

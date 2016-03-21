@@ -30,7 +30,7 @@ SELYR: Year selectivity changes                {{selyr|0}}        0: baseline; 2
 OPTSEL =1 baseline: estimate selectivity       {{optsel|1}}        0: use initial values (for testing)
 BIAS IN ABSOLUTE ABUNDANCE ESTIMATES (BIAS)  1.0
 DEGREES OF FREEDOM (DF)                      10.0 
-g(0) FACTOR  (CORRN)                         1.0
+g(0) FACTOR  (CORRN)                         {{gzero|1.0}}
 SURVEY SAMPLING INTENSITY (SSAMPL)           1.0
 ADDITIONAL VARIANCE (CVadd)                  0.0   0.0   0.0   0.0   0.0   0.0   0.0   0.0
 TAG LOSS IN YEAR 1 (TLOSS1)                  {{tloss1|0.0}}

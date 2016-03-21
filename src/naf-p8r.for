@@ -1049,7 +1049,7 @@ C     & replacement values for SRATIO & VRATIO.
 C
 C     Recheck CPUE.DAT file ##############################                    INPUT: CPUE
 C     Read data from CPUE.DAT:
-      CPEWT = 0.001
+      CPEWT = 1
       IF (OPTCPE>0) THEN
         OPEN (20,  FILE='CPUE.dat')
         READ (20,*) NCPUE
