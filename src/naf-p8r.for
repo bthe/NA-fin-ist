@@ -1774,9 +1774,7 @@ C     Set up the dispersal rates to ensure equilibrium when pristine
         IF (AVDISP(J)>0.d0) THEN
          J2 = J+1
          D(J,J2) =MIN(0.99D0,AVDISP(J)*(KTOT(J)+KTOT(J2))*0.5d0/KTOT(J))
-         D(J,J2) =MAX(D(J,J2),0.D0)
          D(J2,J) =MIN(0.99D0,D(J,J2) * KTOT(J) /KTOT(J2))
-         D(J,J2) =MAX(D(J2,J),0.D0)
         END IF
    60 CONTINUE
 C
@@ -2041,7 +2039,7 @@ C     Accumulate 1+ of stock J in subarea K = PP(I1,J,K)
        DO 250 L=1,MAXAGE
         DO 250 K = 1,NSUBA
           PP(I1,J,K) = PP(I1,J,K) + (RM(L,J)+RF(L,J))*V(K,J,L)
-          if (rm(L,J)<-.01 .or. rf(L,J)<-.01) STOP 'STKUPA error: -ve P'
+C          if (rm(L,J)<-.01 .or. rf(L,J)<-.01) STOP 'STKUPA error: -ve P'
   250 CONTINUE
 C
       RETURN
