@@ -1774,7 +1774,9 @@ C     Set up the dispersal rates to ensure equilibrium when pristine
         IF (AVDISP(J)>0.d0) THEN
          J2 = J+1
          D(J,J2) =MIN(0.99D0,AVDISP(J)*(KTOT(J)+KTOT(J2))*0.5d0/KTOT(J))
+         D(J,J2) =MAX(D(J,J2),0.D0)
          D(J2,J) =MIN(0.99D0,D(J,J2) * KTOT(J) /KTOT(J2))
+         D(J,J2) =MAX(D(J2,J),0.D0)
         END IF
    60 CONTINUE
 C
@@ -2396,9 +2398,9 @@ C     First anti-log the parameters.
 C     Gammas 1 & 3 are proportions so constrain to be < 1
       IF (GG(1) > 1.D0) FUNCT = FUNCT + 100000.d0 + GG(1)
       IF (GG(3) > 1.D0) FUNCT = FUNCT + 100000.d0 + GG(3)
-      if(ngamma .gt. 6) then
-         IF (GG(8) > 1.D0) FUNCT = FUNCT + 100000.d0 + GG(8)
-      endif
+C      if(ngamma .gt. 6) then
+C         IF (GG(8) > 1.D0) FUNCT = FUNCT + 100000.d0 + GG(8)
+C      endif
 C     Cases when gammas are fixed (i.e. are functions of the other gammas)
       GG(4) = 1.D0 - GG(1)
       IF (NODISP==0) THEN
@@ -2413,7 +2415,7 @@ C       Hypotheses 6 & 7
         GG(2) = 1.D0 - GG(3)
         GG(5) = GG(1) * GG(2)
         GG(6) = GG(4) * GG(2)
-        GG(7) = 1.D0 - GG(8)
+C        GG(7) = 1.D0 - GG(8)
       ENDIF
       IF (FUNCT>=100000.D0 ) RETURN
 C
