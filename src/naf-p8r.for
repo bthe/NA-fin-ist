@@ -347,7 +347,7 @@ C     WTAGE    Weight for catch at age data in likelihood
 C     LikeAb etc Likelihood components, for printing
 
 C     Filenames
-      CHARACTER(LEN=30)  COPYNA, RANDOMF, MANAGE, NAFCON, NAFPAR
+      CHARACTER(LEN=30)  COPYNA, RANDOMF, MANAGE, NAFCON, NAFPAR, SURVEY
       END MODULE DECLARECOM
 C
 C **********************************************************************
@@ -435,7 +435,7 @@ C     read in file names from the command line
 C     ASSIGN DEFAULT VALUES TO 
       COPYNA = 'copyna.dat'
       RANDOMF = 'random.num'
-C      SURVEY = 'SURVEYN.DAT'
+      SURVEY = 'surveyn.dat'
       MANAGE = 'manage.dat'
 C      CATBYSEX = 'CATBYSEX.DAT'
 C      CATCHBYAGE = 'CATCHBYAGE.DAT'
@@ -464,6 +464,9 @@ C      CATCHBYAGE = 'CATCHBYAGE.DAT'
          CASE("-par")
             CALL GET_COMMAND_ARGUMENT(IX,ARGS(IX))
             NAFPAR = ARGS(IX)
+         CASE("-survey")
+            CALL GET_COMMAND_ARGUMENT(IX,ARGS(IX))
+            survey = ARGS(IX)
          END SELECT
       END DO
       END IF
@@ -472,7 +475,7 @@ C
 C     OPEN INPUT FILES
       OPEN (IN, FILE=COPYNA)
       OPEN (IN2,FILE=RANDOMF)
-      OPEN (IN4,FILE='surveyn.dat')                                     # Survey data & timetable
+      OPEN (IN4,FILE=survey)                                     # Survey data & timetable
       OPEN (16, FILE=MANAGE,STATUS='OLD')                               # Conditioning opt.
 C xxx UNIT  17, FILE=tag data     (Name set below)                      # Tags
 C xxx UNIT  18, FILE=catch data   (Name set below)                      # Catch data
@@ -2393,7 +2396,9 @@ C     First anti-log the parameters.
 C     Gammas 1 & 3 are proportions so constrain to be < 1
       IF (GG(1) > 1.D0) FUNCT = FUNCT + 100000.d0 + GG(1)
       IF (GG(3) > 1.D0) FUNCT = FUNCT + 100000.d0 + GG(3)
-      IF (GG(8) > 1.D0) FUNCT = FUNCT + 100000.d0 + GG(8)
+      if(ngamma .gt. 6) then
+         IF (GG(8) > 1.D0) FUNCT = FUNCT + 100000.d0 + GG(8)
+      endif
 C     Cases when gammas are fixed (i.e. are functions of the other gammas)
       GG(4) = 1.D0 - GG(1)
       IF (NODISP==0) THEN
