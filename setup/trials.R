@@ -219,7 +219,7 @@ NafCall <- function(...){
     setwd(tmp$run_dir)
   }
   run.string <- 
-    paste('naf-ist -main {{copyna|copyna.dat}}',
+    paste('{{nafist|naf-ist}} -main {{copyna|copyna.dat}}',
           '-par {{nafpar|nafpar.par}}',
           '-man {{man|manage.dat}}',
           '-con {{con|nafcon.dat}}',
@@ -352,9 +352,10 @@ NafSetup <- function(dir = 'trials',hypos=c(1,2,3,5,6)){
 NafCond <- function(dir='trials',
                     nafpar='../variants/Naf-v0.par',
                     search.string = 'NF-[A-Z][0-9]-[0-9].dat',
-                    survey = '../data/surveyn.dat'){
+                    survey = '../data/surveyn.dat',
+                    ...){
   mclapply(list.files(dir, search.string),
-           function(x) NafCall(run_dir=dir,copyna=x,nafpar=nafpar,survey=survey),
+           function(x) NafCall(run_dir=dir,copyna=x,nafpar=nafpar,survey=survey,...),
            mc.cores = detectCores(logical = TRUE))
 } 
 
@@ -364,7 +365,8 @@ NafVariants <- function(dir='trials',
                         var.search = 'Naf-v[0-9].par',
                         search.string = 'NF-[A-Z][0-9]-[0-9].dat',
                         man='../settings/manage.run',
-                        survey = '../data/surveyn.dat'){
+                        survey = '../data/surveyn.dat',
+                        ...){
   file.copy('data/sur-v4.dat',sprintf('%s/SUR-V4.DAT',dir))
   file.copy('data/CLC-N.PAR',sprintf('%s/clc-n.par',dir))
   
