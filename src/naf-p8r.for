@@ -475,7 +475,7 @@ C
 C     OPEN INPUT FILES
       OPEN (IN, FILE=COPYNA)
       OPEN (IN2,FILE=RANDOMF)
-      OPEN (IN4,FILE=survey)                                     # Survey data & timetable
+      OPEN (IN4,FILE=surveyn)                                     # Survey data & timetable
       OPEN (16, FILE=MANAGE,STATUS='OLD')                               # Conditioning opt.
 C xxx UNIT  17, FILE=tag data     (Name set below)                      # Tags
 C xxx UNIT  18, FILE=catch data   (Name set below)                      # Catch data
