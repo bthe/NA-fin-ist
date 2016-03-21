@@ -347,7 +347,7 @@ C     WTAGE    Weight for catch at age data in likelihood
 C     LikeAb etc Likelihood components, for printing
 
 C     Filenames
-      CHARACTER(LEN=30)  COPYNA, RANDOMF, MANAGE, NAFCON, NAFPAR, SURVEY
+      CHARACTER(LEN=30)  COPYNA, RANDOMF, MANAGE, NAFCON, NAFPAR,SURVEYn
       END MODULE DECLARECOM
 C
 C **********************************************************************
@@ -435,7 +435,7 @@ C     read in file names from the command line
 C     ASSIGN DEFAULT VALUES TO 
       COPYNA = 'copyna.dat'
       RANDOMF = 'random.num'
-      SURVEY = 'surveyn.dat'
+      SURVEYn = 'surveyn.dat'
       MANAGE = 'manage.dat'
 C      CATBYSEX = 'CATBYSEX.DAT'
 C      CATCHBYAGE = 'CATCHBYAGE.DAT'
@@ -466,7 +466,7 @@ C      CATCHBYAGE = 'CATCHBYAGE.DAT'
             NAFPAR = ARGS(IX)
          CASE("-survey")
             CALL GET_COMMAND_ARGUMENT(IX,ARGS(IX))
-            survey = ARGS(IX)
+            surveyn = ARGS(IX)
          END SELECT
       END DO
       END IF
