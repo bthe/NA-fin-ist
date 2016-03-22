@@ -292,7 +292,7 @@ NafSetup <- function(dir = 'trials',hypos=c(1,2,3,5,6)){
   }
   
   ## NF-S trials (selectivity before and after 2007 estimated)
-  for(hypo in c(3,4)){
+  for(hypo in c(3)){
     for(msyr in c(0.01,0.04)){
       NafWrite(NafTrial(hypo = hypo, msyr = msyr,
                         trialtype='S', selyr = 2007),dir)

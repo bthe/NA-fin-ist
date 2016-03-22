@@ -67,6 +67,17 @@ NafResults <- function(dir='trials', db_name = 'trials.db',
   print('Read survey data') 
   NafResults.readSurvey(file = sprintf('%s/surveyn.dat',dir),trials_db)
   
+  print('Read cpue data')
+  db_create_table(trials_db$con,'naf_cpe',
+                  types = c(ref = 'TEXT',year = 'INTEGER',
+                            series = 'INTEGER',obs = 'REAL',prd = 'REAL'))
+  list.files(path = dir,pattern = sprintf('%s.cpe',search.string)) %>%
+    map(~NafResults.readCPUE(sprintf('%s/%s',dir,.),
+                            trials_db))
+  db_create_index(trials_db$con, 'naf_cpe',c('ref','year','series'))
+  
+  
+  
 }
 
 
@@ -245,4 +256,17 @@ NafResults.readSurvey <- function(file='surveyn.dat', trials_db){
            pro.obs = prorated) %>%
     copy_to(trials_db,name='naf_sight',df = .,temporary = FALSE)
   
+}
+
+
+NafResults.readCPUE <- function(file='NAF.cpe',trials_db){
+  cpe <- readLines(file)
+  ref <- gsub('^(..-..-.).+$','\\1',cpe[1])
+  cpe[cpe!=''&!grepl('Year',cpe)] %>% 
+    read.table(text=.,skip=4) %>% 
+    select(year=V1,obs=V2,pred=V3) %>% 
+    mutate(series=cut(1:length(year),c(0,which(diff(year)<0),1e9),labels = FALSE),
+           ref = ref) %>%
+    select(ref,year,series,obs,pred) %>% 
+    db_insert_into(trials_db$con,table='naf_cpe',values = .)
 }

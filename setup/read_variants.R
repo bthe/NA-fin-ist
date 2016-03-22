@@ -10,16 +10,36 @@ NafReadVariants <- function(dir='trials',search.string='NF-..-.-V[0-9].restest',
                             pop_id = 'TEXT',total_catch = 'REAL',
                             avg_catch = 'REAL',p0 = 'REAL',pfin = 'REAL',
                             pmin = 'REAL',cf10 = 'REAL',cl10 = 'REAL',final_dpl = 'REAL'))
+  
+  db_create_table(db$con,'naf_resbyyear',
+                  types = c(ref = 'TEXT',variant = 'TEXT',
+                            year = 'INTEGER',pop_type = 'TEXT',
+                            pop_id = 'TEXT',
+                            catch_lower = 'REAL',
+                            catch_upper = 'REAL',
+                            catch_med = 'REAL',
+                            abundance_lower = 'REAL',
+                            abundance_upper = 'REAL',
+                            abundance_med = 'REAL'))
+  
   res <- 
     list.files(path = dir,pattern =search.string)%>%
     mclapply(., function(x) safely(NafReadVariants.restest)(sprintf('%s/%s',dir,x)),
-             mc.cores = detectCores(logical=TRUE)) %>% 
+             mc.cores = detectCores(logical=TRUE)) 
+  
+  res %>% 
     map('result') %>% 
+    map('res.total') %>% 
     bind_rows() %>% 
     as.data.frame() %>% 
     db_insert_into(db$con,table='naf_res',values = .)
   
-  
+  res %>% 
+    map('result') %>% 
+    map('res.by.year') %>% 
+    bind_rows() %>% 
+    as.data.frame() %>% 
+    db_insert_into(db$con,table='naf_resbyyear',values = .)
 }
 
 NafReadVariants.restest <- function(file='NAF.restest'){
@@ -50,7 +70,7 @@ NafReadVariants.restest <- function(file='NAF.restest'){
 #   C    5  Average catch over the first 10yrs by subarea (CF10)
 #   C    6  Average catch over the last  10yrs by subarea (CL10)
   
-  
+  tmp2 <-   
     tmp %>%
     rename(year=yr) %>% 
     mutate(ref = ref,
@@ -65,17 +85,31 @@ NafReadVariants.restest <- function(file='NAF.restest'){
                                                'Area catch'='area catch','Stock catch'='pop catch'))) %>%
     separate(pop_type,c('pop_type','tmp')) %>% 
     spread(tmp,number) %>%
-    filter(trial!=0) %>% 
+    filter(trial!=0)  
+  
+  res.total <- 
+    tmp2 %>% 
     group_by(ref,variant,trial,pop_type,pop_id) %>% 
     summarise(total_catch=sum(catch[year>2014]),avg_catch=mean(catch[year>2014]), 
               p0 = sum(abundance[year==1864]),pfin = sum(abundance[year==2115]),
               pmin = min(abundance[year>2014]), cf10=mean(catch[year %in% 2015:2024]),
               cl10 = mean(catch[year %in% 2105:2114]),
               final_dpl = pfin/p0) 
+  
+  res.by.year <- 
+    tmp2 %>% 
+    group_by(ref,variant,year,pop_type,pop_id) %>%
+    summarise(catch_lower=quantile(catch,0.05),
+              catch_upper=quantile(catch,0.95),
+              catch_med = median(catch),
+              abundance_lower=quantile(abundance,0.05),
+              abundance_upper=quantile(abundance,0.95),
+              abundance_med = median(abundance))
+  return(list(res.total=res.total,res.by.year=res.by.year))
 }
 
 
-NafPerformance <- function(db_name='trials.db',dir='trials'){
+NafPerformance <- function(db_name='trials.db'){
   db <- src_sqlite(db_name)
   res <- tbl(db,'naf_res')
   thr <- tbl(db,'man_thresh')

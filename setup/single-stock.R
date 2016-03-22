@@ -8,7 +8,6 @@ ManSetup <- function(db_name='druna.db',dir='outn',
     tbl(db,'naf_pop') %>% 
     filter(pop_type =='Mature females', year %in% c(1864,2014)) %>% 
     collect() %>% 
-    filter(grepl('NF-..-1',ref)) %>% 
     mutate(year = sprintf('x%s',year)) %>% 
     spread(year,number) %>% 
     mutate(dpl=x2014/x1864)%>% 
@@ -62,7 +61,7 @@ ManCall <- function(...){
         paste('manresv8 -res {{copy}}.restest',
               '-res0 {{copy}}.res0',
               '-traj {{copy}}.traj',
-              '-thresh {{copy}}.thresh')) %>%
+              '-thresh {{copy}}.{{clc_desc|72}}.thresh')) %>%
         map(~infuse(.,tmp))
   
   res <-
@@ -83,30 +82,44 @@ ManRun <- function(dir='outn',search.string='NF-..-1-[0-9].ss+$',
                    clc.60 = '../settings/CLC-N.60',
                    clc.72 = '../settings/CLC-N.72'){
   tmp <- mclapply(list.files(dir, search.string),
-                  function(x) ManCall(run_dir=dir,copy=x,clc=clc.60),
+                  function(x) ManCall(run_dir=dir,copy=x,clc=clc.60,clc_desc=60),
                   mc.cores = detectCores(logical = TRUE))
   tmp <- mclapply(list.files(dir, search.string),
-                  function(x) ManCall(run_dir=dir,copy=x,clc=clc.72),
+                  function(x) ManCall(run_dir=dir,copy=x,clc=clc.72,clc_desc=72),
                   mc.cores = detectCores(logical = TRUE))
 }
-    
+
 ManResults <- function(db_name='trials.db',dir='outn'){
   db <- src_sqlite(db_name)
   stock.names <- c('W','C1','C2','C3','E','S')
   stock.names.78 <- c('W','C1','C2','E','S')
   stock.names.6 <- c('W','C1','C2','C3','S')
   
-  list.files(dir,pattern='*.thresh') %>% 
-    map(~safely(read.table)(file=sprintf('%s/%s',dir,.))) %>%
-    map('result') %>% 
-    bind_rows() %>% 
-    select(ref=V1,pop_id=V2,dpl_60=V3,dpl_72=V4) %>% 
-    mutate(hypo = as.numeric(gsub('NF-.([0-9])-.','\\1',ref)),
-           type = gsub('NF-([A-Z]).-.','\\1',ref),
-           pop_id = ifelse(hypo < 6,stock.names[pop_id],
-                           ifelse(hypo==6,stock.names.6[pop_id],
-                                  stock.names.78[pop_id]))) %>% 
-    as.data.frame() %>% 
+  bind_cols(list.files(dir,pattern='*.60.thresh') %>% 
+              map(~safely(read.table)(file=sprintf('%s/%s',dir,.))) %>%
+              map('result') %>% 
+              bind_rows() %>% 
+              select(ref=V1,pop_id=V2,dpl_60=V3,dpl_72=V4) %>% 
+              mutate(hypo = as.numeric(gsub('NF-.([0-9])-.','\\1',ref)),
+                     clc = 60,
+                     type = gsub('NF-([A-Z]).-.','\\1',ref),
+                     pop_id = ifelse(hypo < 6,stock.names[pop_id],
+                                     ifelse(hypo==6,stock.names.6[pop_id],
+                                            stock.names.78[pop_id]))) %>% 
+              as.data.frame(),
+            list.files(dir,pattern='*.72.thresh') %>% 
+              map(~safely(read.table)(file=sprintf('%s/%s',dir,.))) %>%
+              map('result') %>% 
+              bind_rows() %>% 
+              select(ref=V1,pop_id=V2,dpl_60=V3,dpl_72=V4) %>% 
+              mutate(hypo = as.numeric(gsub('NF-.([0-9])-.','\\1',ref)),
+                     clc = 60,
+                     type = gsub('NF-([A-Z]).-.','\\1',ref),
+                     pop_id = ifelse(hypo < 6,stock.names[pop_id],
+                                     ifelse(hypo==6,stock.names.6[pop_id],
+                                            stock.names.78[pop_id]))) %>% 
+              as.data.frame()) %>% 
     copy_to(db,df=.,name='man_thresh',temporary=FALSE)
+  
 }
 
