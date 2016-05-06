@@ -147,7 +147,8 @@ NafTrial <- function(hypo=1,msyr=0.01,trialtype='B',
   
     
   ## trial code generated
-  ref <- '{{nf}}-{{trialtype}}{{hypo}}-{{msyr}} H{{hypo}}-{{msyr}}' %>%
+  ref <- 
+    '{{nf}}-{{trialtype}}{{hypo}}-{{msyr}} H{{hypo}}-{{msyr}}' %>%
     infuse(hypo=hypo,msyr=100*msyr,trialtype=trialtype,nf=nf)
   
   ## assign msyr rates to nstk stocks
@@ -270,32 +271,39 @@ NafSetup <- function(dir = 'trials',hypos=c(1,2,3,5,6)){
   ## NF-B trials (baseline)
   for(hypo in hypos){
     for(msyr in c(0.01,0.04)){
-      NafWrite(NafTrial(hypo = hypo,msyr = msyr),dir)
+      if(hypo == 6 & msyr ==0.01){
+        next
+      } else {
+        NafWrite(NafTrial(hypo = hypo,msyr = msyr),dir)
+        tmp <- file.copy('data/surveyn.dat',sprintf('%s/NF-B%s-%s.survey',dir,hypo,100*msyr))
+      }
     }
-  }
+  } 
   
   ## NF-H trials (high catch series)
   for(hypo in c(2,3)){
     for(msyr in c(0.01,0.04)){
       NafWrite(NafTrial(hypo = hypo, msyr = msyr,
                         trialtype='H'),dir)
+      tmp <- file.copy('data/surveyn.dat',sprintf('%s/NF-H%s-%s.survey',dir,hypo,100*msyr))
     }
   }
   
-  ## NF-T trials (tag loss 20% in y1, 10 % there afther)
+  ## NF-Q trials (a copy of NF-B3 trials with future surveys excluding 60 deg north)
+  for(msyr in c(0.01,0.04)){
+    NafWrite(NafTrial(hypo = 3, msyr = msyr,
+                      trialtype='Q',sratio1 = 0.78, sratio2 =0.93,
+                      vratio1 = 0.162, vratio2 =0.085),dir)
+    tmp <- file.copy('data/surveyn.dat',sprintf('%s/NF-Q%s-%s.survey',dir,3,100*msyr))
+  }
+  
+  ## NF-A trials (pro-rate abundance)
   for(hypo in c(2,3)){
     for(msyr in c(0.01,0.04)){
       NafWrite(NafTrial(hypo = hypo, msyr = msyr,
-                        trialtype='T', tloss1 = 0.2, 
-                        tloss2 = 0.1),dir)
-    }
-  }
-  
-  ## NF-S trials (selectivity before and after 2007 estimated)
-  for(hypo in c(3)){
-    for(msyr in c(0.01,0.04)){
-      NafWrite(NafTrial(hypo = hypo, msyr = msyr,
-                        trialtype='S', selyr = 2007),dir)
+                        trialtype='A', 
+                        optsgt = 1),dir)
+      tmp <- file.copy('data/surveyn.dat',sprintf('%s/NF-A%s-%s.survey',dir,hypo,100*msyr))
     }
   }
   
@@ -304,17 +312,7 @@ NafSetup <- function(dir = 'trials',hypos=c(1,2,3,5,6)){
     NafWrite(NafTrial(hypo = 3, msyr = msyr,
                       trialtype='U', seldec = 0.04,
                       mort3=0.04),dir)
-  }
-  
-  
-
-  ## NF-A trials (pro-rate abundance)
-  for(hypo in c(2,3)){
-    for(msyr in c(0.01,0.04)){
-      NafWrite(NafTrial(hypo = hypo, msyr = msyr,
-                        trialtype='A', 
-                        optsgt = 1),dir)
-    }
+    tmp <- file.copy('data/surveyn.dat',sprintf('%s/NF-U%s-%s.survey',dir,3,100*msyr))
   }
   
   ## NF-G trials changes in mixing matricies
@@ -324,19 +322,58 @@ NafSetup <- function(dir = 'trials',hypos=c(1,2,3,5,6)){
                         trialtype='G', optmix = 2),dir)
       NafWrite(NafTrial(hypo = hypo, msyr = msyr,
                         trialtype='F', optmix = 3),dir)
+      tmp <- file.copy('data/surveyn.dat',sprintf('%s/NF-G%s-%s.survey',dir,hypo,100*msyr))
+      tmp <- file.copy('data/surveyn.dat',sprintf('%s/NF-F%s-%s.survey',dir,hypo,100*msyr))
     }
   }
-  ## NF-C trials adds a cpue likelihood 
-  for(msyr in c(0.01,0.04)){
-    NafWrite(NafTrial(hypo = 3, msyr = msyr,
-                      trialtype='C', optcpe = 1),dir)
+  
+  ## NF-S trials (selectivity before and after 2007 estimated)
+  for(hypo in c(3)){
+    for(msyr in c(0.01,0.04)){
+      NafWrite(NafTrial(hypo = hypo, msyr = msyr,
+                        trialtype='S', selyr = 2007),dir)
+      tmp <- file.copy('data/surveyn.dat',sprintf('%s/NF-S%s-%s.survey',dir,hypo,100*msyr))
+      
+    }
   }
-
-  ## NF-J trials changes in mixing matricies
+  
+  ## NF-Y trials (baseline with 8 year survey intervals)
+  for(hypo in hypos){
+    for(msyr in c(0.01,0.04)){
+      if(hypo == 6 & msyr ==0.01){
+        next
+      } else {
+        NafWrite(NafTrial(hypo = hypo,msyr = msyr,
+                          trialtype='Y'),dir)
+      }
+      tmp <- file.copy('data/surveyn8.dat',sprintf('%s/NF-Y%s-%s.survey',dir,hypo,100*msyr))
+    }
+  }  
+  
+  ## NF-E trials exclude 1987/1989 abundance estimates in WI, EG & EI/F
   for(hypo in c(2,3)){
     for(msyr in c(0.01,0.04)){
       NafWrite(NafTrial(hypo = hypo, msyr = msyr,
+                        trialtype='E'),dir)
+      tmp <- file.copy('data/survey-red.dat',sprintf('%s/NF-E%s-%s.survey',dir,hypo,100*msyr))
+    }
+  }
+  
+  ## NF-D trials put a lower upper bound on dispersion
+  for(hypo in c(2,3)){
+    for(msyr in c(0.01,0.04)){
+      NafWrite(NafTrial(hypo = hypo, msyr = msyr,
+                        trialtype='D',dispb=0.2),dir)
+      tmp <- file.copy('data/surveyn.dat',sprintf('%s/NF-D%s-%s.survey',dir,hypo,100*msyr))
+    }
+  }
+  
+  ## NF-J assumes a gzero of 0.8
+  for(hypo in c(1,2)){
+    for(msyr in c(0.01,0.04)){
+      NafWrite(NafTrial(hypo = hypo, msyr = msyr,
                         trialtype='J', gzero = 0.8),dir)
+      tmp <- file.copy('data/surveyn.dat',sprintf('%s/NJ-H%s-%s.survey',dir,hypo,100*msyr))
       }
   }
   
@@ -352,10 +389,12 @@ NafSetup <- function(dir = 'trials',hypos=c(1,2,3,5,6)){
 NafCond <- function(dir='trials',
                     nafpar='../variants/Naf-v0.par',
                     search.string = 'NF-[A-Z][0-9]-[0-9].dat',
-                    survey = '../data/surveyn.dat',
                     ...){
   mclapply(list.files(dir, search.string),
-           function(x) NafCall(run_dir=dir,copyna=x,nafpar=nafpar,survey=survey,...),
+           function(x){ 
+             survey <- gsub('dat','survey',x)
+             NafCall(run_dir=dir,copyna=x,nafpar=nafpar,survey=survey,...)
+             },
            mc.cores = detectCores(logical = TRUE))
 } 
 
@@ -365,7 +404,6 @@ NafVariants <- function(dir='trials',
                         var.search = 'Naf-v[0-9].par',
                         search.string = 'NF-[A-Z][0-9]-[0-9].dat',
                         man='../settings/manage.run',
-                        survey = '../data/surveyn.dat',
                         ...){
   file.copy('data/sur-v4.dat',sprintf('%s/SUR-V4.DAT',dir))
   file.copy('data/CLC-N.PAR',sprintf('%s/clc-n.par',dir))
@@ -378,8 +416,7 @@ NafVariants <- function(dir='trials',
               sprintf('%s/%s',dir,gsub('.dat','.con',x$ref)))
     NafCall(run_dir=dir,copyna=x$ref,
             nafpar=sprintf('../%s/%s',var.dir,x$variant),
-            man=man,con=gsub('.dat','.con',x$ref),
-            survey=survey)
+            man=man,con=gsub('.dat','.con',x$ref))
     },
     mc.cores = detectCores(logical = TRUE))
 } 

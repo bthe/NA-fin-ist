@@ -93,7 +93,8 @@ pop <-
                                 'G'='C2 to EG in 1985 (opt. a)',
                                 'H'='High historical catch series',
                                 'T'='Tag loss 20% yr 1, 10%/yr thereafter',
-                                'J'='g(0) = 0.8')))
+                                'J'='g(0) = 0.8',
+                                'U'='Dome shaped selectivity')))
 
 
 pop.fem <- 
@@ -126,7 +127,8 @@ wi_tag <-
                                 'G'='C2 to EG in 1985 (opt. a)',
                                 'H'='High historical catch series',
                                 'T'='Tag loss 20% yr 1, 10%/yr thereafter',
-                                'J'='g(0) = 0.8'))) %>%
+                                'J'='g(0) = 0.8',
+                                'U'='Dome shaped selectivity'))) %>%
   group_by(ref,rela,area) %>%
   arrange(year) %>%
   mutate(prd1 = cumsum(prd),
@@ -212,7 +214,7 @@ print(pop %>% ## hypos 1,(-)2,3(-),(-)4,5(-),(-)6,7,(-)8
         geom_text(aes(label=area),x=1960,y=Inf, vjust = 2,hjust = 1,col='black') +
         theme(axis.text.y=element_text(angle = 90,hjust = 0.5,size=8),
               axis.text.x=element_text(size = 7),
-              legend.position = 'bottom',
+              legend.position = c(0.6,0.1),
               panel.margin = unit(0.2,'cm'),
               plot.margin = unit(c(0.2,0.2,0.2,0.2),'cm'),
               strip.background = element_blank(),
@@ -223,8 +225,8 @@ print(pop %>% ## hypos 1,(-)2,3(-),(-)4,5(-),(-)6,7,(-)8
         #scale_fill_manual(values = c( "darkred", "darkgreen"))+
         #scale_fill_hue(l=40)+  
         scale_linetype_manual(name = NULL,
-                             values = as.factor(1:8),
-                             labels = paste('Hypothesis',1:8)) +
+                             values = as.factor(c(1,2,3,5,6)),
+                             labels = paste('Hypothesis',c(1,2,3,5,6))) +
           ggtitle(sprintf('Baseline %s%% (%s)',ms,ifelse(ms==1,'1+','Mature'))))
   dev.off()
 }
@@ -243,7 +245,15 @@ age <-
          msyr = as.numeric(gsub('..-..-([0-9])','\\1',ref)),
          hypo = gsub('..-.([0-9]).+','\\1',ref),
          msyr = as.character(msyr/100),
-         trialtype = gsub('..-([A-Z]).+','\\1',ref)) %>%
+         trialtype = gsub('..-([A-Z]).+','\\1',ref),
+         type = plyr::revalue(trialtype, 
+                              c('A'='Pro rate abundance','B'='Baseline','C'='CPUE',
+                                'F'='C2 to EG in 1985 - 2025 (opt. b)',
+                                'G'='C2 to EG in 1985 (opt. a)',
+                                'H'='High historical catch series',
+                                'T'='Tag loss 20% yr 1, 10%/yr thereafter',
+                                'J'='g(0) = 0.8',
+                                'U'='Dome shaped selectivity'))) %>%
 #  left_join(age.dat) %>%
 #  rename(prd= num) %>%
   group_by(ref,year,sex) %>%
@@ -295,6 +305,73 @@ print(
     scale_x_continuous(breaks = seq(1970,1990,by=2))+
     scale_size(range=c(0.5,3)) +
     ggtitle('Catch at age diagnostic for baseline hypotheses (5-8)') + 
+    xlab('Year') + ylab('Age (in years)') 
+)
+dev.off()
+
+
+
+pdf(file=sprintf('%s/other2A-G.age.pdf',figs),width=11,height = 8)
+print( 
+  
+  age %>% 
+    filter(year<1990,grepl('NF-[(^B)|(^J-U)]2-.',ref)) %>%
+    ggplot(aes(year,age,size=abs(diff),col=dir)) + geom_point()+
+    facet_grid(msyr~type+sex) + theme_minimal() + scale_color_manual(values = c('lightblue','black')) + 
+    theme(legend.position='none',
+          axis.text.x = element_text(angle=90,size = 9,vjust = .3)) + 
+    scale_x_continuous(breaks = seq(1970,1990,by=2))+
+    scale_size(range=c(0.5,3)) +
+    ggtitle('Catch at age diagnostic for sensitivity  (A-G), hypotheses 2') + 
+    xlab('Year') + ylab('Age (in years)') 
+)
+dev.off()
+
+pdf(file=sprintf('%s/other2H-U.age.pdf',figs),width=11,height = 8)
+print( 
+  
+  age %>% 
+    filter(year<1990,grepl('NF-[(^A-G)]2-.',ref)) %>%
+    ggplot(aes(year,age,size=abs(diff),col=dir)) + geom_point()+
+    facet_grid(msyr~type+sex) + theme_minimal() + scale_color_manual(values = c('lightblue','black')) + 
+    theme(legend.position='none',
+          axis.text.x = element_text(angle=90,size = 9,vjust = .3)) + 
+    scale_x_continuous(breaks = seq(1970,1990,by=2))+
+    scale_size(range=c(0.5,3)) +
+    ggtitle('Catch at age diagnostic for sensitivity trials, hypotheses 2') + 
+    xlab('Year') + ylab('Age (in years)') 
+)
+dev.off()
+
+
+pdf(file=sprintf('%s/other3A-G.age.pdf',figs),width=11,height = 8)
+print( 
+  
+  age %>% 
+    filter(year<1990,grepl('NF-[(^B)|(^J-U)]3-.',ref)) %>%
+    ggplot(aes(year,age,size=abs(diff),col=dir)) + geom_point()+
+    facet_grid(msyr~type+sex) + theme_minimal() + scale_color_manual(values = c('lightblue','black')) + 
+    theme(legend.position='none',
+          axis.text.x = element_text(angle=90,size = 9,vjust = .3)) + 
+    scale_x_continuous(breaks = seq(1970,1990,by=2))+
+    scale_size(range=c(0.5,3)) +
+    ggtitle('Catch at age diagnostic for sensitivity  (A-G), hypotheses 2') + 
+    xlab('Year') + ylab('Age (in years)') 
+)
+dev.off()
+
+pdf(file=sprintf('%s/other3H-U.age.pdf',figs),width=11,height = 8)
+print( 
+  
+  age %>% 
+    filter(year<1990,grepl('NF-[(^A-G)]3-.',ref)) %>%
+    ggplot(aes(year,age,size=abs(diff),col=dir)) + geom_point()+
+    facet_grid(msyr~type+sex) + theme_minimal() + scale_color_manual(values = c('lightblue','black')) + 
+    theme(legend.position='none',
+          axis.text.x = element_text(angle=90,size = 9,vjust = .3)) + 
+    scale_x_continuous(breaks = seq(1970,1990,by=2))+
+    scale_size(range=c(0.5,3)) +
+    ggtitle('Catch at age diagnostic for sensitivity trials, hypotheses 2') + 
     xlab('Year') + ylab('Age (in years)') 
 )
 dev.off()
@@ -532,6 +609,35 @@ for(ref1 in unique(res.by.year$ref)){
 }
 
 
+for(ref1 in unique(res.by.year$ref)){
+  pdf(file=sprintf('%s/%s.res.catbyar.pdf',figs,ref1),width=7,height = 8)
+  print(res.by.year %>% 
+          filter(ref==ref1) %>% 
+          ggplot(aes(year,catch_med,lty=variant,fill=variant)) + 
+          geom_ribbon(aes(year,ymax=catch_upper,ymin=catch_lower),alpha=0.2) + 
+          geom_line() + 
+          facet_wrap(~area,scale='free_y',ncol=2) +
+#          geom_point(aes(year,obs),col='black') + 
+#          geom_errorbar(aes(year,ymax=upper,ymin=lower),col='black') + 
+          theme_bw() + ylab('1+ population') + xlab('Year') +
+          geom_text(aes(label=area),x=1960,y=Inf, vjust = 2,hjust = 1) +
+          theme(axis.text.y=element_text(angle = 90,hjust = 0.5,size=8),
+                axis.text.x=element_text(size = 7),
+                #legend.position = 'none',#c(0.7,0.2),
+                panel.margin = unit(0.2,'cm'),
+                plot.margin = unit(c(0.2,0.2,0.2,0.2),'cm'),
+                strip.background = element_blank(),
+                strip.text.x = element_blank())+
+          scale_x_continuous(breaks = seq(1860,2115,by=20),
+                             minor_breaks = seq(1860,2115,by=5))+
+          expand_limits(y = 0)+
+          #scale_fill_manual(values = c( "darkred", "darkgreen"))+
+          #scale_fill_hue(l=40)+
+          ggtitle(ref1))
+  dev.off()
+}
+
+
 thresh <- 
   tbl(db_res,'man_thresh') %>% 
   collect() %>% 
@@ -584,3 +690,68 @@ for(ref1 in unique(res.by.year$ref)){
 }
 
 
+
+
+for(ref1 in unique(res.by.year$ref)){
+  pdf(file=sprintf('%s/%s.res.femcat.pdf',figs,ref1),width=7,height = 8)
+  print(res.by.year.fem %>% 
+          filter(ref==ref1) %>% 
+          ggplot(aes(year,catch_med,lty=variant,fill=variant)) + 
+          geom_ribbon(aes(year,ymax=catch_upper,ymin=catch_lower),alpha=0.5) + 
+          geom_line() + 
+          facet_wrap(~pop,scale='free_y',ncol=2) +
+          theme_bw() + ylab('1+ population') + xlab('Year') +
+          geom_text(aes(label=pop),x=1960,y=Inf, vjust = 2,hjust = 1) +
+          theme(axis.text.y=element_text(angle = 90,hjust = 0.5,size=8),
+                axis.text.x=element_text(size = 7),
+                #legend.position = 'none',#c(0.7,0.2),
+                panel.margin = unit(0.2,'cm'),
+                plot.margin = unit(c(0.2,0.2,0.2,0.2),'cm'),
+                strip.background = element_blank(),
+                strip.text.x = element_blank())+
+          scale_x_continuous(breaks = seq(1860,2115,by=20),
+                             minor_breaks = seq(1860,2115,by=5))+
+          expand_limits(y = 0)+
+          #scale_fill_manual(values = c( "darkred", "darkgreen"))+
+          #scale_fill_hue(l=40)+
+          ggtitle(ref1))
+  dev.off()
+}
+
+
+trial_stat <- NafPerformance('FullTrials_res.db')
+
+for(ref1 in unique(trial_stat$pop.res$ref)){
+  pdf(file=sprintf('%s/greg.%s.fin.pdf',figs,ref1),width=7,height = 8)
+  print( 
+    trial_stat$pop.res %>% 
+      ungroup() %>% 
+      mutate(variant=as.numeric(gsub('V','',variant))) %>% 
+      filter(ref==ref1) %>% 
+      ggplot(aes(variant,dpl)) + geom_point() + facet_wrap(~pop_id) + 
+      theme_minimal() + 
+      geom_line(aes(variant,dplfin_60)) +
+      geom_line(aes(variant,dplfin_72),lty=2) +
+      expand_limits(y = 0) + 
+      ggtitle(sprintf('%s final dpl',ref1))
+  )
+  dev.off()
+}
+
+for(ref1 in unique(trial_stat$pop.res$ref)){
+  pdf(file=sprintf('%s/greg.%s.min.pdf',figs,ref1),width=7,height = 8)
+  print( 
+    
+    trial_stat$pop.res %>% 
+      ungroup() %>% 
+      mutate(variant=as.numeric(gsub('V','',variant))) %>% 
+      filter(ref==ref1) %>% 
+      ggplot(aes(variant,pmin)) + geom_point() + facet_wrap(~pop_id) + 
+      theme_minimal() + 
+      geom_line(aes(variant,dplmin_60)) +
+      geom_line(aes(variant,dplmin_72),lty=2) +
+      expand_limits(y = 0) + 
+      ggtitle(sprintf('%s minimum dpl',ref1))
+  )
+  dev.off()
+}

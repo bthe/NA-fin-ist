@@ -120,6 +120,7 @@ c     Assign default values to
       sstraj = 'ss-traj.out'
       thresh = 'thresh.dat'
       ISCALE = 0
+
       if (num_args>0) then
       ix = 1  
       do while(ix < num_args)
@@ -437,7 +438,7 @@ C     Print * in results line, col 1 if stock sizes scaled by 0 catch trajectory
       IF (IRR) WRITE (CRR1,'(2(2X,F6.3))') 
      +     RR1(I5),(RR1(I50)+RR1(I51))*.5
 
-      OPEN(UNIT=978,FILE='RESOUT.RES',ACCESS='APPEND')
+      OPEN(UNIT=978,FILE=resoutfile,ACCESS='APPEND')
       WRITE (978,'(A3,A10,F7.3,7(3F7.3,2X),F8.3,2A16,F8.3,2X,A))') 
      +         ASCALE,DESC,(CT(I50)+CT(I51))*.5, CT(I5),CT(I96),CTAV,
      +         (PFIN(I50)+PFIN(I51))*.5,PFIN(I5),PFIN(I96),
@@ -448,7 +449,7 @@ C     Print * in results line, col 1 if stock sizes scaled by 0 catch trajectory
      +         (M1FIN(I50)+M1FIN(I51))*.5,M1FIN(I5),M1FIN(I96),
      +         AAV,CRR,CRR1,DEPL,DESC
       CLOSE(978)
-      OPEN(UNIT=979,FILE='MSYL.RES',ACCESS='APPEND')
+      OPEN(UNIT=979,FILE=msylfile,ACCESS='APPEND')
       WRITE (979,'(A10,9F8.5,2X,A)') REF,MSYLT,MSYLE,MSYLM,
      +     AMSYRT,AMSYLT,AMSYRE,AMSYLE,AMSYRM,AMSYLM,DESC
       CLOSE(979)

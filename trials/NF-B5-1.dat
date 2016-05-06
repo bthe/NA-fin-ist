@@ -1,9 +1,9 @@
-NF-B5-1 H5-1%   Baseline   0.01-1864-0
+NF-B5-1 H5-1   Baseline   0.01-1864-0
 
-NUMBER OF SUBSTOCKS           (NSTK)           6
+NUMBER OF SUBSTOCKS           (NSTK)         6
 NUMBER OF TRIALS              (NTRIAL)       100
 NUMBER OF YEARS IN SIMULATION (NYEAR)        100
-NUMBER OF SUBAREAS            (NSUBA)          7
+NUMBER OF SUBAREAS            (NSUBA)        7
 1ST PREMANAGEMENT CATCH YEAR  (ISTART)      1864          INITYR
 LAST PREMANAGEMENT CATCH YEAR (IPEND)       2014
 FIRST YEAR OF MODEL           (FIRSTYR)     1864
@@ -15,12 +15,12 @@ DENSITY DEPENDENCE: 0=1+, 1=Mat      OPTDD     0
 MINIMUM AGE OF MATURITY              MINMAT    3
 POOLED MAXIMUM AGE CLASS (MAXAGE)             25
 TRUE MSYL (MSYL)                             0.6
-MSYR OF STOCK 1 (MSYR1(1)                    0.01
-MSYR OF STOCK 2 (MSYR1(2)                    0.01
-MSYR OF STOCK 3 (MSYR1(3)                    0.01
-MSYR OF STOCK 4 (MSYR1(4)                    0.01
-MSYR OF STOCK 5 (MSYR1(5)                    0.01
-MSYR OF STOCK 5 (MSYR1(6)                    0.01
+MSYR OF STOCK 1 (MSYR1(1))                   0.01
+MSYR OF STOCK 1 (MSYR2(2))                   0.01
+MSYR OF STOCK 1 (MSYR3(3))                   0.01
+MSYR OF STOCK 1 (MSYR4(4))                   0.01
+MSYR OF STOCK 1 (MSYR5(5))                   0.01
+MSYR OF STOCK 1 (MSYR6(6))                   0.01
 MORTALITY PARAMETER 1 (MORT1)                0.0
 MORTALITY PARAMETER 2 (MORT2)                0.0
 MORTALITY PARAMETER 2 (MORT3)                0.08
@@ -40,8 +40,8 @@ SURVEY SAMPLING INTENSITY (SSAMPL)           1.0
 ADDITIONAL VARIANCE (CVadd)                  0.0   0.0   0.0   0.0   0.0   0.0   0.0   0.0
 TAG LOSS IN YEAR 1 (TLOSS1)                  0.0
 TAG LOSS IN YEAR 2+(TLOSS2)                  0.0
-TAG WEIGHT         (TAGWT)                   1.0
-C at Age WEIGHT    (WTAGEI)                  0.1
+TAG WEIGHT         (TAGWT)                   1
+C at Age WEIGHT    (WTAGEI)                  1
 1ST YEAR MIXING MATRIX CHANGES  (IMIX1)     1985   NOT USED UNLESS OPTMIX=2
 YEAR MIXING MATRIX = MATRIX2    (IMIX2)     2005
 LAST YEAR MIXING MATRIX CHANGES (IMIX3)     2025
@@ -53,9 +53,9 @@ Can  WG  EG  WI  EI  Far UK Spz  NoN NoW Sp  PWG  PEG  PWI  PEI  PN   PWI? PN?
 
 1                                         = CMULT. =1 baseline. Use to increase proportion of lost < 1915
 0                                         = OPTSGT =0 (baseline) or 1 (NF-A3): prorate abundance (defines survey.dat col to use)
-0.59   0.021                              = EGWIR & EGWISE = ratio & SE for splitting EG-WI abundance if hyp = 7 or 8
-1967  2010                                = ICBYA1 & ICBYA2 = 1st & last years of age data to be used in fitting
-0                                         = spare 1
+0.59  0.00177                             = EGWIP & EGWIP = mean and SD of historical proportion of EG in combined EG-WI area
+1972  2010                                = ICBYA1 & ICBYA2 = 1st & last years of age data to be used in fitting
+0                                         = TAGEXC1
 1                                         = spare 2
 
 EC   WG   EG   WI   EI/F N    SP            Always use 7 areas here
@@ -63,21 +63,21 @@ EC   WG   EG   WI   EI/F N    SP            Always use 7 areas here
 0.00 0.00 0.00 0.00 0.00 0.00 0.00        = VRATIO = SE of future survey proportions
  
 1                                         = OPTPSI.  0: PSI fixed; 1: PSI-C estimated (baseline); 2: both PSI estimated
-06  0.75    1.    1.    1.   1.   1.      = NGAMMA & the GAMMA initial values
-02  0.15   0.02                           = NDELTA = # of dispersal parameters & their initial values 
+06  0.75    1.    0.4    1.   1.   1.      = NGAMMA & the GAMMA initial values
+2  0.15   0.02                           = NDELTA = # of dispersal parameters & their initial values 
 2.0    0.4    1.0                         = initial values for 3 tag parameters (lambda, psiC & psiWI+) 
 07000. 05000. 04000. 12000. 12000. 12000. = Initial stock sizes
- 0.9   0.2    0.9    0.9    0.9    0.9    = Initial depletions (not used if INITYR=FIRSTYR)
- 0      1      1      0      0      0     = 1 to ESTIMATE dispersal between stocks J & J+1
- 0.0   0.05   0.30   0.0    0.0    0.0    = AVDISP(J) of stock J to stock J+1: NOT USED IF NDELTA>0
+0.9   0.2    0.9    0.9    0.9    0.9    = Initial depletions (not used if INITYR=FIRSTYR)
+0      1      1      0      0      0     = 1 to ESTIMATE dispersal between stocks J & J+1
+0.0   0.0    0.0    0.0    0.0    0.0    = AVDISP(J) of stock J to stock J+1: NOT USED IF NDELTA>0
 1       1      1      1      1      1     = Number of Catch Mixing matrices (NMIX(J))
 
-CATCH MIXING MATRICES  (Hypothesis 5: 6 stocks)
-          Subarea 1   2   3   4    5   6   7    1  2  3  4  5  6  7
+CATCH MIXING MATRICES  
+          Subarea 1  2  3  4  5  6  7    1  2  3  4  5  6  7
 Stock  Matrix    Constants                      Gammas
-  1    1          1   1   0   0   0   0   0     1  4  0  0  0  0  0
-  2    1          0   0   1   0   0   0   0     0  0  0  0  0  0  0
-  3    1          0   0   0   1   0   0   0     0  0  0  0  0  0  0
-  4    1          0   0   0   0   1   0   0     0  0  0  0  0  0  0
-  5    1          0   0   0   0   0   1   0     0  0  0  0  0  0  0
-  6    1          0   0   0   0  .02 .1  .88    0  0  0  0  0  0  0
+1    1          1   1   0   0   0   0   0     1  4  0  0  0  0  0
+2    1          0   0   1   0   0   0   0     0  0  0  0  0  0  0
+3    1          0   0   0   1   0   0   0     0  0  0  0  0  0  0 
+4    1          0   0   0   0   1   0   0     0  0  0  0  0  0  0
+5    1          0   0   0   0   0   1   0     0  0  0  0  0  0  0
+6    1          0   0   0   0  .23 .23  .77   0  0  0  0  3  2  0

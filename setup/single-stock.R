@@ -78,7 +78,7 @@ ManCall <- function(...){
 }
 
 
-ManRun <- function(dir='outn',search.string='NF-..-1-[0-9].ss+$',
+ManRun <- function(dir='outn',search.string='NF-..-.-[0-9].ss+$',
                    clc.60 = '../settings/CLC-N.60',
                    clc.72 = '../settings/CLC-N.72'){
   tmp <- mclapply(list.files(dir, search.string),
@@ -95,11 +95,11 @@ ManResults <- function(db_name='trials.db',dir='outn'){
   stock.names.78 <- c('W','C1','C2','E','S')
   stock.names.6 <- c('W','C1','C2','C3','S')
   
-  bind_cols(list.files(dir,pattern='*.60.thresh') %>% 
+  bind_rows(list.files(dir,pattern='*.60.thresh') %>% 
               map(~safely(read.table)(file=sprintf('%s/%s',dir,.))) %>%
               map('result') %>% 
               bind_rows() %>% 
-              select(ref=V1,pop_id=V2,dpl_60=V3,dpl_72=V4) %>% 
+              select(ref=V1,pop_id=V2,dplfin=V3,dplmin=V4) %>% 
               mutate(hypo = as.numeric(gsub('NF-.([0-9])-.','\\1',ref)),
                      clc = 60,
                      type = gsub('NF-([A-Z]).-.','\\1',ref),
@@ -111,9 +111,9 @@ ManResults <- function(db_name='trials.db',dir='outn'){
               map(~safely(read.table)(file=sprintf('%s/%s',dir,.))) %>%
               map('result') %>% 
               bind_rows() %>% 
-              select(ref=V1,pop_id=V2,dpl_60=V3,dpl_72=V4) %>% 
+              select(ref=V1,pop_id=V2,dplfin=V3,dplmin=V4) %>% 
               mutate(hypo = as.numeric(gsub('NF-.([0-9])-.','\\1',ref)),
-                     clc = 60,
+                     clc = 72,
                      type = gsub('NF-([A-Z]).-.','\\1',ref),
                      pop_id = ifelse(hypo < 6,stock.names[pop_id],
                                      ifelse(hypo==6,stock.names.6[pop_id],

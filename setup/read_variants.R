@@ -110,9 +110,14 @@ NafReadVariants.restest <- function(file='NAF.restest'){
 
 
 NafPerformance <- function(db_name='trials.db'){
-  db <- src_sqlite(db_name)
-  res <- tbl(db,'naf_res')
-  thr <- tbl(db,'man_thresh')
+  db_res <- src_sqlite(db_name)
+  res <- tbl(db_res,'naf_res')
+  thr <- tbl(db_res,'man_thresh') %>% 
+    collect() %>% 
+    gather(dpl_stat,dpl,dplfin:dplmin) %>% 
+    unite(boundary,c(dpl_stat,clc)) %>%
+    select(ref,pop_id,boundary,dpl) %>% 
+    spread(boundary,dpl)
     
   pop.res <- 
     res %>% 
@@ -125,11 +130,15 @@ NafPerformance <- function(db_name='trials.db'){
     ungroup() %>% 
     mutate(hypo = as.numeric(gsub('NF-.([0-9])-.','\\1',ref)),
            type = gsub('NF-([A-Z]).-.','\\1',ref)) %>% 
-    left_join(thr %>% select(-ref) %>% collect()) %>% 
-    mutate(uab_fin = ifelse(dpl > dpl_72,'A',
-                            ifelse(dpl > dpl_60,'B','U')),
-           uab_min = ifelse(pmin > dpl_72,'A',
-                            ifelse(pmin > dpl_60,'B','U')),
+    left_join(thr) 
+  
+  
+  uab_stat <- 
+    pop.res %>% 
+    mutate(uab_fin = ifelse(dpl > dplfin_72,'A',
+                            ifelse(dpl > dplfin_60,'B','U')),
+           uab_min = ifelse(pmin > dplmin_72,'A',
+                            ifelse(pmin > dplmin_60,'B','U')),
            uab_xcomb = ifelse(uab_fin == 'A' | uab_min == 'A','A',
                              ifelse(uab_fin == 'B' | uab_min == 'B','B','U')),
            pop_id = ordered(pop_id,levels= c('W','C1','C2','C3','E','S'))) %>% 
@@ -159,8 +168,8 @@ NafPerformance <- function(db_name='trials.db'){
               avg_catch = median(avg_catch)) 
   
   final_res <- 
-    full_join(area.res,pop.res) %>% 
+    full_join(area.res,uab_stat) %>% 
     arrange(ref,variant)
-  return(final_res)
+  return(list(final_res=final_res,pop.res=pop.res))
     
 }

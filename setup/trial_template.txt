@@ -51,11 +51,11 @@ Can  WG  EG  WI  EI  Far UK Spz  NoN NoW Sp  PWG  PEG  PWI  PEI  PN   PWI? PN?
 0.59  0.00177                             = EGWIP & EGWIP = mean and SD of historical proportion of EG in combined EG-WI area
 {{icbya1|1972}}  {{icbya2|2010}}                                = ICBYA1 & ICBYA2 = 1st & last years of age data to be used in fitting
 {{tagexc1|0}}                                         = TAGEXC1
-1                                         = spare 2
+{{dispb|0.4}}                                         = DISPB upper bound on dispersal rates
 
 EC   WG   EG   WI   EI/F N    SP            Always use 7 areas here
-1.00 1.00 1.00 1.00 1.00 1.00 1.00        = SRATIO = Future survey proportions if est N60N abund
-0.00 0.00 0.00 0.00 0.00 0.00 0.00        = VRATIO = SE of future survey proportions
+1.00 1.00 1.00 {{sratio1|1.00}} {{sratio2|1.00}} 1.00 1.00        = SRATIO = Future survey proportions if est N60N abund
+0.00 0.00 0.00 {{vratio1|0.00}} {{vratio2|0.00}} 0.00 0.00        = VRATIO = SE of future survey proportions
  
 {{optpsi|1}}                                         = OPTPSI.  0: PSI fixed; 1: PSI-C estimated (baseline); 2: both PSI estimated
 {{ngamma|06}}  0.75    1.    {{initgamma|1.}}    1.   1.   1.   {{initgamma2| }}   = NGAMMA & the GAMMA initial values

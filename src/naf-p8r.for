@@ -417,7 +417,7 @@ C
      +     NCOL, NREG(20),NR,IT,N3,NREC,NOTREC,R2,II,
      +     IAGE,CMULT,OPTSGT,NR2
       REAL(8) TMPF(1:MXAGE2),TMPM(1:MXAGE2),CMRATIO,CFRATIO,MCHAMMER,
-     +     SIF,SIM, SIGSQEST
+     +     SIF,SIM, SIGSQEST, DISPB
       LOGICAL USEGAM(MXGAM)
       CHARACTER DESC*50,TYPEDS*45,CTYPE*1,VARNAM*3,SCLA*6,OPTCLC*1
       
@@ -591,8 +591,9 @@ C     Should the second year (+) be excluded
       READ(IN,*) TAGEXC1 
 
 C     Skip 1 spare parameters
-
-      READ (IN,'(//)')
+      
+      READ(IN,*) DISPB
+C      READ (IN,'(//)')
 
 C     Read SRATIO(K): used to set N60N proportion of future abundance
 C     =1 except in NF-Q (& Variant V4, for which this value is over-written below)
@@ -2466,7 +2467,7 @@ C     Set the average dispersals using GG(NGAMMA+1 & +2)
        IF (OPTDSP(J)==1) THEN
          I = I + 1
          AVDISP(J) = GG(I)
-         IF (AVDISP(J)>0.4d0) FUNCT = FUNCT + 100000.0d0
+         IF (AVDISP(J)>DISPB) FUNCT = FUNCT + 100000.0d0
        ENDIF
  600  CONTINUE
 C
