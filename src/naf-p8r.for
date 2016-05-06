@@ -593,7 +593,7 @@ C     Should the second year (+) be excluded
 C     Skip 1 spare parameters
       
       READ(IN,*) DISPB
-C      READ (IN,'(//)')
+      READ (IN,'(/)')
 
 C     Read SRATIO(K): used to set N60N proportion of future abundance
 C     =1 except in NF-Q (& Variant V4, for which this value is over-written below)
