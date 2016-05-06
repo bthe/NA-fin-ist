@@ -1,0 +1,17 @@
+source('setup/trials.R')
+source('setup/single-stock.R')
+source('setup/read_variants.R')
+source('setup/read_results.R')
+
+
+NafSetup('Full_run')
+NafCond(dir='Full_run')
+NafResults('Full_run',db_name='Full_run.db')
+NafVariants(dir='Full_run',var.search = 'Naf-v[0-2].par')
+file.copy('settings/clc-n-rev.par',to = 'Full_run/clc-n.par',overwrite = TRUE)
+NafVariants(dir='Full_run',var.search = 'Naf-v[3-7].par')
+ManSetup(dir='outn-full',db_name ='Full_run.db')
+ManRun(dir='outn-full')
+NafReadVariants(dir='Full_run',search.string='NF-..-.-V[0-9].restest',db_name='Full_run_res.db')
+ManResults(dir='outn-full',db_name = 'Full_run_res.db')
+
