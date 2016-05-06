@@ -394,7 +394,7 @@ NafCond <- function(dir='trials',
            function(x){ 
              survey <- gsub('dat','survey',x)
              NafCall(run_dir=dir,copyna=x,nafpar=nafpar,survey=survey,...)
-             },
+           },
            mc.cores = detectCores(logical = TRUE))
 } 
 
@@ -403,9 +403,9 @@ NafVariants <- function(dir='trials',
                         var.dir ='variants',
                         var.search = 'Naf-v[0-9].par',
                         search.string = 'NF-[A-Z][0-9]-[0-9].dat',
-                        man='../settings/manage.run',
+                        man='../settings/manage.run', 
                         ...){
-  file.copy('data/sur-v4.dat',sprintf('%s/SUR-V4.DAT',dir))
+  file.copy('data/sur-v4.dat',sprintf('%s/SUR-V4.DAT',dir))  
   file.copy('data/CLC-N.PAR',sprintf('%s/clc-n.par',dir))
   
   expand.grid(ref = list.files(dir, pattern = search.string),
@@ -414,9 +414,12 @@ NafVariants <- function(dir='trials',
   mclapply(function(x){
     file.copy(sprintf('%s/%s',dir,gsub('.dat','.all',x$ref)),
               sprintf('%s/%s',dir,gsub('.dat','.con',x$ref)))
+    survey <- gsub('dat','survey',x$ref)
     NafCall(run_dir=dir,copyna=x$ref,
             nafpar=sprintf('../%s/%s',var.dir,x$variant),
-            man=man,con=gsub('.dat','.con',x$ref))
+            man=man,con=gsub('.dat','.con',x$ref),
+            survey=survey,
+            ...)
     },
     mc.cores = detectCores(logical = TRUE))
 } 
