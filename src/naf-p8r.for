@@ -2604,8 +2604,11 @@ C       Compute log-likelihood contribution.     {Ref G(a)}
 C
         FITDAT(N) = Y
         FITRSD(N) = S
-        IF (Y<0.D0) STOP 'DEVIN ERROR'
-        FITRSS(N) = log(X/(Y+1.d0))/SQRT(TARVAR(N))
+        IF (Y<0.D0) THEN
+           FITRSS(N) = 1d10
+        ELSE
+           FITRSS(N) = log(X/(Y+1.d0))/SQRT(TARVAR(N))
+        ENDIF
         LikeAb = LikeAb + FITRSD(N)
         if (prdiag==1) PRINT '(a,3i4,3f12.3,f20.1)',
      +                       ' devin',n,k,iyr,y,x,tarvar(N),s
