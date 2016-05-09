@@ -373,7 +373,7 @@ NafSetup <- function(dir = 'trials',hypos=c(1,2,3,5,6)){
     for(msyr in c(0.01,0.04)){
       NafWrite(NafTrial(hypo = hypo, msyr = msyr,
                         trialtype='J', gzero = 0.8),dir)
-      tmp <- file.copy('data/surveyn.dat',sprintf('%s/NJ-H%s-%s.survey',dir,hypo,100*msyr))
+      tmp <- file.copy('data/surveyn.dat',sprintf('%s/NF-J%s-%s.survey',dir,hypo,100*msyr))
       }
   }
   

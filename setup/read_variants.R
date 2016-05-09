@@ -113,7 +113,7 @@ NafPerformance <- function(db_name='trials.db'){
   db_res <- src_sqlite(db_name)
   res <- tbl(db_res,'naf_res')
   thr <- tbl(db_res,'man_thresh') %>% 
-    collect() %>% 
+    collect(n=Inf) %>% 
     gather(dpl_stat,dpl,dplfin:dplmin) %>% 
     unite(boundary,c(dpl_stat,clc)) %>%
     select(ref,pop_id,boundary,dpl) %>% 
@@ -122,7 +122,7 @@ NafPerformance <- function(db_name='trials.db'){
   pop.res <- 
     res %>% 
     filter(pop_type =='pop') %>% 
-    collect() %>%
+    collect(n=Inf) %>%
     group_by(ref,variant,pop_id) %>%
     mutate(pmin = pmin/p0) %>% 
     summarise(dpl=quantile(final_dpl,0.05),
@@ -153,7 +153,7 @@ NafPerformance <- function(db_name='trials.db'){
   area.res <- 
     res %>% 
     filter(pop_type =='area') %>% 
-    collect() %>% 
+    collect(n=Inf) %>% 
     group_by(ref,variant,trial) %>%
     ## calculate catch statistics (- aboriginal catches)
     summarise(cf10 = sum(cf10)-19,

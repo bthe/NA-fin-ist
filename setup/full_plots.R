@@ -1,7 +1,9 @@
 library(ggplot2)
-figs <- 'figs_FullTrials'
-db <- src_sqlite('FullTrials.db')
-db_res <- src_sqlite('FullTrials_res.db')
+source('setup/trials.R')
+source('setup/read_variants.R')
+figs <- 'figs_Full_run'
+db <- src_sqlite('Full_run.db')
+db_res <- src_sqlite('Full_run_res.db')
 
 dir.create(figs)
 
@@ -75,7 +77,7 @@ sight <- tbl(db,'naf_sight') %>%
 pop <- 
   tbl(db,'naf_pop') %>% 
   filter(pop_type == '1+') %>%
-  collect() %>%
+  collect(n=Inf) %>%
   group_by(year,ref,hypo,msyr,pop_id) %>%
   summarise(med = median(number),
             cond.975 = quantile(number,0.975),
@@ -100,7 +102,7 @@ pop <-
 pop.fem <- 
   tbl(db,'naf_pop') %>% 
   filter(pop_type == 'Mature females') %>%
-  collect() %>%
+  collect(n=Inf) %>%
   group_by(year,ref,hypo,msyr,pop_id) %>%
   summarise(med = median(number),
             cond.975 = quantile(number,0.975),
@@ -114,7 +116,7 @@ pop.fem <-
 
 wi_tag <- 
   tbl(db,'naf_tag') %>%
-  collect() %>%
+  collect(n=Inf) %>%
   mutate(area = toupper(area)) %>% 
   filter(area %in% c('EC','WI','EGWI','EG+WI')) %>%
   mutate(msyr = as.numeric(gsub('..-..-([0-9])','\\1',ref)),
@@ -531,7 +533,7 @@ for(ms in c(1,4)){
 
 res.by.year <- 
   tbl(db_res,'naf_resbyyear') %>% 
-  collect() %>% 
+  collect(n=Inf) %>% 
   filter(pop_type == 'area') %>%
   collect() %>%
   mutate(msyr = as.numeric(gsub('..-..-([0-9])','\\1',ref)),
@@ -640,12 +642,12 @@ for(ref1 in unique(res.by.year$ref)){
 
 thresh <- 
   tbl(db_res,'man_thresh') %>% 
-  collect() %>% 
+  collect(n=Inf) %>% 
   rename(trialtype=type)
 
 res.by.year.fem <- 
   tbl(db_res,'naf_resbyyear') %>% 
-  collect() %>% 
+  collect(n=Inf) %>% 
   filter(pop_type != 'area') %>%
   mutate(msyr = as.numeric(gsub('..-..-([0-9])','\\1',ref)),
          hypo = gsub('..-.([0-9]).+','\\1',ref),
@@ -719,7 +721,7 @@ for(ref1 in unique(res.by.year$ref)){
 }
 
 
-trial_stat <- NafPerformance('FullTrials_res.db')
+trial_stat <- NafPerformance('Full_run_res.db')
 
 for(ref1 in unique(trial_stat$pop.res$ref)){
   pdf(file=sprintf('%s/greg.%s.fin.pdf',figs,ref1),width=7,height = 8)

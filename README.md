@@ -19,7 +19,7 @@ Follow the installation instructions on http://hpc.sourceforge.net/
 
 ## Windows
 
-The gnu compiler collection can be downloaded as a part of the minimalistic GNU for Windows, see http://www.mingw.org for further details or alternatively rtools.
+The gnu compiler collection can be downloaded as a part of the minimalistic GNU for Windows, see http://www.mingw.org for further details or alternatively rtools (https://cran.r-project.org/bin/windows/Rtools/).
 
 ## Compiling
 
