@@ -1,82 +1,90 @@
 NafResults <- function(dir='trials', db_name = 'trials.db',
-                       search.string='NF-[A-Z][0-9]-[0-9]'){
+                       search.string='NF-[A-Z][0-9]-[0-9]',
+                       update = FALSE){
   ## define an sqllite database to digest the wealth of output
-  trials_db <- src_sqlite(db_name, create = T)
-  print('Read in the fit to age')
+  if(!update){
+    trials_db <- src_sqlite(db_name, create = T)
+    
+    db_create_table(trials_db$con,'naf_age',
+                    types = c(year = 'INTEGER',area = 'INTEGER',age = 'INTEGER',
+                              obs.fem = 'REAL',prd.fem = 'REAL',obs.m = 'REAL',
+                              prd.m = 'REAL',trial = 'INTEGER',ref = 'TEXT') )
+    
+    db_create_index(trials_db$con, 'naf_age',
+                    c('year','trial','age'))
+    db_create_table(trials_db$con,'naf_all',
+                    types=c(ref='TEXT',trial = 'INTEGER',constant='TEXT',
+                            value = 'REAL'))
+    db_create_index(trials_db$con, 'naf_all','trial')
+    
+    db_create_table(trials_db$con,'naf_cat',
+                    types = c(year = 'INTEGER',catt1 = 'INTEGER',catt2 = 'INTEGER',
+                              catt3 = 'INTEGER',catt4 = 'INTEGER',catt5 = 'INTEGER',
+                              catt6 = 'INTEGER',ck1 = 'INTEGER',ck2 = 'INTEGER',
+                              ck3 = 'INTEGER',ck4 = 'INTEGER',ck5 = 'INTEGER',ck6 = 'INTEGER',
+                              ck7 = 'INTEGER',cpk1 = 'INTEGER',cpk2 = 'INTEGER',
+                              cpk3 = 'INTEGER',cpk4 = 'INTEGER',cpk5 = 'INTEGER',
+                              cpk6 = 'INTEGER',cpk7 = 'INTEGER',ref = 'TEXT',
+                              variant = 'TEXT',trial = 'INTEGER'))
+    db_create_index(trials_db$con, 'naf_cat',c('trial','variant','year'))
+    
+    db_create_table(trials_db$con,'naf_pop',
+                    types = c(year = 'INTEGER',ref = 'TEXT',variant = 'TEXT',
+                              hypo = 'INTEGER', msyr = 'INTEGER',
+                              trial = 'INTEGER',pop_type = 'TEXT',
+                              pop_id = 'TEXT',number = 'INTEGER'))
+    
+    db_create_index(trials_db$con, 'naf_pop',c('ref','trial','variant','year'))
+    
+    db_create_table(trials_db$con,'naf_tag',
+                    types = c(rela = 'TEXT',year = 'INTEGER',ref = 'TEXT',
+                              area = 'TEXT',obs = 'REAL',prd = 'REAL'))
+    db_create_index(trials_db$con, 'naf_tag',c('ref','year'))
+    
+    db_create_table(trials_db$con,'naf_cpe',
+                    types = c(ref = 'TEXT',year = 'INTEGER',
+                              series = 'INTEGER',obs = 'REAL',prd = 'REAL'))
+    db_create_index(trials_db$con, 'naf_cpe',c('ref','year','series'))
+  }
   #  db_drop_table(trials_db$con,'naf_age')
-  db_create_table(trials_db$con,'naf_age',
-                  types = c(year = 'INTEGER',area = 'INTEGER',age = 'INTEGER',
-                            obs.fem = 'REAL',prd.fem = 'REAL',obs.m = 'REAL',
-                            prd.m = 'REAL',trial = 'INTEGER',ref = 'TEXT') )
-  
+  print('Read in the fit to age')
   list.files(path = dir,pattern = sprintf('%s.age',search.string)) %>%
     map(~NafResults.readAge(sprintf('%s/%s',dir,.),
                             trials_db))
-  db_create_index(trials_db$con, 'naf_age',
-                  c('year','trial','age'))
   
   print('Read in the condition variables')
   #db_drop_table(trials_db$con,'naf_all')
-  db_create_table(trials_db$con,'naf_all',
-                  types=c(ref='TEXT',trial = 'INTEGER',constant='TEXT',
-                          value = 'REAL'))
   list.files(path = dir,pattern = sprintf('%s.all',search.string)) %>%
     map(~NafResults.readAll(sprintf('%s/%s',dir,.),
                             trials_db))
-  db_create_index(trials_db$con, 'naf_all','trial')
   
   print('Read in the catch ouput')
   #db_drop_table(trials_db$con,'naf_cat')
-  db_create_table(trials_db$con,'naf_cat',
-                  types = c(year = 'INTEGER',catt1 = 'INTEGER',catt2 = 'INTEGER',
-                            catt3 = 'INTEGER',catt4 = 'INTEGER',catt5 = 'INTEGER',
-                            catt6 = 'INTEGER',ck1 = 'INTEGER',ck2 = 'INTEGER',
-                            ck3 = 'INTEGER',ck4 = 'INTEGER',ck5 = 'INTEGER',ck6 = 'INTEGER',
-                            ck7 = 'INTEGER',cpk1 = 'INTEGER',cpk2 = 'INTEGER',
-                            cpk3 = 'INTEGER',cpk4 = 'INTEGER',cpk5 = 'INTEGER',
-                            cpk6 = 'INTEGER',cpk7 = 'INTEGER',ref = 'TEXT',
-                            variant = 'TEXT',trial = 'INTEGER'))
   list.files(path = dir,pattern = sprintf('%s.cat',search.string)) %>%
     map(~NafResults.readCat(sprintf('%s/%s',dir,.),
                             trials_db))
-  db_create_index(trials_db$con, 'naf_cat',c('trial','variant','year'))
   
   print('read in the population numbers')
   #db_drop_table(trials_db$con,'naf_pop')
-  db_create_table(trials_db$con,'naf_pop',
-                  types = c(year = 'INTEGER',ref = 'TEXT',variant = 'TEXT',
-                            hypo = 'INTEGER', msyr = 'INTEGER',
-                            trial = 'INTEGER',pop_type = 'TEXT',
-                            pop_id = 'TEXT',number = 'INTEGER'))
   
   list.files(path = dir,pattern = sprintf('%s.pop',search.string)) %>%
     map(~NafResults.readPop(sprintf('%s/%s',dir,.),
                             trials_db))
-  db_create_index(trials_db$con, 'naf_pop',c('ref','trial','variant','year'))
   
   print('Read tagging results')
   #db_drop_table(trials_db$con,'naf_tag')
-  db_create_table(trials_db$con,'naf_tag',
-                  types = c(rela = 'TEXT',year = 'INTEGER',ref = 'TEXT',
-                            area = 'TEXT',obs = 'REAL',prd = 'REAL'))
   list.files(path = dir,pattern = sprintf('%s.tag',search.string)) %>%
     map(~NafResults.readTag(sprintf('%s/%s',dir,.),
                             trials_db))
-  db_create_index(trials_db$con, 'naf_tag',c('ref','year'))
-  
-  print('Read survey data') 
-  NafResults.readSurvey(file = sprintf('%s/surveyn.dat',dir),trials_db)
+  if(!update){
+    print('Read survey data') 
+    NafResults.readSurvey(file = sprintf('%s/surveyn.dat',dir),trials_db)
+  }
   
   print('Read cpue data')
-  db_create_table(trials_db$con,'naf_cpe',
-                  types = c(ref = 'TEXT',year = 'INTEGER',
-                            series = 'INTEGER',obs = 'REAL',prd = 'REAL'))
   list.files(path = dir,pattern = sprintf('%s.cpe',search.string)) %>%
     map(~NafResults.readCPUE(sprintf('%s/%s',dir,.),
                             trials_db))
-  db_create_index(trials_db$con, 'naf_cpe',c('ref','year','series'))
-  
-  
   
 }
 

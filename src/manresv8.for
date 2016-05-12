@@ -274,7 +274,7 @@ C       Read zero catch trajectory into PZERO
            WRITE(*,*) PZero(0)/K1,Depl
 
           WRITE(*,*) NINT(Pzero(0)/K1*1000.),NINT(DEPL*1000.0)
-          IF ( NINT(PZERO(0)/K1*1000.0-DEPL*1000.0).GT.0 ) 
+          IF ( NINT(PZERO(0)/K1*1000.0-DEPL*1000.0).GT.10 ) 
      +              STOP 'ERROR IN PZERO'
 
 C         Set IYR54 to the last year in which the zero catch trajectory < 0.54K
@@ -438,7 +438,7 @@ C     Print * in results line, col 1 if stock sizes scaled by 0 catch trajectory
       IF (IRR) WRITE (CRR1,'(2(2X,F6.3))') 
      +     RR1(I5),(RR1(I50)+RR1(I51))*.5
 
-      OPEN(UNIT=978,FILE=resoutfile,ACCESS='APPEND')
+      OPEN(UNIT=978,FILE='RESOUT.RES',ACCESS='APPEND')
       WRITE (978,'(A3,A10,F7.3,7(3F7.3,2X),F8.3,2A16,F8.3,2X,A))') 
      +         ASCALE,DESC,(CT(I50)+CT(I51))*.5, CT(I5),CT(I96),CTAV,
      +         (PFIN(I50)+PFIN(I51))*.5,PFIN(I5),PFIN(I96),
@@ -449,7 +449,7 @@ C     Print * in results line, col 1 if stock sizes scaled by 0 catch trajectory
      +         (M1FIN(I50)+M1FIN(I51))*.5,M1FIN(I5),M1FIN(I96),
      +         AAV,CRR,CRR1,DEPL,DESC
       CLOSE(978)
-      OPEN(UNIT=979,FILE=msylfile,ACCESS='APPEND')
+      OPEN(UNIT=979,FILE='MSYL.RES',ACCESS='APPEND')
       WRITE (979,'(A10,9F8.5,2X,A)') REF,MSYLT,MSYLE,MSYLM,
      +     AMSYRT,AMSYLT,AMSYRE,AMSYLE,AMSYRM,AMSYLM,DESC
       CLOSE(979)

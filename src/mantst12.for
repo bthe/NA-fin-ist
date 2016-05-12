@@ -1143,7 +1143,7 @@ C     Protection period (CATCH(IYR) was set to 0 above)
   120 CONTINUE
 
 C     Has convergence taken place?
-      IF (ABS(PTRUE(0)/K1 - D).GE.0.0001D0) THEN
+      IF ((ABS(PTRUE(0)/K1 - D).GE.0.0001D0) .or. (ICOUNT.LT.500)) THEN
         IF ((PTRUE(0)/K1 - D).GT.0.D0) THEN
           KMAX = K1
         ELSE
@@ -1152,18 +1152,20 @@ C     Has convergence taken place?
 
 C       Update loop count and check is not wasting time
         ICOUNT = ICOUNT + 1
-        IF (ICOUNT.GT.500) STOP '**** ERROR: SETK HAS NOT CONVERGED'
+C        IF (ICOUNT.GT.500) 
+        
+c STOP '**** ERROR: SETK HAS NOT CONVERGED'
 
       GO TO 100
 
 C --- ELSE: Routine has converged so continue
       ENDIF
-
+  
 
 C     If OPTC=2 the reported catch, is erroneous.  The current (year 0) 
 C       population size, PTRUE(0) is fixed at the same size as when 
 C       the reported = true catch (=1). This was set above.
-      IF (OPTC.EQ.2) THEN
+ 101  IF (OPTC.EQ.2) THEN
 C       Now find K (& hence also D) which gives a population PTRUE(0), 
 C       in year 0, when the true catch = reported catch / CATERR.
         P0 = PTRUE(0)
@@ -1625,7 +1627,7 @@ C     Protection period (CATCH(IYR) was set to 0 above)
 
 C     Has convergence taken place? ##### suggest changing this in future
 c      IF (ABS(PTRUE(0)/K1 - D).GE.0.0000001D0) THEN        
-      IF (ABS(PTRUE(0)/K1 - D).GE.0.0001D0) THEN
+      IF ((ABS(PTRUE(0)/K1 - D).GE.0.001D0) .or. (icount.lt.500)) THEN
         IF ((PTRUE(0)/K1 - D).GT.0.D0) THEN
           KMAX = K1
         ELSE
@@ -1633,7 +1635,7 @@ c      IF (ABS(PTRUE(0)/K1 - D).GE.0.0000001D0) THEN
         ENDIF
 C       Update loop count and check is not wasting time
         ICOUNT = ICOUNT + 1
-        IF (ICOUNT.GT.500) STOP '**** ERROR: SETKA HAS NOT CONVERGED'
+C        IF (ICOUNT.GT.500) STOP '**** ERROR: SETKA HAS NOT CONVERGED'
 
         GO TO 100
 
@@ -1704,7 +1706,7 @@ C       Protection period (CATCH(IYR) was set to 0 above)
   620   CONTINUE
 
 C       Has convergence taken place?
-        IF (ABS(PTRUE(0)/P0-1.D0) .GE.0.0001D0) THEN
+        IF ((ABS(PTRUE(0)/P0-1.D0).GE.0.0001D0).or.(icount.lt.500)) THEN
           IF ((PTRUE(0) - P0) .GT.0.D0) THEN
             KMAX = K1
           ELSE
@@ -1712,7 +1714,7 @@ C       Has convergence taken place?
           ENDIF
 C         Update loop count and check is not wasting time
           ICOUNT = ICOUNT + 1
-          IF (ICOUNT.GT.500) STOP '**** ERROR: SETKA HAS NOT CONVERGED'
+c          IF (ICOUNT.GT.500) STOP '**** ERROR: SETKA HAS NOT CONVERGED'
 
           GO TO 600
 

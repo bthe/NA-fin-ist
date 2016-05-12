@@ -7,7 +7,9 @@ ManSetup <- function(db_name='druna.db',dir='outn',
   pop <- 
     tbl(db,'naf_pop') %>% 
     filter(pop_type =='Mature females', year %in% c(1864,2014)) %>% 
+    
     collect() %>% 
+    distinct(ref,year,trial,pop_type,pop_id,.keep_all=TRUE) %>% 
     mutate(year = sprintf('x%s',year)) %>% 
     spread(year,number) %>% 
     mutate(dpl=x2014/x1864)%>% 
