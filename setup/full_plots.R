@@ -89,7 +89,7 @@ pop <-
   rename(area=pop_id) %>%
   left_join(sight) %>%
   mutate(area = ordered(area,levels=c('EC','WG','EG','WI','EG+WI','EI/F','N','SP')),
-         type = recode(trialtype, 
+         type = plyr::revalue(trialtype, 
                        c('A'='Pro rate abundance','B'='Baseline','C'='CPUE',
                          'F'='C2 to EG in 1985 - 2025 (opt. b)',
                          'G'='C2 to EG in 1985 (opt. a)',
@@ -241,6 +241,7 @@ age <-
   tbl(db,'naf_age') %>%
   filter(trial ==0) %>%
   collect() %>% 
+  distinct(year,area,age,ref,.keep_all = TRUE) %>% 
   gather(var,num, -c(year:age,trial,ref)) %>%
   separate(var,c('type','sex')) %>% 
   #filter(type!='obs') %>%
@@ -445,12 +446,13 @@ dev.off()
 
 ## first 10 trajectories
 pdf(file=sprintf('%s/first10.pdf',figs),width=11,height = 8)
-print(tbl(db,'naf_pop') %>% 
-  filter(trial < 10) %>% 
-  collect() %>% 
-  ggplot(aes(year,number,group=interaction(as.factor(msyr),as.factor(trial),as.factor(hypo)),
-             col=as.factor(hypo),lty=as.factor(msyr))) + geom_line() + 
-  facet_wrap(~pop_id) + theme_bw()
+print(tbl(db,'naf_pop') %>%
+        collect(n=Inf) %>% 
+        filter(trial < 10) %>% 
+        collect() %>% 
+        ggplot(aes(year,number,group=interaction(as.factor(msyr),as.factor(trial),as.factor(hypo)),
+                   col=as.factor(hypo),lty=as.factor(msyr))) + geom_line() + 
+        facet_wrap(~pop_id) + theme_bw()
 )
 dev.off()
 
@@ -467,7 +469,7 @@ tmp <-
   tbl(db,'naf_all')  %>% 
   filter(constant == 'disp1',trial=='NF-B1-1',value>0.2)  %>% 
   select(trial = ref) %>% 
-  collect()
+  collect(n=Inf)
 
 
 pdf(file=sprintf('%s/cpue.pdf',figs),width=11,height = 8)
@@ -537,7 +539,7 @@ res.by.year <-
   tbl(db_res,'naf_resbyyear') %>% 
   collect(n=Inf) %>% 
   filter(pop_type == 'area') %>%
-  collect() %>%
+  collect(n=Inf) %>%
   mutate(msyr = as.numeric(gsub('..-..-([0-9])','\\1',ref)),
          hypo = gsub('..-.([0-9]).+','\\1',ref),
          msyr = as.character(msyr/100),

@@ -126,6 +126,8 @@ ManResults.restest <- function(file='NAF.restest'){
   tmp <- gsub('(^\\s*$|^\\s*[a-z].+|^-1)','# \\1',tolower(res)) %>% 
     read.table(text=.,fill=TRUE)
   names(tmp) <- tolower(header)
+  if(class(tmp$fem)=='factor')
+    tmp$fem <- as.numeric(as.factor(tmp$fem))
   
   stock.names <- c('W','C1','C2','C3','E','S')
   if(hypo == 6){
