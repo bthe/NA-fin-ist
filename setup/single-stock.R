@@ -109,15 +109,13 @@ ManResults.restest <- function(file='NAF.restest'){
   topinfo <- res[1:45]
   res <- res[-c(1:45)]
   ref <- gsub('\\s*(NF-..-.).+','\\1',topinfo[3])
-  K <- scan(text = topinfo[36],what = 'real',quiet = TRUE)[4] %>% 
-    as.numeric()
   pop <- 
     gsub('\\s*NF-..-..+([0-9])','\\1',topinfo[3]) %>% 
     as.numeric()
 
   run.para <- 
     read.table(text = res[grepl('New Para',res)]) %>% 
-    select(K=V6) %>% 
+    select(K=V6,init.dpl=V4) %>% 
     mutate(trial = 1:n())
     
   header <- c('year','fem','plus','catch') #scan(text=gsub(': ','.',res[2]),what='character')
@@ -135,16 +133,19 @@ ManResults.restest <- function(file='NAF.restest'){
   }
 
   
-  tmp %>%
+  tmp2 <- 
+    tmp %>%
     filter(!is.na(fem)) %>% 
     mutate(ref = ref,
            stock = stock.names[pop],
            tuning = tuning,
            trial = cut(1:length(year),c(0,which(diff(year)<0),1e9),labels = FALSE)) %>% 
-    left_join(run.para) %>% 
+    left_join(run.para) %>%
     select(-c(plus,catch)) %>% 
     rename(number=fem) %>% 
-    mutate(dpl=number/K) %>% 
+    group_by(trial) %>% 
+    mutate(K = ifelse(abs(number[year==0]/init.dpl-K)>1,number[year==0]/init.dpl,K),
+           dpl=number/K) %>% 
     filter(!dpl>1) %>%  # remove illegal value
     group_by(ref,stock,tuning,trial) %>% 
     summarise(pmin = min(dpl),pfin=mean(dpl[year==100])) %>% 
