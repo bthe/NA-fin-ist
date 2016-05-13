@@ -55,14 +55,14 @@ ManCall <- function(...){
   run.string <-
       c(paste('man-v12z -main {{copy|copy.dat}}',
               "-log {{copy|manlog}}.z0",
-              '-res {{copy}}.res0'),
+              '-res {{copy}}.{{clc_desc|72}}.res0'),
         paste('man-v12 -main {{copy|copy.dat}}',
               '-clc {{clc|CLC-N.PAR}}',
               '-log {{log|manlog}}',
-              '-res {{copy}}.restest'),
-        paste('manresv8 -res {{copy}}.restest',
-              '-res0 {{copy}}.res0',
-              '-traj {{copy}}.traj',
+              '-res {{copy}}.{{clc_desc|72}}.restest'),
+        paste('manresv8 -res {{copy}}.{{clc_desc|72}}.restest',
+              '-res0 {{copy}}.{{clc_desc|72}}.res0',
+              '-traj {{copy}}.{{clc_desc|72}}.traj',
               '-thresh {{copy}}.{{clc_desc|72}}.thresh')) %>%
         map(~infuse(.,tmp))
   
@@ -93,35 +93,57 @@ ManRun <- function(dir='outn',search.string='NF-..-.-[0-9].ss+$',
 
 ManResults <- function(db_name='trials.db',dir='outn'){
   db <- src_sqlite(db_name)
-  stock.names <- c('W','C1','C2','C3','E','S')
-  stock.names.78 <- c('W','C1','C2','E','S')
-  stock.names.6 <- c('W','C1','C2','C3','S')
-  
-  bind_rows(list.files(dir,pattern='*.60.thresh') %>% 
-              map(~safely(read.table)(file=sprintf('%s/%s',dir,.))) %>%
-              map('result') %>% 
-              bind_rows() %>% 
-              select(ref=V1,pop_id=V2,dplfin=V3,dplmin=V4) %>% 
-              mutate(hypo = as.numeric(gsub('NF-.([0-9])-.','\\1',ref)),
-                     clc = 60,
-                     type = gsub('NF-([A-Z]).-.','\\1',ref),
-                     pop_id = ifelse(hypo < 6,stock.names[pop_id],
-                                     ifelse(hypo==6,stock.names.6[pop_id],
-                                            stock.names.78[pop_id]))) %>% 
-              as.data.frame(),
-            list.files(dir,pattern='*.72.thresh') %>% 
-              map(~safely(read.table)(file=sprintf('%s/%s',dir,.))) %>%
-              map('result') %>% 
-              bind_rows() %>% 
-              select(ref=V1,pop_id=V2,dplfin=V3,dplmin=V4) %>% 
-              mutate(hypo = as.numeric(gsub('NF-.([0-9])-.','\\1',ref)),
-                     clc = 72,
-                     type = gsub('NF-([A-Z]).-.','\\1',ref),
-                     pop_id = ifelse(hypo < 6,stock.names[pop_id],
-                                     ifelse(hypo==6,stock.names.6[pop_id],
-                                            stock.names.78[pop_id]))) %>% 
-              as.data.frame()) %>% 
+  list.files(dir,pattern = '*.restest') %>% 
+    mclapply(., function(x) safely(ManResults.restest)(sprintf('%s/%s',dir,x)),
+             mc.cores = detectCores(logical=TRUE)) %>% 
+    map('result') %>% 
+    bind_rows() %>% 
+    as.data.frame() %>% 
     copy_to(db,df=.,name='man_thresh',temporary=FALSE)
-  
 }
 
+ManResults.restest <- function(file='NAF.restest'){
+  res <- readLines(file)
+  tuning <- gsub('^.+([0-9]{2}).+$','\\1',file) %>% 
+    as.numeric()
+  topinfo <- res[1:45]
+  res <- res[-c(1:45)]
+  ref <- gsub('\\s*(NF-..-.).+','\\1',topinfo[3])
+  K <- scan(text = topinfo[36],what = 'real',quiet = TRUE)[4] %>% 
+    as.numeric()
+  pop <- 
+    gsub('\\s*NF-..-..+([0-9])','\\1',topinfo[3]) %>% 
+    as.numeric()
+
+  run.para <- 
+    read.table(text = res[grepl('New Para',res)]) %>% 
+    select(K=V6) %>% 
+    mutate(trial = 1:100)
+    
+  header <- c('year','fem','plus','catch') #scan(text=gsub(': ','.',res[2]),what='character')
+  hypo <- as.numeric(gsub('NF-.([0-9])-.','\\1',ref))
+  loc <- grep('Trial',res)
+  tmp <- gsub('(^\\s*$|^\\s*[a-z].+|^-1)','# \\1',tolower(res)) %>% 
+    read.table(text=.,fill=TRUE)
+  names(tmp) <- tolower(header)
+  
+  stock.names <- c('W','C1','C2','C3','E','S')
+  if(hypo == 6){
+    stock.names <- c('W','C1','C2','C3','S')
+  }
+
+  tmp %>%
+    mutate(ref = ref,
+           stock = stock.names[pop],
+           tuning = tuning,
+           trial = cut(1:length(year),c(0,which(diff(year)<0),1e9),labels = FALSE)) %>% 
+    left_join(run.para) %>% 
+    select(-c(plus,catch)) %>% 
+    rename(number=fem) %>% 
+    mutate(dpl=number/K) %>% 
+    group_by(ref,stock,tuning,trial) %>% 
+    summarise(pmin = min(number/K),pfin=number[year==100]/K[year==100]) %>% 
+    group_by(ref,stock,tuning) %>% 
+    summarise(pmin5 = quantile(pmin,0.05),
+              pfin5 = quantile(pfin,0.05))
+}

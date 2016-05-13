@@ -113,6 +113,7 @@ NafPerformance <- function(db_name='trials.db'){
   db_res <- src_sqlite(db_name)
   res <- tbl(db_res,'naf_res')
   thr <- tbl(db_res,'man_thresh') %>% 
+    rename(clc=tuning,dplfin=pfin5,dplmin=pmin5,pop_id=stock) %>% 
     collect(n=Inf) %>% 
     gather(dpl_stat,dpl,dplfin:dplmin) %>% 
     unite(boundary,c(dpl_stat,clc)) %>%

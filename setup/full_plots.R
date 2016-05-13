@@ -89,14 +89,16 @@ pop <-
   rename(area=pop_id) %>%
   left_join(sight) %>%
   mutate(area = ordered(area,levels=c('EC','WG','EG','WI','EG+WI','EI/F','N','SP')),
-         type = plyr::revalue(trialtype, 
-                              c('A'='Pro rate abundance','B'='Baseline','C'='CPUE',
-                                'F'='C2 to EG in 1985 - 2025 (opt. b)',
-                                'G'='C2 to EG in 1985 (opt. a)',
-                                'H'='High historical catch series',
-                                'T'='Tag loss 20% yr 1, 10%/yr thereafter',
-                                'J'='g(0) = 0.8',
-                                'U'='Dome shaped selectivity')))
+         type = recode(trialtype, 
+                       c('A'='Pro rate abundance','B'='Baseline','C'='CPUE',
+                         'F'='C2 to EG in 1985 - 2025 (opt. b)',
+                         'G'='C2 to EG in 1985 (opt. a)',
+                         'H'='High historical catch series',
+                         'T'='Tag loss 20% yr 1, 10%/yr thereafter',
+                         'J'='g(0) = 0.8',
+                         'U'='Dome shaped selectivity',
+                         'Y'='8 year future survey interval',
+                         'D'='Upper bound on dispersal')))
 
 
 pop.fem <- 
