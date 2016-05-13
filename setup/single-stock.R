@@ -118,7 +118,7 @@ ManResults.restest <- function(file='NAF.restest'){
   run.para <- 
     read.table(text = res[grepl('New Para',res)]) %>% 
     select(K=V6) %>% 
-    mutate(trial = 1:100)
+    mutate(trial = 1:n())
     
   header <- c('year','fem','plus','catch') #scan(text=gsub(': ','.',res[2]),what='character')
   hypo <- as.numeric(gsub('NF-.([0-9])-.','\\1',ref))
@@ -134,8 +134,9 @@ ManResults.restest <- function(file='NAF.restest'){
     stock.names <- c('W','C1','C2','C3','S')
   }
 
+  
   tmp %>%
-  filter(!is.na(fem)) %>% 
+    filter(!is.na(fem)) %>% 
     mutate(ref = ref,
            stock = stock.names[pop],
            tuning = tuning,
@@ -146,7 +147,7 @@ ManResults.restest <- function(file='NAF.restest'){
     mutate(dpl=number/K) %>% 
     filter(!dpl>1) %>%  # remove illegal value
     group_by(ref,stock,tuning,trial) %>% 
-    summarise(pmin = min(number/K),pfin=number[year==100]/K[year==100]) %>% 
+    summarise(pmin = min(dpl),pfin=mean(dpl[year==100])) %>% 
     group_by(ref,stock,tuning) %>% 
     summarise(pmin5 = quantile(pmin,0.05,na.rm=TRUE),
               pfin5 = quantile(pfin,0.05,na.rm=TRUE))
