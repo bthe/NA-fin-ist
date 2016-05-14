@@ -8,11 +8,11 @@ ManSetup <- function(db_name='druna.db',dir='outn',
     tbl(db,'naf_pop') %>% 
     filter(pop_type =='Mature females', year %in% c(1864,2014)) %>% 
     
-    collect() %>% 
+    collect(n=Inf) %>% 
     distinct(ref,year,trial,pop_type,pop_id,.keep_all=TRUE) %>% 
     mutate(year = sprintf('x%s',year)) %>% 
     spread(year,number) %>% 
-    mutate(dpl=x2014/x1864)%>% 
+    mutate(dpl=pmin(x2014/x1864,1))%>% 
     select(ref,trial,pop_id,dpl) %>% 
     mutate(pop_id = ordered(pop_id, levels= c('W','C1','C2','C3','E','S')))
 
@@ -148,7 +148,7 @@ ManResults.restest <- function(file='NAF.restest'){
            dpl=number/K) %>% 
     filter(!dpl>1) %>%  # remove illegal value
     group_by(ref,stock,tuning,trial) %>% 
-    summarise(pmin = min(dpl),pfin=mean(dpl[year==100])) %>% 
+    summarise(pmin = min(dpl),pfin=max(dpl[year==100])) %>% 
     group_by(ref,stock,tuning) %>% 
     summarise(pmin5 = quantile(pmin,0.05,na.rm=TRUE),
               pfin5 = quantile(pfin,0.05,na.rm=TRUE))
