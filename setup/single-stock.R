@@ -12,7 +12,7 @@ ManSetup <- function(db_name='druna.db',dir='outn',
     distinct(ref,year,trial,pop_type,pop_id,.keep_all=TRUE) %>% 
     mutate(year = sprintf('x%s',year)) %>% 
     spread(year,number) %>% 
-    mutate(dpl=pmin(x2014/x1864,1))%>% 
+    mutate(dpl=pmin(x2014/x1864,0.99))%>% 
     select(ref,trial,pop_id,dpl) %>% 
     mutate(pop_id = ordered(pop_id, levels= c('W','C1','C2','C3','E','S')))
 
