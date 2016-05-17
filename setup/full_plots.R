@@ -4,6 +4,16 @@ source('setup/read_variants.R')
 figs <- 'figs_Full_run'
 db <- src_sqlite('Full_run.db')
 db_res <- src_sqlite('Full_run_res.db')
+type.key <- 
+  c('A'='Pro rate abundance','B'='Baseline','C'='CPUE',
+    'F'='C2 to EG in 1985 - 2025 (opt. b)',
+    'G'='C2 to EG in 1985 (opt. a)',
+    'H'='High historical catch series',
+    'T'='Tag loss 20% yr 1, 10%/yr thereafter',
+    'J'='g(0) = 0.8',
+    'U'='Dome shaped selectivity',
+    'Y'='8 year future survey interval',
+    'D'='Upper bound on dispersal')
 
 dir.create(figs)
 
@@ -90,15 +100,7 @@ pop <-
   left_join(sight) %>%
   mutate(area = ordered(area,levels=c('EC','WG','EG','WI','EG+WI','EI/F','N','SP')),
          type = plyr::revalue(trialtype, 
-                       c('A'='Pro rate abundance','B'='Baseline','C'='CPUE',
-                         'F'='C2 to EG in 1985 - 2025 (opt. b)',
-                         'G'='C2 to EG in 1985 (opt. a)',
-                         'H'='High historical catch series',
-                         'T'='Tag loss 20% yr 1, 10%/yr thereafter',
-                         'J'='g(0) = 0.8',
-                         'U'='Dome shaped selectivity',
-                         'Y'='8 year future survey interval',
-                         'D'='Upper bound on dispersal')))
+                              type.key))
 
 
 pop.fem <- 
@@ -126,13 +128,7 @@ wi_tag <-
          msyr = as.character(msyr/100),
          trialtype = gsub('..-([A-Z]).+','\\1',ref),
          type = plyr::revalue(trialtype, 
-                              c('A'='Pro rate abundance','B'='Baseline','C'='CPUE',
-                                'F'='C2 to EG in 1985 - 2025 (opt. b)',
-                                'G'='C2 to EG in 1985 (opt. a)',
-                                'H'='High historical catch series',
-                                'T'='Tag loss 20% yr 1, 10%/yr thereafter',
-                                'J'='g(0) = 0.8',
-                                'U'='Dome shaped selectivity'))) %>%
+                              type.key)) %>%
   group_by(ref,rela,area) %>%
   arrange(year) %>%
   mutate(prd1 = cumsum(prd),
@@ -252,13 +248,7 @@ age <-
          msyr = as.character(msyr/100),
          trialtype = gsub('..-([A-Z]).+','\\1',ref),
          type = plyr::revalue(trialtype, 
-                              c('A'='Pro rate abundance','B'='Baseline','C'='CPUE',
-                                'F'='C2 to EG in 1985 - 2025 (opt. b)',
-                                'G'='C2 to EG in 1985 (opt. a)',
-                                'H'='High historical catch series',
-                                'T'='Tag loss 20% yr 1, 10%/yr thereafter',
-                                'J'='g(0) = 0.8',
-                                'U'='Dome shaped selectivity'))) %>%
+                              type.key)) %>%
 #  left_join(age.dat) %>%
 #  rename(prd= num) %>%
   group_by(ref,year,sex) %>%
@@ -470,32 +460,32 @@ tmp <-
   filter(constant == 'disp1',trial=='NF-B1-1',value>0.2)  %>% 
   select(trial = ref) %>% 
   collect(n=Inf)
-
-
-pdf(file=sprintf('%s/cpue.pdf',figs),width=11,height = 8)
-print(
-  tbl(db,'naf_cpe') %>% 
-    collect() %>% 
-    ggplot(aes(year,obs,lty=ref)) + geom_point() + geom_line(aes(y=prd)) +
-    facet_wrap(~series,scale='free') + 
-    theme_minimal() + theme(legend.position ='none') +
-    ylab('CPUE') + xlab('Year') +
-    ggtitle('Fit to CPUE series')
-)
-dev.off()
-
-
-pdf(file=sprintf('%s/cpue.xy.pdf',figs),width=11,height = 8)
-print(
-  tbl(db,'naf_cpe') %>% 
-    collect() %>% 
-    ggplot(aes(prd,obs,col=ref)) + geom_text(aes(label=year)) + geom_abline(slope=1,intercept=0) +
-    facet_wrap(~series,scale='free') + 
-    theme_minimal() + #theme(legend.position ='none') +
-    ylab('CPUE') + xlab('Year') +
-    ggtitle('Fit to CPUE series')
-)
-dev.off()
+# 
+# 
+# pdf(file=sprintf('%s/cpue.pdf',figs),width=11,height = 8)
+# print(
+#   tbl(db,'naf_cpe') %>% 
+#     collect() %>% 
+#     ggplot(aes(year,obs,lty=ref)) + geom_point() + geom_line(aes(y=prd)) +
+#     facet_wrap(~series,scale='free') + 
+#     theme_minimal() + theme(legend.position ='none') +
+#     ylab('CPUE') + xlab('Year') +
+#     ggtitle('Fit to CPUE series')
+# )
+# dev.off()
+# 
+# 
+# pdf(file=sprintf('%s/cpue.xy.pdf',figs),width=11,height = 8)
+# print(
+#   tbl(db,'naf_cpe') %>% 
+#     collect() %>% 
+#     ggplot(aes(prd,obs,col=ref)) + geom_text(aes(label=year)) + geom_abline(slope=1,intercept=0) +
+#     facet_wrap(~series,scale='free') + 
+#     theme_minimal() + #theme(legend.position ='none') +
+#     ylab('CPUE') + xlab('Year') +
+#     ggtitle('Fit to CPUE series')
+# )
+# dev.off()
 
 
 
@@ -545,29 +535,43 @@ res.by.year <-
          msyr = as.character(msyr/100),
          trialtype = gsub('..-([A-Z]).+','\\1',ref),
          type = plyr::revalue(trialtype, 
-                              c('A'='Pro rate abundance','B'='Baseline','C'='CPUE',
-                                'F'='C2 to EG in 1985 - 2025 (opt. b)',
-                                'G'='C2 to EG in 1985 (opt. a)',
-                                'H'='High historical catch series',
-                                'T'='Tag loss 20% yr 1, 10%/yr thereafter',
-                                'J'='g(0) = 0.8'))) %>%
+                             type.key)) %>%
   rename(area=pop_id) %>%
   left_join(sight) %>%
   mutate(area = ordered(area,levels=c('EC','WG','EG','WI','EG+WI','EI/F','N','SP')))
+
+
+res.by.year.pop <- 
+  tbl(db_res,'naf_resbyyear') %>% 
+  collect(n=Inf) %>% 
+  filter(pop_type != 'area') %>%
+  collect(n=Inf) %>%
+  mutate(msyr = as.numeric(gsub('..-..-([0-9])','\\1',ref)),
+         hypo = gsub('..-.([0-9]).+','\\1',ref),
+         msyr = as.character(msyr/100),
+         trialtype = gsub('..-([A-Z]).+','\\1',ref),
+         type = plyr::revalue(trialtype, 
+                              type.key)) %>%
+  rename(stock=pop_id) %>%
+  mutate(area = ordered(stock,levels=c('W','C1','C2','C3','E','S'))) 
+  
 
 
 for(ref1 in unique(res.by.year$ref)){
   pdf(file=sprintf('%s/%s.res.pdf',figs,ref1),width=7,height = 8)
   print(res.by.year %>% 
           filter(ref==ref1) %>% 
-          ggplot(aes(year,abundance_med,lty=variant,fill=variant)) + 
-          geom_ribbon(aes(year,ymax=abundance_upper,ymin=abundance_lower),alpha=0.5) + 
+          ggplot(aes(year,abundance_med,lty=variant)) +
+          geom_line(aes(y=abundance_upper)) +
+          geom_line(aes(y=abundance_lower)) +
+          geom_line() +
+          #geom_ribbon(aes(year,ymax=abundance_upper,ymin=abundance_lower),alpha=0) + 
           geom_line() + 
           facet_wrap(~area,scale='free_y',ncol=2) +
           geom_point(aes(year,obs),col='black') + 
           geom_errorbar(aes(year,ymax=upper,ymin=lower),col='black') + 
           theme_bw() + ylab('1+ population') + xlab('Year') +
-          geom_text(aes(label=area),x=1960,y=Inf, vjust = 2,hjust = 1) +
+          geom_text(aes(label=area),x=2080,y=-Inf, vjust = -1,hjust = 1) +
           theme(axis.text.y=element_text(angle = 90,hjust = 0.5,size=8),
                 axis.text.x=element_text(size = 7),
                 #legend.position = 'none',#c(0.7,0.2),
@@ -586,18 +590,18 @@ for(ref1 in unique(res.by.year$ref)){
 
 
 
-for(ref1 in unique(res.by.year$ref)){
+for(ref1 in unique(res.by.year.pop$ref)){
   pdf(file=sprintf('%s/%s.res.pop.pdf',figs,ref1),width=7,height = 8)
-  print(res.by.year %>% 
-          filter(ref==ref1) %>% 
-          ggplot(aes(year,abundance_med,lty=variant,fill=variant)) + 
-          geom_ribbon(aes(year,ymax=abundance_upper,ymin=abundance_lower),alpha=0.2) + 
+  print(res.by.year.pop %>% 
+          filter(ref==ref1,year>1995) %>% 
+          ggplot(aes(year,dpl_med,lty=variant)) + 
+          #geom_ribbon(aes(year,ymax=abundance_upper,ymin=abundance_lower),alpha=0.2) + 
+          geom_line(aes(y=dpl_upper),col='gray') +
+          geom_line(aes(y=dpl_lower),col='gray') +
           geom_line() + 
-          facet_wrap(~area,scale='free_y',ncol=2) +
-          geom_point(aes(year,obs),col='black') + 
-          geom_errorbar(aes(year,ymax=upper,ymin=lower),col='black') + 
-          theme_bw() + ylab('1+ population') + xlab('Year') +
-          geom_text(aes(label=area),x=1960,y=Inf, vjust = 2,hjust = 1) +
+          facet_wrap(~stock,scale='free_y',ncol=2) +
+          theme_bw() + ylab('Depletion') + xlab('Year') +
+          geom_text(aes(label=area),x=2000,y=Inf, vjust = 2,hjust = 1) +
           theme(axis.text.y=element_text(angle = 90,hjust = 0.5,size=8),
                 axis.text.x=element_text(size = 7),
                 #legend.position = 'none',#c(0.7,0.2),
@@ -608,40 +612,44 @@ for(ref1 in unique(res.by.year$ref)){
           scale_x_continuous(breaks = seq(1860,2115,by=20),
                              minor_breaks = seq(1860,2115,by=5))+
           expand_limits(y = 0)+
-          #scale_fill_manual(values = c( "darkred", "darkgreen"))+
-          #scale_fill_hue(l=40)+
+
           ggtitle(ref1))
   dev.off()
 }
 
 
 for(ref1 in unique(res.by.year$ref)){
-  pdf(file=sprintf('%s/%s.res.catbyar.pdf',figs,ref1),width=7,height = 8)
-  print(res.by.year %>% 
-          filter(ref==ref1) %>% 
-          ggplot(aes(year,catch_med,lty=variant,fill=variant)) + 
-          geom_ribbon(aes(year,ymax=catch_upper,ymin=catch_lower),alpha=0.2) + 
-          geom_line() + 
-          facet_wrap(~area,scale='free_y',ncol=2) +
-#          geom_point(aes(year,obs),col='black') + 
-#          geom_errorbar(aes(year,ymax=upper,ymin=lower),col='black') + 
-          theme_bw() + ylab('1+ population') + xlab('Year') +
-          geom_text(aes(label=area),x=1960,y=Inf, vjust = 2,hjust = 1) +
-          theme(axis.text.y=element_text(angle = 90,hjust = 0.5,size=8),
-                axis.text.x=element_text(size = 7),
-                #legend.position = 'none',#c(0.7,0.2),
-                panel.margin = unit(0.2,'cm'),
-                plot.margin = unit(c(0.2,0.2,0.2,0.2),'cm'),
-                strip.background = element_blank(),
-                strip.text.x = element_blank())+
-          scale_x_continuous(breaks = seq(1860,2115,by=20),
-                             minor_breaks = seq(1860,2115,by=5))+
-          expand_limits(y = 0)+
-          #scale_fill_manual(values = c( "darkred", "darkgreen"))+
-          #scale_fill_hue(l=40)+
-          ggtitle(ref1))
-  dev.off()
-}
+  for(var1 in unique(res.by.year$variant)){
+    pdf(file=sprintf('%s/%s.res.catbyar.pdf',figs,ref1),width=7,height = 8)
+    print(res.by.year %>% 
+            filter(ref==ref1,year>1930,variant == var1,
+                   area %in% c('WI','EI/F')) %>% 
+            ggplot(aes(year,catch_med)) + 
+            #          geom_ribbon(aes(year,ymax=catch_upper,ymin=catch_lower),alpha=0.2) + 
+            geom_line(aes(y=catch_upper),col='gray') +
+            geom_line(aes(y=catch_lower),col='gray') +
+            geom_line() + 
+            facet_wrap(~area,scale='free_y',ncol=1) +
+            #          geom_point(aes(year,obs),col='black') + 
+            #          geom_errorbar(aes(year,ymax=upper,ymin=lower),col='black') + 
+            theme_bw() + ylab('1+ population') + xlab('Year') +
+            geom_text(aes(label=area),x=2100,y=Inf, vjust = 2,hjust = 1) +
+            theme(axis.text.y=element_text(angle = 90,hjust = 0.5,size=8),
+                  axis.text.x=element_text(size = 7),
+                  #legend.position = 'none',#c(0.7,0.2),
+                  panel.margin = unit(0.2,'cm'),
+                  plot.margin = unit(c(0.2,0.2,0.2,0.2),'cm'),
+                  strip.background = element_blank(),
+                  strip.text.x = element_blank())+
+            scale_x_continuous(breaks = seq(1860,2115,by=20),
+                               minor_breaks = seq(1860,2115,by=5))+
+            expand_limits(y = 0)+
+            #scale_fill_manual(values = c( "darkred", "darkgreen"))+
+            #scale_fill_hue(l=40)+
+            ggtitle(sprintf('%s - variant %s',ref1,var1)))
+          dev.off()
+  }
+  }
 
 
 thresh <- 
@@ -658,12 +666,7 @@ res.by.year.fem <-
          msyr = as.character(msyr/100),
          trialtype = gsub('..-([A-Z]).+','\\1',ref),
          type = plyr::revalue(trialtype, 
-                              c('A'='Pro rate abundance','B'='Baseline','C'='CPUE',
-                                'F'='C2 to EG in 1985 - 2025 (opt. b)',
-                                'G'='C2 to EG in 1985 (opt. a)',
-                                'H'='High historical catch series',
-                                'T'='Tag loss 20% yr 1, 10%/yr thereafter',
-                                'J'='g(0) = 0.8'))) %>%
+                              type.key)) %>%
   rename(pop=pop_id) %>%
   mutate(pop = ordered(pop,levels=c('W','C1','C2','C3','E','S')))
 
@@ -734,12 +737,16 @@ for(ref1 in unique(trial_stat$pop.res$ref)){
       ungroup() %>% 
       mutate(variant=as.numeric(gsub('V','',variant))) %>% 
       filter(ref==ref1) %>% 
-      ggplot(aes(variant,dpl)) + geom_point() + facet_wrap(~pop_id) + 
+      ggplot(aes(variant,dpl)) + 
+      geom_rect(aes(ymax=dplfin_60),xmin=-Inf,xmax=Inf,ymin=-Inf,
+                fill = 'gray70') +
+      geom_hline(aes(yintercept=dplfin_72)) +
+      geom_point() + facet_wrap(~pop_id) + 
       theme_minimal() + 
-      geom_line(aes(variant,dplfin_60)) +
-      geom_line(aes(variant,dplfin_72),lty=2) +
       expand_limits(y = 0) + 
-      ggtitle(sprintf('%s final dpl',ref1))
+      ggtitle(sprintf('%s final depletion',ref1)) + 
+      ylab('Final depleption') + xlab('Variant') + 
+      scale_x_continuous(breaks=0:7)
   )
   dev.off()
 }
@@ -747,17 +754,20 @@ for(ref1 in unique(trial_stat$pop.res$ref)){
 for(ref1 in unique(trial_stat$pop.res$ref)){
   pdf(file=sprintf('%s/greg.%s.min.pdf',figs,ref1),width=7,height = 8)
   print( 
-    
     trial_stat$pop.res %>% 
       ungroup() %>% 
       mutate(variant=as.numeric(gsub('V','',variant))) %>% 
       filter(ref==ref1) %>% 
-      ggplot(aes(variant,pmin)) + geom_point() + facet_wrap(~pop_id) + 
+      ggplot(aes(variant,pmin)) + 
+      geom_rect(aes(ymax=dplmin_60),xmin=-Inf,xmax=Inf,ymin=-Inf,
+                fill = 'gray70') +
+      geom_hline(aes(yintercept=dplmin_72)) +
+      geom_point() + facet_wrap(~pop_id) + 
       theme_minimal() + 
-      geom_line(aes(variant,dplmin_60)) +
-      geom_line(aes(variant,dplmin_72),lty=2) +
       expand_limits(y = 0) + 
-      ggtitle(sprintf('%s minimum dpl',ref1))
+      ggtitle(sprintf('%s minimum depletion',ref1)) + 
+      ylab('Minimum depleption') + xlab('Variant') + 
+      scale_x_continuous(breaks=0:7)
   )
   dev.off()
 }
