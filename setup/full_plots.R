@@ -620,7 +620,7 @@ for(ref1 in unique(res.by.year.pop$ref)){
 
 for(ref1 in unique(res.by.year$ref)){
   for(var1 in unique(res.by.year$variant)){
-    pdf(file=sprintf('%s/%s.res.catbyar.pdf',figs,ref1),width=7,height = 8)
+    pdf(file=sprintf('%s/%s.%s.res.catbyar.pdf',figs,ref1,var1),width=7,height = 8)
     print(res.by.year %>% 
             filter(ref==ref1,year>1930,variant == var1,
                    area %in% c('WI','EI/F')) %>% 
@@ -647,9 +647,9 @@ for(ref1 in unique(res.by.year$ref)){
             #scale_fill_manual(values = c( "darkred", "darkgreen"))+
             #scale_fill_hue(l=40)+
             ggtitle(sprintf('%s - variant %s',ref1,var1)))
-          dev.off()
+    dev.off()
   }
-  }
+}
 
 
 thresh <- 
@@ -676,8 +676,10 @@ for(ref1 in unique(res.by.year$ref)){
   pdf(file=sprintf('%s/%s.res.fem.pdf',figs,ref1),width=7,height = 8)
   print(res.by.year.fem %>% 
           filter(ref==ref1) %>% 
-          ggplot(aes(year,abundance_med,lty=variant,fill=variant)) + 
-          geom_ribbon(aes(year,ymax=abundance_upper,ymin=abundance_lower),alpha=0.5) + 
+          ggplot(aes(year,abundance_med,lty=variant)) +
+          geom_line(aes(y=abundance_upper),col='gray') +
+          geom_line(aes(y=abundance_lower),col='gray') +
+          #geom_ribbon(aes(year,ymax=abundance_upper,ymin=abundance_lower),alpha=0.5) + 
           geom_line() + 
           facet_wrap(~pop,scale='free_y',ncol=2) +
           theme_bw() + ylab('1+ population') + xlab('Year') +
@@ -689,8 +691,8 @@ for(ref1 in unique(res.by.year$ref)){
                 plot.margin = unit(c(0.2,0.2,0.2,0.2),'cm'),
                 strip.background = element_blank(),
                 strip.text.x = element_blank())+
-          scale_x_continuous(breaks = seq(1860,2115,by=20),
-                             minor_breaks = seq(1860,2115,by=5))+
+          scale_x_continuous(breaks = seq(1860,2115,by=50),
+                             minor_breaks = seq(1860,2115,by=25))+
           expand_limits(y = 0)+
           #scale_fill_manual(values = c( "darkred", "darkgreen"))+
           #scale_fill_hue(l=40)+
