@@ -360,7 +360,7 @@ NafSetup <- function(dir = 'trials',hypos=c(1,2,3,5,6)){
   }
   
   ## NF-D trials put a lower upper bound on dispersion
-  for(hypo in c(2,3)){
+  for(hypo in c(1,3)){
     for(msyr in c(0.01,0.04)){
       NafWrite(NafTrial(hypo = hypo, msyr = msyr,
                         trialtype='D',dispb=0.2),dir)
@@ -369,7 +369,7 @@ NafSetup <- function(dir = 'trials',hypos=c(1,2,3,5,6)){
   }
   
   ## NF-J assumes a gzero of 0.8
-  for(hypo in c(1,2)){
+  for(hypo in c(2,3)){
     for(msyr in c(0.01,0.04)){
       NafWrite(NafTrial(hypo = hypo, msyr = msyr,
                         trialtype='J', gzero = 0.8),dir)

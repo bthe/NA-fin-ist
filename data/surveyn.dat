@@ -1,7 +1,7 @@
 18         = NAB = no. of Historic Abundance Estimates
 2015       = I2SYR  = YEAR OF FIRST GENERATED SURVEY
 IYR  K=TARA CONEST   TARVAR    SIGHT  CVCSLA    ProRated TTYPE  Area  CONEST= abundance for conditioning (baseline);
-2007    1   10105    0.4       10105   0.4       10105     1     EC   SIGHT = estimate for use by CLC.
+2003    1   10105    0.4       10105   0.4       10105     1     EC   SIGHT = estimate for use by CLC.
 1987    2    1096    0.532      1096   0.35       1096     1     WG   Prorated = Alternative for conditioning (Used if OPTSGT=1)
 2005    2    3234    0.595      3234   0.44       3234     1     WG   TTYPE = -2 and -3: combine these for Hyp 7 & 8
 2007    2    4359    0.602      4359   0.45       4359     1     WG

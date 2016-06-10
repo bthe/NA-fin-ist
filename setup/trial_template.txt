@@ -1,4 +1,4 @@
-{{ref|test}}   Baseline   {{msyr|0.01}}-{{firstyr|1864}}-0
+{{ref|test}}   Baseline   {{msyr|0.01}}-{{firstyr|1864}}
 
 NUMBER OF SUBSTOCKS           (NSTK)         {{nstk|6}}
 NUMBER OF TRIALS              (NTRIAL)       {{ntrial|100}}
