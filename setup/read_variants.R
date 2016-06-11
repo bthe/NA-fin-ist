@@ -153,8 +153,23 @@ NafReadVariants.restest <- function(file='NAF.restest'){
 }
 
 
-NafPerformance <- function(db_name='trials.db'){
-  db_res <- src_sqlite(db_name)
+NafPerformance <- function(db,db_res){
+  pop <- 
+    tbl(db,'naf_pop') %>% 
+    filter(pop_type =='Mature females', year %in% c(1865,2014)) %>% 
+    collect(n=Inf) %>% 
+    distinct(ref,year,trial,pop_type,pop_id,.keep_all=TRUE) %>% 
+    mutate(year = sprintf('x%s',year)) %>% 
+    spread(year,number) %>% 
+    #mutate(dpl=x2014/x1865)%>% 
+    mutate(dpl=pmin(x2014/x1865,0.99))%>% 
+    select(ref,trial,pop_id,dpl,msyr) %>% 
+    mutate(pop_id = ordered(pop_id, levels= c('W','C1','C2','C3','E','S'))) %>% 
+    group_by(ref,pop_id) %>% 
+    summarise(init_dpl_lower=quantile(dpl,0.05),
+              init_dpl_med=quantile(dpl,0.5),
+              inti_dpl_upper=quantile(dpl,0.95))
+  
   res <- tbl(db_res,'naf_res')
   res.by.variant <- 
     tbl(db_res,'naf_resbyvariant') %>% 
@@ -184,23 +199,25 @@ NafPerformance <- function(db_name='trials.db'){
     filter(pop_type =='pop') %>% 
     collect(n=Inf) %>%
     group_by(ref,variant,pop_id) %>%
-    summarise(dpl=quantile(final_dpl,0.05),
-              pmin=quantile(pmin,0.05)) %>% 
-    ungroup() %>% 
-    mutate(hypo = as.numeric(gsub('NF-.([0-9])-.','\\1',ref)),
-           type = gsub('NF-([A-Z]).-.','\\1',ref)) %>% 
-    left_join(thr) 
+    summarise(final_dpl_lower=quantile(final_dpl,0.05),
+              final_dpl_med=quantile(final_dpl,0.5),
+              final_dpl_upper=quantile(final_dpl,0.95),
+              pmin_lower=quantile(pmin,0.05),
+              pmin_med=quantile(pmin,0.5),
+              pmin_upper=quantile(pmin,0.95)) %>% 
+    left_join(pop) %>% 
+    left_join(thr) %>% 
+    mutate(uab_fin = ifelse(final_dpl_lower > dplfin_72,'A',
+                            ifelse(final_dpl_lower > dplfin_60,'B','U')),
+           uab_min = ifelse(pmin_lower > dplmin_72,'A',
+                            ifelse(pmin_lower > dplmin_60,'B','U')),
+           uab_xcomb = ifelse(uab_fin == 'A' | uab_min == 'A','A',
+                              ifelse(uab_fin == 'B' | uab_min == 'B','B','U')),
+           pop_id = ordered(pop_id,levels= c('W','C1','C2','C3','E','S')))
   
   
   uab_stat <- 
-    pop.res %>% 
-    mutate(uab_fin = ifelse(dpl > dplfin_72,'A',
-                            ifelse(dpl > dplfin_60,'B','U')),
-           uab_min = ifelse(pmin > dplmin_72,'A',
-                            ifelse(pmin > dplmin_60,'B','U')),
-           uab_xcomb = ifelse(uab_fin == 'A' | uab_min == 'A','A',
-                             ifelse(uab_fin == 'B' | uab_min == 'B','B','U')),
-           pop_id = ordered(pop_id,levels= c('W','C1','C2','C3','E','S'))) %>% 
+    pop.res  %>% 
     gather(uab_stat,uab,uab_fin:uab_xcomb) %>%
     arrange(pop_id) %>% 
     group_by(ref,variant,uab_stat) %>% 
@@ -213,26 +230,26 @@ NafPerformance <- function(db_name='trials.db'){
     res.by.variant %>% 
     left_join(uab_stat)
     
-  area.res <- 
-    res %>% 
-    filter(pop_type =='area') %>% 
-    collect(n=Inf) %>% 
-    group_by(ref,variant,trial) %>%
-    ## calculate catch statistics (- aboriginal catches)
-    summarise(cf10 = sum(cf10)-19,
-              cl10 = sum(cl10)-19,
-              total_catch = sum(total_catch)-1900,
-              avg_catch = sum(avg_catch)-19) %>% 
-    ungroup() %>% 
-    group_by(ref,variant) %>% 
-    summarise(cf10 = median(cf10),
-              cl10 = median(cl10),
-              total_catch = median(total_catch),
-              avg_catch = median(avg_catch)) 
+#   area.res <- 
+#     res %>% 
+#     filter(pop_type =='area') %>% 
+#     collect(n=Inf) %>% 
+#     group_by(ref,variant,trial) %>%
+#     ## calculate catch statistics (- aboriginal catches)
+#     summarise(cf10 = sum(cf10)-19,
+#               cl10 = sum(cl10)-19,
+#               total_catch = sum(total_catch)-1900,
+#               avg_catch = sum(avg_catch)-19) %>% 
+#     ungroup() %>% 
+#     group_by(ref,variant) %>% 
+#     summarise(cf10 = median(cf10),
+#               cl10 = median(cl10),
+#               total_catch = median(total_catch),
+#               avg_catch = median(avg_catch)) 
   
   final_res <- 
     full_join(area.res,uab_stat) %>% 
     arrange(ref,variant)
-  return(list(final_res=final_res,pop.res=pop.res,uab_stat=uab_stat))
+  return(list(final_res=uab_stat,pop.res=pop.res))
     
 }

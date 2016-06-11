@@ -76,7 +76,7 @@ res <- bind_rows(res0,res1,res3,res4,res5,res6,res7)
 
 ## performance plots for MSYR_1+=1%
 
-trial_stat <- NafPerformance('Full_run_res.db')
+trial_stat <- NafPerformance(db,db_res)
 
 pdf(file=sprintf('%s/performance.pdf',figs),width=7,height = 8)
 

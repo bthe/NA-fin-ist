@@ -1,5 +1,5 @@
 ---
-output: html_document
+output: pdf_document
 ---
 # NA-fin-ist
 Informal code repository for North Atlantic fin whale simulation trials
