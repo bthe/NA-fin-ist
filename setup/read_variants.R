@@ -248,7 +248,8 @@ NafPerformance <- function(db,db_res){
 #               avg_catch = median(avg_catch)) 
   
   final_res <- 
-    full_join(area.res,uab_stat) %>% 
+    uab_stat %>% 
+#    full_join(area.res,uab_stat) %>% 
     arrange(ref,variant)
   return(list(final_res=uab_stat,pop.res=pop.res))
     

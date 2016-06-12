@@ -88,7 +88,7 @@ for(ref1 in unique(trial_stat$pop.res$ref)){
       ungroup() %>% 
       mutate(variant=as.numeric(gsub('V','',variant))) %>% 
       filter(ref==ref1) %>% 
-      ggplot(aes(variant,dpl)) + 
+      ggplot(aes(variant,final_dpl_lower)) + 
       geom_rect(aes(ymax=dplfin_60),xmin=-Inf,xmax=Inf,ymin=-Inf,
                 fill = 'gray70') +
       geom_hline(aes(yintercept=dplfin_72)) +
@@ -103,7 +103,7 @@ for(ref1 in unique(trial_stat$pop.res$ref)){
       ungroup() %>% 
       mutate(variant=as.numeric(gsub('V','',variant))) %>% 
       filter(ref==ref1) %>% 
-      ggplot(aes(variant,pmin)) + 
+      ggplot(aes(variant,pmin_lower)) + 
       geom_rect(aes(ymax=dplmin_60),xmin=-Inf,xmax=Inf,ymin=-Inf,
                 fill = 'gray70') +
       geom_hline(aes(yintercept=dplmin_72)) +
