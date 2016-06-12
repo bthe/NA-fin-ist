@@ -383,6 +383,4 @@ for(var1 in unique(res$variant)){
 
 
 
-}
-
   
