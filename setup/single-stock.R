@@ -35,7 +35,9 @@ ManSetup <- function(db_name='druna.db',dir='outn',
   tmp_fuse <- function(x){
     for(st in 1:x$num.stocks){ 
       infuse(template_file,dplfile=sprintf('%s.dpl',x$ref),dplcol=st,
-             msyr1=0.01*x$msyr,optf=ifelse(x$msyr==1,1,2)) %>% 
+             msyr1=0.01*x$msyr,optf=ifelse(x$msyr==1,1,2),
+             ifreq=ifelse(grepl('NF-Y',x$ref),8,5),
+             bias0=ifelse(grepl('NF-J',x$ref),0.8,1.0)) %>% 
         write(file=sprintf('%s/%s-%s.ss',dir,x$ref,st))
     }
   }
