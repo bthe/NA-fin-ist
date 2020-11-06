@@ -27,7 +27,7 @@ Assuming you have gfortran installed one simply has to navigate to the git direc
 
 > make
 
-and to intall (assuming you are on linux/unix platforms):
+and to install (assuming you are on linux/unix platforms):
 
 > mv naf-ist ~/bin
 
